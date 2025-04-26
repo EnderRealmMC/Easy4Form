@@ -1,0 +1,7 @@
+name: easy4form
+version: '1.0-SNAPSHOT'
+main: cn.enderrealm.easy4form.Easy4form
+api-version: '1.18'
+depend: [floodgate]
+description: A simplified Form API for Floodgate
+authors: [EnderRealm]
