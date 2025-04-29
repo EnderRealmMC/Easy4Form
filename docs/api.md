@@ -110,9 +110,9 @@ public void showServerSelector(Player player) {
 new SimpleFormBuilder()
     .title("Title")
     .content("Content")
-    .button("Button 1")
-    .button("Button 2")
-    .button("Button 3")
+    .button("Button 1")                                     // Button without image
+    .button("Button 2", "textures/items/diamond")          // Button with resource pack image
+    .buttonWithUrl("Button 3", "https://example.com/image.png") // Button with URL image
     .responseHandler(response -> {
         if (response != null) {
             player.sendMessage("You clicked button: " + response);
@@ -120,6 +120,11 @@ new SimpleFormBuilder()
     })
     .send(player);
 ```
+
+**Button Methods:**
+- `button(String text)` - Add a regular button without an image
+- `button(String text, String imagePath)` - Add a button with a resource pack image, using Minecraft resource pack path format
+- `buttonWithUrl(String text, String imageUrl)` - Add a button with a URL image, using a web image URL
 
 **Example: Shop Categories**
 ```java

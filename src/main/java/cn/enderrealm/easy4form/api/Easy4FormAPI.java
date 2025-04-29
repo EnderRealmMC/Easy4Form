@@ -61,24 +61,90 @@ public class Easy4FormAPI {
      * @param player The player to send the form to / 接收表单的玩家
      * @param title The title of the form / 表单标题
      * @param content The content of the form / 表单内容
-     * @param buttons A list of button texts / 按钮文本列表
-     * @param responseHandler A consumer that handles the response / 处理响应的消费者函数
+     * @param buttons The buttons to display / 要显示的按钮
+     * @param responseHandler The response handler / 响应处理器
      */
     public static void sendSimpleForm(Player player, String title, String content, List<String> buttons, Consumer<Integer> responseHandler) {
-        if (!isBedrockPlayer(player)) {
+        if (!PlayerUtils.isBedrockPlayer(player)) {
             return;
         }
-        
+
         SimpleFormBuilder builder = new SimpleFormBuilder()
                 .title(title)
-                .content(content);
-                
+                .content(content)
+                .responseHandler(responseHandler);
+
         for (String button : buttons) {
             builder.button(button);
         }
+
+        builder.send(player);
+    }
+    
+    /**
+     * Send a simple form with image buttons to a player
+     * <p>
+     * 向玩家发送带图片按钮的简单表单
+     *
+     * @param player The player to send the form to / 接收表单的玩家
+     * @param title The title of the form / 表单标题
+     * @param content The content of the form / 表单内容
+     * @param buttonTexts The button texts / 按钮文本
+     * @param buttonImages The button images (resource pack paths) / 按钮图片（资源包路径）
+     * @param responseHandler The response handler / 响应处理器
+     */
+    public static void sendSimpleFormWithImages(Player player, String title, String content, List<String> buttonTexts, List<String> buttonImages, Consumer<Integer> responseHandler) {
+        if (!PlayerUtils.isBedrockPlayer(player)) {
+            return;
+        }
         
-        builder.responseHandler(responseHandler)
-               .send(player);
+        if (buttonTexts.size() != buttonImages.size()) {
+            throw new IllegalArgumentException("Button texts and images must have the same size");
+        }
+
+        SimpleFormBuilder builder = new SimpleFormBuilder()
+                .title(title)
+                .content(content)
+                .responseHandler(responseHandler);
+
+        for (int i = 0; i < buttonTexts.size(); i++) {
+            builder.button(buttonTexts.get(i), buttonImages.get(i));
+        }
+
+        builder.send(player);
+    }
+    
+    /**
+     * Send a simple form with URL image buttons to a player
+     * <p>
+     * 向玩家发送带URL图片按钮的简单表单
+     *
+     * @param player The player to send the form to / 接收表单的玩家
+     * @param title The title of the form / 表单标题
+     * @param content The content of the form / 表单内容
+     * @param buttonTexts The button texts / 按钮文本
+     * @param buttonImageUrls The button image URLs / 按钮图片URL
+     * @param responseHandler The response handler / 响应处理器
+     */
+    public static void sendSimpleFormWithUrlImages(Player player, String title, String content, List<String> buttonTexts, List<String> buttonImageUrls, Consumer<Integer> responseHandler) {
+        if (!PlayerUtils.isBedrockPlayer(player)) {
+            return;
+        }
+        
+        if (buttonTexts.size() != buttonImageUrls.size()) {
+            throw new IllegalArgumentException("Button texts and image URLs must have the same size");
+        }
+
+        SimpleFormBuilder builder = new SimpleFormBuilder()
+                .title(title)
+                .content(content)
+                .responseHandler(responseHandler);
+
+        for (int i = 0; i < buttonTexts.size(); i++) {
+            builder.buttonWithUrl(buttonTexts.get(i), buttonImageUrls.get(i));
+        }
+
+        builder.send(player);
     }
 
     /**

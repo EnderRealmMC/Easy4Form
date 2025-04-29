@@ -110,9 +110,9 @@ public void showServerSelector(Player player) {
 new SimpleFormBuilder()
     .title("标题")
     .content("内容")
-    .button("按钮1")
-    .button("按钮2")
-    .button("按钮3")
+    .button("按钮1")                                        // 无图标按钮
+    .button("按钮2", "textures/items/diamond")             // 资源包图标按钮
+    .buttonWithUrl("按钮3", "https://example.com/image.png") // URL图标按钮
     .responseHandler(response -> {
         if (response != null) {
             player.sendMessage("你点击了按钮：" + response);
@@ -120,6 +120,11 @@ new SimpleFormBuilder()
     })
     .send(player);
 ```
+
+**按钮方法说明：**
+- `button(String text)` - 添加无图标的普通按钮
+- `button(String text, String imagePath)` - 添加带资源包图标的按钮，图标路径使用Minecraft资源包路径格式
+- `buttonWithUrl(String text, String imageUrl)` - 添加带URL图标的按钮，图标使用网络图片URL
 
 **示例：商店分类**
 ```java
@@ -130,11 +135,11 @@ public void showShopCategories(Player player) {
     new SimpleFormBuilder()
         .title("商店")
         .content("选择一个分类：")
-        .button("武器")
-        .button("盔甲")
-        .button("工具")
-        .button("食物")
-        .button("杂项")
+        .button("武器", "textures/items/diamond_sword")      // 带资源包图标的按钮
+        .button("盔甲", "textures/items/diamond_chestplate") // 带资源包图标的按钮
+        .button("工具", "textures/items/diamond_pickaxe")   // 带资源包图标的按钮
+        .button("食物", "textures/items/apple")            // 带资源包图标的按钮
+        .button("杂项")                                    // 无图标按钮
         .responseHandler(response -> {
             if (response == null) {
                 return; // 表单被关闭
@@ -159,6 +164,34 @@ public void showShopCategories(Player player) {
             }
         })
         .send(player);
+}
+
+/**
+ * 使用Easy4FormAPI发送带图标的简单表单示例
+ */
+public void showServerSelector(Player player) {
+    List<String> servers = Arrays.asList("生存服", "创造服", "小游戏", "空岛");
+    List<String> images = Arrays.asList(
+        "textures/blocks/grass_side",
+        "textures/blocks/command_block",
+        "textures/items/diamond",
+        "textures/blocks/end_stone"
+    );
+    
+    Easy4FormAPI.sendSimpleFormWithImages(
+        player,
+        "服务器选择器",
+        "选择要连接的服务器：",
+        servers,
+        images,
+        response -> {
+            if (response != null) {
+                String server = servers.get(response);
+                player.sendMessage("正在连接到" + server + "...");
+                // 连接玩家到选定服务器的代码
+            }
+        }
+    );
 }
 ```
 

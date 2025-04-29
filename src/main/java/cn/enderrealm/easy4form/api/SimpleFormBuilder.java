@@ -2,7 +2,9 @@ package cn.enderrealm.easy4form.api;
 
 import org.bukkit.entity.Player;
 import org.geysermc.cumulus.SimpleForm;
+import org.geysermc.cumulus.component.ButtonComponent;
 import org.geysermc.cumulus.response.SimpleFormResponse;
+import org.geysermc.cumulus.util.FormImage;
 import org.geysermc.floodgate.api.FloodgateApi;
 import org.geysermc.floodgate.api.player.FloodgatePlayer;
 
@@ -18,7 +20,7 @@ import java.util.function.Consumer;
 public class SimpleFormBuilder {
     private String title = "";
     private String content = "";
-    private final List<String> buttons = new ArrayList<>();
+    private final List<ButtonComponent> buttons = new ArrayList<>();
     private Consumer<Integer> responseHandler;
 
     /**
@@ -56,7 +58,35 @@ public class SimpleFormBuilder {
      * @return The builder instance / 构建器实例
      */
     public SimpleFormBuilder button(String text) {
-        buttons.add(text);
+        buttons.add(ButtonComponent.of(text));
+        return this;
+    }
+    
+    /**
+     * Add a button with an image to the form
+     * <p>
+     * 向表单添加带图片的按钮
+     *
+     * @param text The button text / 按钮文本
+     * @param imagePath The path to the image in the resource pack / 资源包中图片的路径
+     * @return The builder instance / 构建器实例
+     */
+    public SimpleFormBuilder button(String text, String imagePath) {
+        buttons.add(ButtonComponent.of(text, FormImage.of(FormImage.Type.PATH, imagePath)));
+        return this;
+    }
+    
+    /**
+     * Add a button with an image from URL to the form
+     * <p>
+     * 向表单添加带URL图片的按钮
+     *
+     * @param text The button text / 按钮文本
+     * @param imageUrl The URL of the image / 图片的URL
+     * @return The builder instance / 构建器实例
+     */
+    public SimpleFormBuilder buttonWithUrl(String text, String imageUrl) {
+        buttons.add(ButtonComponent.of(text, FormImage.of(FormImage.Type.URL, imageUrl)));
         return this;
     }
 
@@ -94,8 +124,13 @@ public class SimpleFormBuilder {
                 .title(title)
                 .content(content);
 
-        for (String button : buttons) {
-            formBuilder.button(button);
+        for (ButtonComponent button : buttons) {
+            // 从ButtonComponent中提取文本和图像，然后添加到SimpleForm.Builder中
+            if (button.image() != null) {
+                formBuilder.button(button.text(), button.image());
+            } else {
+                formBuilder.button(button.text());
+            }
         }
 
         formBuilder.responseHandler((form, responseData) -> {
