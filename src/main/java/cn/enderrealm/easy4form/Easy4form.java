@@ -1,5 +1,6 @@
 package cn.enderrealm.easy4form;
 
+import cn.enderrealm.easy4form.api.Easy4FormAPI;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
@@ -26,7 +27,7 @@ public final class Easy4form extends JavaPlugin {
     public void onEnable() {
         // Set instance
         instance = this;
-        
+
         // Save default config
         saveDefaultConfig();
         
@@ -63,4 +64,5 @@ public final class Easy4form extends JavaPlugin {
         getLogger().info("Easy4Form has been disabled.");
         instance = null;
     }
+
 }

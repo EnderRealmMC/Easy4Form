@@ -1,5 +1,6 @@
 package cn.enderrealm.easy4form.api;
 
+import cn.enderrealm.easy4form.Easy4form;
 import org.bukkit.entity.Player;
 import org.geysermc.floodgate.api.player.FloodgatePlayer;
 
@@ -14,6 +15,10 @@ import java.util.function.Consumer;
  * Easy4Form API - 基于Floodgate的简化Form接口
  */
 public class Easy4FormAPI {
+
+    private static Easy4form getPlugin() {
+        return Easy4form.getInstance();
+    }
 
     /**
      * Check if a player is a Bedrock player
