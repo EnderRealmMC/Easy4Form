@@ -17,7 +17,7 @@ Easy4Form是一个Bukkit/Spigot插件，提供了一个简化的接口，用于�
 
 ## 安装
 
-1. 从[发布页面](https://github.com/enderrealm/easy4form/releases)下载最新版本的Easy4Form
+1. 从[发布页面](https://cnb.cool/EnderRealm/public/Easy4Form/-/releases)下载最新版本的Easy4Form
 2. 将JAR文件放入服务器的`plugins`文件夹中
 3. 重启服务器
 
@@ -113,4 +113,8 @@ form.input("name", "名称", "输入您的名称", player.getName())
 
 - [Floodgate](https://github.com/GeyserMC/Floodgate) - 提供与基岩版玩家交互的API
 - [Cumulus](https://github.com/GeyserMC/Cumulus) - Floodgate使用的表单库
+
+## 支持
+
+如果您遇到任何问题或有疑问，请在GitHub上[提交问题](https://cnb.cool/EnderRealm/public/Easy4Form/-/issues)。
 

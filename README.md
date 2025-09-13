@@ -17,7 +17,7 @@ Easy4Form is a Bukkit/Spigot plugin that provides a simplified interface for cre
 
 ## Installation
 
-1. Download the latest version of Easy4Form from the [releases page](https://github.com/enderrealm/easy4form/releases)
+1. Download the latest version of Easy4Form from the [releases page](https://cnb.cool/EnderRealm/public/Easy4Form/-/releases)
 2. Place the JAR file in your server's `plugins` folder
 3. Restart your server
 
@@ -116,4 +116,4 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Support
 
-If you encounter any issues or have questions, please [open an issue](https://github.com/enderrealm/easy4form/issues) on GitHub.
+If you encounter any issues or have questions, please [open an issue](https://cnb.cool/EnderRealm/public/Easy4Form/-/issues) on GitHub.
