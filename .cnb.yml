@@ -1,0 +1,9 @@
+#WorkFlow
+master:
+  push:
+    - docker:
+        image: maven:3.9.6-amazoncorretto-21
+      stages:
+        - name: mvn package
+          script:
+            mvn clean deploy -s ./settings.xml

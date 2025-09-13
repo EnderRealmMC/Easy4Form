@@ -1,0 +1,25 @@
+<settings>
+  <servers>
+    <server>
+      <id>enderrealm-public/enderrealm-public-repo</id>
+      <username>cnb</username>
+      <!-- 与触发构建的用户权限一致 -->
+      <password>${env.CNB_TOKEN}</password>
+    </server>
+  </servers>
+  <profiles>
+    <profile>
+      <id>enderrealm-public/enderrealm-public-repo-profile</id>
+      <repositories>
+        <repository>
+          <!-- 须与 server 的 id 一致 -->
+          <id>enderrealm-public/enderrealm-public-repo</id>
+          <url>https://maven.cnb.cool/EnderRealm/public/enderrealm-public-repo/-/packages/</url>
+        </repository>
+      </repositories>
+      <activation>
+        <activeByDefault>true</activeByDefault>
+      </activation>
+    </profile>
+  </profiles>
+</settings>

@@ -17,9 +17,59 @@ Easy4Form是一个Bukkit/Spigot插件，提供了一个简化的接口，用于�
 
 ## 安装
 
-1. 从[发布页面](https://github.com/enderrealm/easy4form/releases)下载最新版本的Easy4Form
+1. 从[发布页面](https://cnb.cool/EnderRealm/public/Easy4Form/-/releases)下载最新版本的Easy4Form
 2. 将JAR文件放入服务器的`plugins`文件夹中
 3. 重启服务器
+
+## 使用方法（针对开发者）
+
+要在您的项目中使用Easy4Form作为依赖项，您可以使用Maven或Gradle导入：
+
+### Maven
+
+将以下仓库添加到您的`pom.xml`中：
+
+```xml
+<repositories>
+    <repository>
+        <id>enderrealm-public</id>
+        <url>https://maven.cnb.cool/EnderRealm/public/enderrealm-public-repo</url>
+    </repository>
+</repositories>
+```
+
+然后添加依赖项：
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>cn.enderrealm</groupId>
+        <artifactId>easy4form</artifactId>
+        <version>1.0.0</version>
+        <scope>provided</scope>
+    </dependency>
+</dependencies>
+```
+
+### Gradle
+
+将以下仓库添加到您的`build.gradle`中：
+
+```gradle
+repositories {
+    maven {
+        url 'https://maven.cnb.cool/EnderRealm/public/enderrealm-public-repo'
+    }
+}
+```
+
+然后添加依赖项：
+
+```gradle
+dependencies {
+    compileOnly 'cn.enderrealm:easy4form:1.0.0'
+}
+```
 
 ## 配置
 
@@ -113,4 +163,8 @@ form.input("name", "名称", "输入您的名称", player.getName())
 
 - [Floodgate](https://github.com/GeyserMC/Floodgate) - 提供与基岩版玩家交互的API
 - [Cumulus](https://github.com/GeyserMC/Cumulus) - Floodgate使用的表单库
+
+## 支持
+
+如果您遇到任何问题或有疑问，请在CNB上[提交问题](https://cnb.cool/EnderRealm/public/Easy4Form/-/issues)。
 
