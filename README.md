@@ -116,4 +116,4 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 ## Support
 
-If you encounter any issues or have questions, please [open an issue](https://cnb.cool/EnderRealm/public/Easy4Form/-/issues) on GitHub.
+If you encounter any issues or have questions, please [open an issue](https://cnb.cool/EnderRealm/public/Easy4Form/-/issues) on CNB.

@@ -1,0 +1,8 @@
+main:
+  push:
+    - docker:
+        image: maven:3.8.6-openjdk-21
+      stages:
+        - name: mvn package
+          script:
+            mvn clean deploy -s ./settings.xml

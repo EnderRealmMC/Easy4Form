@@ -116,5 +116,5 @@ form.input("name", "名称", "输入您的名称", player.getName())
 
 ## 支持
 
-如果您遇到任何问题或有疑问，请在GitHub上[提交问题](https://cnb.cool/EnderRealm/public/Easy4Form/-/issues)。
+如果您遇到任何问题或有疑问，请在CNB上[提交问题](https://cnb.cool/EnderRealm/public/Easy4Form/-/issues)。
 
