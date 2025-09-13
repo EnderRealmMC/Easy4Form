@@ -21,6 +21,56 @@ Easy4Form is a Bukkit/Spigot plugin that provides a simplified interface for cre
 2. Place the JAR file in your server's `plugins` folder
 3. Restart your server
 
+## Usage (For Developers)
+
+To use Easy4Form as a dependency in your project, you can import it using either Maven or Gradle:
+
+### Maven
+
+Add the following repository to your `pom.xml`:
+
+```xml
+<repositories>
+    <repository>
+        <id>enderrealm-public</id>
+        <url>https://maven.cnb.cool/EnderRealm/public/enderrealm-public-repo</url>
+    </repository>
+</repositories>
+```
+
+Then add the dependency:
+
+```xml
+<dependencies>
+    <dependency>
+        <groupId>cn.enderrealm</groupId>
+        <artifactId>easy4form</artifactId>
+        <version>1.0.0</version>
+        <scope>provided</scope>
+    </dependency>
+</dependencies>
+```
+
+### Gradle
+
+Add the following repository to your `build.gradle`:
+
+```gradle
+repositories {
+    maven {
+        url 'https://maven.cnb.cool/EnderRealm/public/enderrealm-public-repo'
+    }
+}
+```
+
+Then add the dependency:
+
+```gradle
+dependencies {
+    compileOnly 'cn.enderrealm:easy4form:1.0.0'
+}
+```
+
 ## Configuration
 
 Easy4Form now includes a configuration file (`config.yml`) with the following options:
