@@ -1,4 +1,8 @@
-# Easy4Form API Documentation
+# Easy4Form API Documentation v1
+
+**Language**: [English](api.md) | [中文](api_zh.md)
+
+**Back to**: [Main Page](../../README.md) | [主页](../../README_ZH.md)
 
 Easy4Form is a simplified Form API for Floodgate, making it easier to create and send forms to Bedrock players from your Java server.
 
@@ -22,6 +26,18 @@ Easy4Form provides a simplified interface for creating and sending forms to Bedr
 
 ### Check if a player is a Bedrock player
 
+**Method Signature:**
+```java
+public static boolean isBedrockPlayer(Player player)
+```
+
+**Parameters:**
+- `player` (Player) - The Bukkit player to check
+
+**Returns:**
+- `boolean` - `true` if the player is a Bedrock player, `false` otherwise
+
+**Usage:**
 ```java
 boolean isBedrockPlayer = Easy4FormAPI.isBedrockPlayer(player);
 ```
@@ -29,7 +45,7 @@ boolean isBedrockPlayer = Easy4FormAPI.isBedrockPlayer(player);
 **Example:**
 ```java
 import org.bukkit.entity.Player;
-import cn.enderrealm.easy4form.api.Easy4FormAPI;
+import cn.enderrealm.easy4form.apiv1.Easy4FormAPI;
 
 public void onPlayerJoin(Player player) {
     if (Easy4FormAPI.isBedrockPlayer(player)) {
@@ -42,6 +58,18 @@ public void onPlayerJoin(Player player) {
 
 ### Get the FloodgatePlayer instance
 
+**Method Signature:**
+```java
+public static FloodgatePlayer getFloodgatePlayer(Player player)
+```
+
+**Parameters:**
+- `player` (Player) - The Bukkit player to get FloodgatePlayer for
+
+**Returns:**
+- `FloodgatePlayer` - The FloodgatePlayer instance, or `null` if the player is not a Bedrock player
+
+**Usage:**
 ```java
 FloodgatePlayer floodgatePlayer = Easy4FormAPI.getFloodgatePlayer(player);
 ```
@@ -49,7 +77,7 @@ FloodgatePlayer floodgatePlayer = Easy4FormAPI.getFloodgatePlayer(player);
 **Example:**
 ```java
 import org.bukkit.entity.Player;
-import cn.enderrealm.easy4form.api.Easy4FormAPI;
+import cn.enderrealm.easy4form.apiv1.Easy4FormAPI;
 import org.geysermc.floodgate.api.player.FloodgatePlayer;
 
 public void getPlayerInfo(Player player) {
@@ -67,6 +95,19 @@ Simple forms consist of a title, content, and a list of buttons.
 
 ### Using the Easy4FormAPI
 
+**Method Signature:**
+```java
+public static void sendSimpleForm(Player player, String title, String content, List<String> buttons, Consumer<Integer> responseHandler)
+```
+
+**Parameters:**
+- `player` (Player) - The Bukkit player to send the form to
+- `title` (String) - The title of the form
+- `content` (String) - The content/description text of the form
+- `buttons` (List<String>) - List of button texts
+- `responseHandler` (Consumer<Integer>) - Callback function that receives the button index (0-based) or `null` if form was closed
+
+**Usage:**
 ```java
 List<String> buttons = Arrays.asList("Button 1", "Button 2", "Button 3");
 Easy4FormAPI.sendSimpleForm(player, "Title", "Content", buttons, response -> {
@@ -81,7 +122,7 @@ Easy4FormAPI.sendSimpleForm(player, "Title", "Content", buttons, response -> {
 **Example: Server Selector**
 ```java
 import org.bukkit.entity.Player;
-import cn.enderrealm.easy4form.api.Easy4FormAPI;
+import cn.enderrealm.easy4form.apiv1.Easy4FormAPI;
 import java.util.Arrays;
 import java.util.List;
 
@@ -106,6 +147,25 @@ public void showServerSelector(Player player) {
 
 ### Using the SimpleFormBuilder
 
+**Available Methods:**
+- `title(String title)` - Set the form title
+- `content(String content)` - Set the form content/description
+- `button(String text)` - Add a button without an image
+- `button(String text, String imagePath)` - Add a button with a resource pack image
+- `buttonWithUrl(String text, String imageUrl)` - Add a button with a URL image
+- `responseHandler(Consumer<Integer> handler)` - Set the response callback
+- `send(Player player)` - Send the form to the player
+
+**Method Parameters:**
+- `title` (String) - The title text displayed at the top of the form
+- `content` (String) - The description text displayed below the title
+- `text` (String) - The button text
+- `imagePath` (String) - Resource pack path (e.g., "textures/items/diamond")
+- `imageUrl` (String) - Web URL to an image (e.g., "https://example.com/image.png")
+- `handler` (Consumer<Integer>) - Callback that receives button index (0-based) or `null` if closed
+- `player` (Player) - The Bukkit player to send the form to
+
+**Usage:**
 ```java
 new SimpleFormBuilder()
     .title("Title")
@@ -121,15 +181,10 @@ new SimpleFormBuilder()
     .send(player);
 ```
 
-**Button Methods:**
-- `button(String text)` - Add a regular button without an image
-- `button(String text, String imagePath)` - Add a button with a resource pack image, using Minecraft resource pack path format
-- `buttonWithUrl(String text, String imageUrl)` - Add a button with a URL image, using a web image URL
-
 **Example: Shop Categories**
 ```java
 import org.bukkit.entity.Player;
-import cn.enderrealm.easy4form.api.SimpleFormBuilder;
+import cn.enderrealm.easy4form.apiv1.SimpleFormBuilder;
 
 public void showShopCategories(Player player) {
     new SimpleFormBuilder()
@@ -173,6 +228,20 @@ Modal forms consist of a title, content, and two buttons (typically for yes/no o
 
 ### Using the Easy4FormAPI
 
+**Method Signature:**
+```java
+public static void sendModalForm(Player player, String title, String content, String button1, String button2, Consumer<Boolean> responseHandler)
+```
+
+**Parameters:**
+- `player` (Player) - The Bukkit player to send the form to
+- `title` (String) - The title of the form
+- `content` (String) - The content/description text of the form
+- `button1` (String) - Text for the first button (typically "Yes", "Confirm", etc.)
+- `button2` (String) - Text for the second button (typically "No", "Cancel", etc.)
+- `responseHandler` (Consumer<Boolean>) - Callback function that receives `true` for button1, `false` for button2, or `null` if form was closed
+
+**Usage:**
 ```java
 Easy4FormAPI.sendModalForm(
     player,
@@ -195,7 +264,7 @@ Easy4FormAPI.sendModalForm(
 **Example: Teleport Confirmation**
 ```java
 import org.bukkit.entity.Player;
-import cn.enderrealm.easy4form.api.Easy4FormAPI;
+import cn.enderrealm.easy4form.apiv1.Easy4FormAPI;
 
 public void confirmTeleport(Player player, Location destination) {
     Easy4FormAPI.sendModalForm(
@@ -216,6 +285,22 @@ public void confirmTeleport(Player player, Location destination) {
 
 ### Using the ModalFormBuilder
 
+**Available Methods:**
+- `title(String title)` - Set the form title
+- `content(String content)` - Set the form content/description
+- `button1(String text)` - Set the text for the first button
+- `button2(String text)` - Set the text for the second button
+- `responseHandler(Consumer<Boolean> handler)` - Set the response callback
+- `send(Player player)` - Send the form to the player
+
+**Method Parameters:**
+- `title` (String) - The title text displayed at the top of the form
+- `content` (String) - The description text displayed below the title
+- `text` (String) - The button text
+- `handler` (Consumer<Boolean>) - Callback that receives `true` for button1, `false` for button2, or `null` if closed
+- `player` (Player) - The Bukkit player to send the form to
+
+**Usage:**
 ```java
 new ModalFormBuilder()
     .title("Confirmation")
@@ -237,7 +322,7 @@ new ModalFormBuilder()
 **Example: Delete Home Confirmation**
 ```java
 import org.bukkit.entity.Player;
-import cn.enderrealm.easy4form.api.ModalFormBuilder;
+import cn.enderrealm.easy4form.apiv1.ModalFormBuilder;
 
 public void confirmDeleteHome(Player player, String homeName) {
     new ModalFormBuilder()
@@ -261,6 +346,36 @@ Custom forms allow you to create forms with various input elements such as text 
 
 ### Using the Easy4FormAPI and CustomFormBuilder
 
+**Method Signature:**
+```java
+public static CustomFormBuilder createCustomForm(Player player, String title, Consumer<Map<String, Object>> responseHandler)
+```
+
+**Parameters:**
+- `player` (Player) - The Bukkit player to send the form to
+- `title` (String) - The title of the form
+- `responseHandler` (Consumer<Map<String, Object>>) - Callback that receives a map of field IDs to values, or `null` if closed
+
+**Available Form Elements:**
+- `label(String id, String text)` - Add a text label (display only)
+- `input(String id, String label, String placeholder, String defaultValue)` - Add a text input field
+- `toggle(String id, String label, boolean defaultValue)` - Add a toggle switch (boolean)
+- `slider(String id, String label, float min, float max, float step, float defaultValue)` - Add a slider
+- `dropdown(String id, String label, List<String> options, int defaultIndex)` - Add a dropdown menu
+- `send(Player player)` - Send the form to the player
+
+**Element Parameters:**
+- `id` (String) - Unique identifier for the element (used in response map)
+- `label` (String) - Display text for the element
+- `text` (String) - Text content for labels
+- `placeholder` (String) - Placeholder text for input fields
+- `defaultValue` (String/boolean/float) - Default value for the element
+- `min/max` (float) - Range limits for sliders
+- `step` (float) - Step increment for sliders
+- `options` (List<String>) - Available options for dropdowns
+- `defaultIndex` (int) - Default selected index for dropdowns
+
+**Usage:**
 ```java
 CustomFormBuilder form = Easy4FormAPI.createCustomForm(player, "Settings", response -> {
     if (response != null) {
@@ -287,8 +402,8 @@ form.label("info", "Please configure your settings below:")
 **Example: Player Profile Form**
 ```java
 import org.bukkit.entity.Player;
-import cn.enderrealm.easy4form.api.CustomFormBuilder;
-import cn.enderrealm.easy4form.api.Easy4FormAPI;
+import cn.enderrealm.easy4form.apiv1.CustomFormBuilder;
+import cn.enderrealm.easy4form.apiv1.Easy4FormAPI;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -325,6 +440,32 @@ public void showProfileForm(Player player) {
 
 ### Using the CustomFormBuilder Directly
 
+**Available Methods:**
+- `title(String title)` - Set the form title
+- `label(String id, String text)` - Add a text label
+- `input(String id, String label, String placeholder, String defaultValue)` - Add a text input
+- `toggle(String id, String label, boolean defaultValue)` - Add a toggle switch
+- `slider(String id, String label, float min, float max, float step, float defaultValue)` - Add a slider
+- `dropdown(String id, String label, List<String> options, int defaultIndex)` - Add a dropdown
+- `stepSlider(String id, String label, List<String> steps, int defaultIndex)` - Add a step slider
+- `responseHandler(Consumer<Map<String, Object>> handler)` - Set the response callback
+- `send(Player player)` - Send the form to the player
+
+**Method Parameters:**
+- `title` (String) - The title text displayed at the top of the form
+- `id` (String) - Unique identifier for the element (used in response map)
+- `label` (String) - Display text for the element
+- `text` (String) - Text content for labels
+- `placeholder` (String) - Placeholder text for input fields
+- `defaultValue` (String/boolean/float/int) - Default value for the element
+- `min/max` (float) - Range limits for sliders
+- `step` (float) - Step increment for sliders
+- `options/steps` (List<String>) - Available options for dropdowns/step sliders
+- `defaultIndex` (int) - Default selected index for dropdowns/step sliders
+- `handler` (Consumer<Map<String, Object>>) - Callback that receives field values or `null` if closed
+- `player` (Player) - The Bukkit player to send the form to
+
+**Usage:**
 ```java
 new CustomFormBuilder()
     .title("Settings")
@@ -349,7 +490,7 @@ new CustomFormBuilder()
 **Example: Server Feedback Form**
 ```java
 import org.bukkit.entity.Player;
-import cn.enderrealm.easy4form.api.CustomFormBuilder;
+import cn.enderrealm.easy4form.apiv1.CustomFormBuilder;
 import java.util.Arrays;
 import java.util.List;
 

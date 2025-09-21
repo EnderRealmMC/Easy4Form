@@ -1,5 +1,9 @@
 # Easy4Form
 
+**Language**: [English](README.md) | [中文](README_ZH.md)
+
+**Documentation**: [API Documentation v1](docs/v1/api.md) | [API 文档 v1](docs/v1/api_zh.md)
+
 A simplified Form API for Floodgate, making it easier to create and send forms to Bedrock players from your Java server.
 
 ## Introduction
@@ -76,14 +80,21 @@ dependencies {
 Easy4Form now includes a configuration file (`config.yml`) with the following options:
 
 ```yaml
-# Bedrock player detection mode (floodgate, uuid)
-detection-mode: "floodgate"
+# Detection mode for Bedrock players
+# Options: floodgate, uuid
+detection-mode: floodgate
 
-# UUID prefix for bedrock players (only used when detection-mode is set to "uuid")
+# UUID prefix for Bedrock players (only used when detection-mode is 'uuid')
 uuid-prefix: "00000000-0000"
 
-# Debug mode (true, false)
+# Debug mode
 debug: false
+
+# API version (currently only v1 is supported)
+api-version: "v1"
+
+# Enable migration warnings for deprecated API usage
+migration-warnings: true
 ```
 
 ### Detection Modes
@@ -147,9 +158,7 @@ form.input("name", "Name", "Enter your name", player.getName())
     .send(player);
 ```
 
-## Documentation
 
-For detailed documentation and examples, please see the [API Documentation](docs/api.md).
 
 ## License
 

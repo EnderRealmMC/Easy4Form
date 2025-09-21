@@ -1,4 +1,8 @@
-# Easy4Form API 文档
+# Easy4Form API 文档 v1
+
+**语言**: [English](api.md) | [中文](api_zh.md)
+
+**返回**: [Main Page](../../README.md) | [主页](../../README_ZH.md)
 
 Easy4Form 是一个基于 Floodgate 的简化 Form 接口，使得在 Java 服务器上为基岩版玩家创建和发送表单变得更加简单。
 
@@ -22,6 +26,18 @@ Easy4Form 提供了一个简化的接口，用于通过 Floodgate API 为基岩�
 
 ### 检查玩家是否为基岩版玩家
 
+**方法签名：**
+```java
+public static boolean isBedrockPlayer(Player player)
+```
+
+**参数：**
+- `player` (Player) - 要检查的Bukkit玩家对象
+
+**返回值：**
+- `boolean` - 如果是基岩版玩家返回`true`，否则返回`false`
+
+**用法：**
 ```java
 boolean isBedrockPlayer = Easy4FormAPI.isBedrockPlayer(player);
 ```
@@ -29,7 +45,7 @@ boolean isBedrockPlayer = Easy4FormAPI.isBedrockPlayer(player);
 **示例：**
 ```java
 import org.bukkit.entity.Player;
-import cn.enderrealm.easy4form.api.Easy4FormAPI;
+import cn.enderrealm.easy4form.apiv1.Easy4FormAPI;
 
 public void onPlayerJoin(Player player) {
     if (Easy4FormAPI.isBedrockPlayer(player)) {
@@ -42,6 +58,18 @@ public void onPlayerJoin(Player player) {
 
 ### 获取FloodgatePlayer实例
 
+**方法签名：**
+```java
+public static FloodgatePlayer getFloodgatePlayer(Player player)
+```
+
+**参数：**
+- `player` (Player) - 要获取FloodgatePlayer实例的Bukkit玩家对象
+
+**返回值：**
+- `FloodgatePlayer` - 如果玩家是基岩版玩家，返回FloodgatePlayer实例；否则返回`null`
+
+**用法：**
 ```java
 FloodgatePlayer floodgatePlayer = Easy4FormAPI.getFloodgatePlayer(player);
 ```
@@ -49,7 +77,7 @@ FloodgatePlayer floodgatePlayer = Easy4FormAPI.getFloodgatePlayer(player);
 **示例：**
 ```java
 import org.bukkit.entity.Player;
-import cn.enderrealm.easy4form.api.Easy4FormAPI;
+import cn.enderrealm.easy4form.apiv1.Easy4FormAPI;
 import org.geysermc.floodgate.api.player.FloodgatePlayer;
 
 public void getPlayerInfo(Player player) {
@@ -67,6 +95,19 @@ public void getPlayerInfo(Player player) {
 
 ### 使用Easy4FormAPI
 
+**方法签名：**
+```java
+public static void sendSimpleForm(Player player, String title, String content, List<String> buttons, Consumer<Integer> responseHandler)
+```
+
+**参数：**
+- `player` (Player) - 要发送表单的Bukkit玩家对象
+- `title` (String) - 表单标题
+- `content` (String) - 表单内容/描述文本
+- `buttons` (List<String>) - 按钮文本列表
+- `responseHandler` (Consumer<Integer>) - 响应回调函数，接收按钮索引（从0开始）或`null`（如果表单被关闭）
+
+**用法：**
 ```java
 List<String> buttons = Arrays.asList("按钮1", "按钮2", "按钮3");
 Easy4FormAPI.sendSimpleForm(player, "标题", "内容", buttons, response -> {
@@ -81,7 +122,7 @@ Easy4FormAPI.sendSimpleForm(player, "标题", "内容", buttons, response -> {
 **示例：服务器选择器**
 ```java
 import org.bukkit.entity.Player;
-import cn.enderrealm.easy4form.api.Easy4FormAPI;
+import cn.enderrealm.easy4form.apiv1.Easy4FormAPI;
 import java.util.Arrays;
 import java.util.List;
 
@@ -106,6 +147,25 @@ public void showServerSelector(Player player) {
 
 ### 使用SimpleFormBuilder
 
+**可用方法：**
+- `title(String title)` - 设置表单标题
+- `content(String content)` - 设置表单内容/描述
+- `button(String text)` - 添加无图标按钮
+- `button(String text, String imagePath)` - 添加带资源包图标的按钮
+- `buttonWithUrl(String text, String imageUrl)` - 添加带URL图标的按钮
+- `responseHandler(Consumer<Integer> handler)` - 设置响应回调
+- `send(Player player)` - 发送表单给玩家
+
+**方法参数：**
+- `title` (String) - 显示在表单顶部的标题文本
+- `content` (String) - 显示在标题下方的描述文本
+- `text` (String) - 按钮文本
+- `imagePath` (String) - 资源包路径（例如："textures/items/diamond"）
+- `imageUrl` (String) - 网络图片URL（例如："https://example.com/image.png"）
+- `handler` (Consumer<Integer>) - 接收按钮索引（从0开始）或`null`（如果关闭）的回调
+- `player` (Player) - 要发送表单的Bukkit玩家对象
+
+**用法：**
 ```java
 new SimpleFormBuilder()
     .title("标题")
@@ -121,15 +181,10 @@ new SimpleFormBuilder()
     .send(player);
 ```
 
-**按钮方法说明：**
-- `button(String text)` - 添加无图标的普通按钮
-- `button(String text, String imagePath)` - 添加带资源包图标的按钮，图标路径使用Minecraft资源包路径格式
-- `buttonWithUrl(String text, String imageUrl)` - 添加带URL图标的按钮，图标使用网络图片URL
-
 **示例：商店分类**
 ```java
 import org.bukkit.entity.Player;
-import cn.enderrealm.easy4form.api.SimpleFormBuilder;
+import cn.enderrealm.easy4form.apiv1.SimpleFormBuilder;
 
 public void showShopCategories(Player player) {
     new SimpleFormBuilder()
@@ -201,6 +256,20 @@ public void showServerSelector(Player player) {
 
 ### 使用Easy4FormAPI
 
+**方法签名：**
+```java
+public static void sendModalForm(Player player, String title, String content, String button1, String button2, Consumer<Boolean> responseHandler)
+```
+
+**参数：**
+- `player` (Player) - 要发送表单的Bukkit玩家对象
+- `title` (String) - 表单标题
+- `content` (String) - 表单内容/描述文本
+- `button1` (String) - 第一个按钮的文本（通常是"是"、"确认"等）
+- `button2` (String) - 第二个按钮的文本（通常是"否"、"取消"等）
+- `responseHandler` (Consumer<Boolean>) - 响应回调函数，接收`true`（按钮1）、`false`（按钮2）或`null`（表单关闭）
+
+**用法：**
 ```java
 Easy4FormAPI.sendModalForm(
     player,
@@ -223,7 +292,7 @@ Easy4FormAPI.sendModalForm(
 **示例：传送确认**
 ```java
 import org.bukkit.entity.Player;
-import cn.enderrealm.easy4form.api.Easy4FormAPI;
+import cn.enderrealm.easy4form.apiv1.Easy4FormAPI;
 
 public void confirmTeleport(Player player, Location destination) {
     Easy4FormAPI.sendModalForm(
@@ -265,7 +334,7 @@ new ModalFormBuilder()
 **示例：删除家确认**
 ```java
 import org.bukkit.entity.Player;
-import cn.enderrealm.easy4form.api.ModalFormBuilder;
+import cn.enderrealm.easy4form.apiv1.ModalFormBuilder;
 
 public void confirmDeleteHome(Player player, String homeName) {
     new ModalFormBuilder()
@@ -289,6 +358,36 @@ public void confirmDeleteHome(Player player, String homeName) {
 
 ### 使用Easy4FormAPI和CustomFormBuilder
 
+**方法签名：**
+```java
+public static CustomFormBuilder createCustomForm(Player player, String title, Consumer<Map<String, Object>> responseHandler)
+```
+
+**参数：**
+- `player` (Player) - 要发送表单的Bukkit玩家对象
+- `title` (String) - 表单标题
+- `responseHandler` (Consumer<Map<String, Object>>) - 响应回调，接收字段ID到值的映射，或`null`（如果关闭）
+
+**可用表单元素：**
+- `label(String id, String text)` - 添加文本标签（仅显示）
+- `input(String id, String label, String placeholder, String defaultValue)` - 添加文本输入框
+- `toggle(String id, String label, boolean defaultValue)` - 添加开关（布尔值）
+- `slider(String id, String label, float min, float max, float step, float defaultValue)` - 添加滑块
+- `dropdown(String id, String label, List<String> options, int defaultIndex)` - 添加下拉菜单
+- `send(Player player)` - 发送表单给玩家
+
+**元素参数：**
+- `id` (String) - 元素的唯一标识符（在响应映射中使用）
+- `label` (String) - 元素的显示文本
+- `text` (String) - 标签的文本内容
+- `placeholder` (String) - 输入框的占位符文本
+- `defaultValue` (String/boolean/float) - 元素的默认值
+- `min/max` (float) - 滑块的范围限制
+- `step` (float) - 滑块的步进增量
+- `options` (List<String>) - 下拉菜单的可选项
+- `defaultIndex` (int) - 下拉菜单的默认选中索引
+
+**用法：**
 ```java
 CustomFormBuilder form = Easy4FormAPI.createCustomForm(player, "设置", response -> {
     if (response != null) {
@@ -315,8 +414,8 @@ form.label("info", "请在下方配置您的设置：")
 **示例：玩家资料表单**
 ```java
 import org.bukkit.entity.Player;
-import cn.enderrealm.easy4form.api.CustomFormBuilder;
-import cn.enderrealm.easy4form.api.Easy4FormAPI;
+import cn.enderrealm.easy4form.apiv1.CustomFormBuilder;
+import cn.enderrealm.easy4form.apiv1.Easy4FormAPI;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Map;
@@ -353,6 +452,32 @@ public void showProfileForm(Player player) {
 
 ### 直接使用CustomFormBuilder
 
+**可用方法：**
+- `title(String title)` - 设置表单标题
+- `label(String id, String text)` - 添加文本标签
+- `input(String id, String label, String placeholder, String defaultValue)` - 添加文本输入
+- `toggle(String id, String label, boolean defaultValue)` - 添加开关
+- `slider(String id, String label, float min, float max, float step, float defaultValue)` - 添加滑块
+- `dropdown(String id, String label, List<String> options, int defaultIndex)` - 添加下拉菜单
+- `stepSlider(String id, String label, List<String> steps, int defaultIndex)` - 添加步进滑块
+- `responseHandler(Consumer<Map<String, Object>> handler)` - 设置响应回调
+- `send(Player player)` - 发送表单给玩家
+
+**方法参数：**
+- `title` (String) - 显示在表单顶部的标题文本
+- `id` (String) - 元素的唯一标识符（在响应映射中使用）
+- `label` (String) - 元素的显示文本
+- `text` (String) - 标签的文本内容
+- `placeholder` (String) - 输入框的占位符文本
+- `defaultValue` (String/boolean/float/int) - 元素的默认值
+- `min/max` (float) - 滑块的范围限制
+- `step` (float) - 滑块的步进增量
+- `options/steps` (List<String>) - 下拉菜单/步进滑块的可选项
+- `defaultIndex` (int) - 下拉菜单/步进滑块的默认选中索引
+- `handler` (Consumer<Map<String, Object>>) - 接收字段值或`null`（如果关闭）的回调
+- `player` (Player) - 要发送表单的Bukkit玩家对象
+
+**用法：**
 ```java
 new CustomFormBuilder()
     .title("设置")
@@ -377,7 +502,7 @@ new CustomFormBuilder()
 **示例：服务器反馈表单**
 ```java
 import org.bukkit.entity.Player;
-import cn.enderrealm.easy4form.api.CustomFormBuilder;
+import cn.enderrealm.easy4form.apiv1.CustomFormBuilder;
 import java.util.Arrays;
 import java.util.List;
 
