@@ -33,7 +33,7 @@ Easy4Form是一个Bukkit/Spigot插件，提供了一个简化的接口，用于�
 <repositories>
     <repository>
         <id>enderrealm-public</id>
-        <url>https://maven.cnb.cool/EnderRealm/public/enderrealm-public-repo</url>
+        <url>https://maven.cnb.cool/EnderRealm/public/enderrealm-public-repo/-/packages/</url>
     </repository>
 </repositories>
 ```
@@ -45,7 +45,7 @@ Easy4Form是一个Bukkit/Spigot插件，提供了一个简化的接口，用于�
     <dependency>
         <groupId>cn.enderrealm</groupId>
         <artifactId>easy4form</artifactId>
-        <version>1.0.0</version>
+        <version>1.0-SNAPSHOT</version>
         <scope>provided</scope>
     </dependency>
 </dependencies>
@@ -58,7 +58,7 @@ Easy4Form是一个Bukkit/Spigot插件，提供了一个简化的接口，用于�
 ```gradle
 repositories {
     maven {
-        url 'https://maven.cnb.cool/EnderRealm/public/enderrealm-public-repo'
+        url 'https://maven.cnb.cool/EnderRealm/public/enderrealm-public-repo/-/packages/'
     }
 }
 ```
@@ -67,7 +67,7 @@ repositories {
 
 ```gradle
 dependencies {
-    compileOnly 'cn.enderrealm:easy4form:1.0.0'
+    compileOnly 'cn.enderrealm:easy4form:1.0-SNAPSHOT'
 }
 ```
 
