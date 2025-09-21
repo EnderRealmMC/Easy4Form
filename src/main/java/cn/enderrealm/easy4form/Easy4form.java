@@ -1,6 +1,8 @@
 package cn.enderrealm.easy4form;
 
 import cn.enderrealm.easy4form.api.Easy4FormAPI;
+import cn.enderrealm.easy4form.manager.VersionManager;
+import cn.enderrealm.easy4form.utils.DebugUtils;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
@@ -11,6 +13,7 @@ import org.bukkit.plugin.java.JavaPlugin;
 public final class Easy4form extends JavaPlugin {
 
     private static Easy4form instance;
+    private VersionManager versionManager;
 
     /**
      * Get the instance of the plugin
@@ -23,13 +26,30 @@ public final class Easy4form extends JavaPlugin {
         return instance;
     }
 
+    /**
+     * Get the version manager
+     * <p>
+     * 获取版本管理器
+     *
+     * @return The version manager / 版本管理器
+     */
+    public VersionManager getVersionManager() {
+        return versionManager;
+    }
+
     @Override
     public void onEnable() {
         // Set instance
         instance = this;
 
-        // Save default config
+        // Save default configuration
         saveDefaultConfig();
+        
+        // Initialize debug utils
+        DebugUtils.init(this);
+        
+        // Initialize version manager
+        versionManager = new VersionManager(this);
         
         // Log startup message
         getLogger().info("Easy4Form has been enabled! A simplified Form API for Floodgate.");

@@ -1,22 +1,24 @@
 # Easy4Form Configuration
 # Easy4Form 配置文件
 
-# Bedrock player detection mode (floodgate, uuid)
-# 基岩版玩家检测模式 (floodgate, uuid)
-# floodgate: Use Floodgate API to detect bedrock players (recommended)
-#           使用Floodgate API检测基岩版玩家（推荐）
-# uuid: Use UUID prefix to detect bedrock players
-#       使用UUID前缀检测基岩版玩家
-detection-mode: "floodgate"
+# Detection mode for Bedrock players
+# 基岩版玩家检测模式
+# Options: floodgate, uuid
+# 选项: floodgate（使用Floodgate API）, uuid（使用UUID前缀）
+detection-mode: floodgate
 
-# UUID prefix for bedrock players (only used when detection-mode is set to "uuid")
-# 基岩版玩家的UUID前缀（仅在detection-mode设置为"uuid"时使用）
-# The default prefix for Floodgate is "00000000-0000"
-# Floodgate的默认前缀是"00000000-0000"
+# UUID prefix for Bedrock players (only used when detection-mode is 'uuid')
+# 基岩版玩家的UUID前缀（仅在detection-mode为'uuid'时使用）
 uuid-prefix: "00000000-0000"
 
-# Debug mode (true, false)
-# 调试模式 (true, false)
-# When enabled, more detailed logs will be printed
-# 启用后，将打印更详细的日志
+# Debug mode
+# 调试模式
 debug: false
+
+# API version (currently only v1 is supported)
+# API版本（目前仅支持v1）
+api-version: "v1"
+
+# Enable migration warnings for deprecated API usage
+# 启用已弃用API使用的迁移警告
+migration-warnings: true
