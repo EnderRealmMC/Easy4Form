@@ -1,7 +1,6 @@
-package cn.enderrealm.easy4form.api;
+package cn.enderrealm.easy4form.apiv1;
 
-import cn.enderrealm.easy4form.Easy4form;
-import cn.enderrealm.easy4form.apiv1.CustomFormBuilder;
+import cn.enderrealm.easy4form.apiv1.utils.PlayerUtils;
 import org.bukkit.entity.Player;
 import org.geysermc.floodgate.api.player.FloodgatePlayer;
 
@@ -11,15 +10,10 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 /**
- * Easy4Form API - Legacy API Proxy
+ * Easy4Form API v1 - A simplified Form API for Floodgate
  * <p>
- * Easy4Form API - 传统API代理
- * 
- * @deprecated This class is deprecated and will be removed in future versions.
- *             Please use {@link cn.enderrealm.easy4form.apiv1.Easy4FormAPI} instead.
- *             此类已弃用，将在未来版本中移除。请使用 {@link cn.enderrealm.easy4form.apiv1.Easy4FormAPI} 代替。
+ * Easy4Form API v1 - 基于Floodgate的简化Form接口
  */
-@Deprecated
 public class Easy4FormAPI {
 
     /**
@@ -29,14 +23,9 @@ public class Easy4FormAPI {
      *
      * @param player The player to check / 要检查的玩家
      * @return true if the player is a Bedrock player / 如果玩家是基岩版玩家则返回true
-     * @deprecated Use {@link cn.enderrealm.easy4form.apiv1.Easy4FormAPI#isBedrockPlayer(Player)} instead
      */
-    @Deprecated
     public static boolean isBedrockPlayer(Player player) {
-        Easy4form.getInstance().getVersionManager().logMigrationWarning(
-            "Using deprecated Easy4FormAPI.isBedrockPlayer(Player). Please migrate to apiv1.Easy4FormAPI"
-        );
-        return cn.enderrealm.easy4form.apiv1.Easy4FormAPI.isBedrockPlayer(player);
+        return PlayerUtils.isBedrockPlayer(player);
     }
 
     /**
@@ -47,14 +36,9 @@ public class Easy4FormAPI {
      * @param player The player / 玩家
      * @return The FloodgatePlayer instance, or null if the player is not a Bedrock player
      *         / FloodgatePlayer实例，如果玩家不是基岩版玩家则返回null
-     * @deprecated Use {@link cn.enderrealm.easy4form.apiv1.Easy4FormAPI#getFloodgatePlayer(Player)} instead
      */
-    @Deprecated
     public static FloodgatePlayer getFloodgatePlayer(Player player) {
-        Easy4form.getInstance().getVersionManager().logMigrationWarning(
-            "Using deprecated Easy4FormAPI.getFloodgatePlayer(Player). Please migrate to apiv1.Easy4FormAPI"
-        );
-        return cn.enderrealm.easy4form.apiv1.Easy4FormAPI.getFloodgatePlayer(player);
+        return PlayerUtils.getFloodgatePlayer(player);
     }
 
     /**
@@ -65,14 +49,9 @@ public class Easy4FormAPI {
      * @param uuid The player UUID / 玩家UUID
      * @return The FloodgatePlayer instance, or null if the player is not a Bedrock player
      *         / FloodgatePlayer实例，如果玩家不是基岩版玩家则返回null
-     * @deprecated Use {@link cn.enderrealm.easy4form.apiv1.Easy4FormAPI#getFloodgatePlayer(UUID)} instead
      */
-    @Deprecated
     public static FloodgatePlayer getFloodgatePlayer(UUID uuid) {
-        Easy4form.getInstance().getVersionManager().logMigrationWarning(
-            "Using deprecated Easy4FormAPI.getFloodgatePlayer(UUID). Please migrate to apiv1.Easy4FormAPI"
-        );
-        return cn.enderrealm.easy4form.apiv1.Easy4FormAPI.getFloodgatePlayer(uuid);
+        return PlayerUtils.getFloodgatePlayer(uuid);
     }
 
     /**
@@ -85,14 +64,22 @@ public class Easy4FormAPI {
      * @param content The content of the form / 表单内容
      * @param buttons The buttons to display / 要显示的按钮
      * @param responseHandler The response handler / 响应处理器
-     * @deprecated Use {@link cn.enderrealm.easy4form.apiv1.Easy4FormAPI#sendSimpleForm(Player, String, String, List, Consumer)} instead
      */
-    @Deprecated
     public static void sendSimpleForm(Player player, String title, String content, List<String> buttons, Consumer<Integer> responseHandler) {
-        Easy4form.getInstance().getVersionManager().logMigrationWarning(
-            "Using deprecated Easy4FormAPI.sendSimpleForm. Please migrate to apiv1.Easy4FormAPI"
-        );
-        cn.enderrealm.easy4form.apiv1.Easy4FormAPI.sendSimpleForm(player, title, content, buttons, responseHandler);
+        if (!PlayerUtils.isBedrockPlayer(player)) {
+            return;
+        }
+
+        SimpleFormBuilder builder = new SimpleFormBuilder()
+                .title(title)
+                .content(content)
+                .responseHandler(responseHandler);
+
+        for (String button : buttons) {
+            builder.button(button);
+        }
+
+        builder.send(player);
     }
     
     /**
@@ -106,14 +93,26 @@ public class Easy4FormAPI {
      * @param buttonTexts The button texts / 按钮文本
      * @param buttonImages The button images (resource pack paths) / 按钮图片（资源包路径）
      * @param responseHandler The response handler / 响应处理器
-     * @deprecated Use {@link cn.enderrealm.easy4form.apiv1.Easy4FormAPI#sendSimpleFormWithImages(Player, String, String, List, List, Consumer)} instead
      */
-    @Deprecated
     public static void sendSimpleFormWithImages(Player player, String title, String content, List<String> buttonTexts, List<String> buttonImages, Consumer<Integer> responseHandler) {
-        Easy4form.getInstance().getVersionManager().logMigrationWarning(
-            "Using deprecated Easy4FormAPI.sendSimpleFormWithImages. Please migrate to apiv1.Easy4FormAPI"
-        );
-        cn.enderrealm.easy4form.apiv1.Easy4FormAPI.sendSimpleFormWithImages(player, title, content, buttonTexts, buttonImages, responseHandler);
+        if (!PlayerUtils.isBedrockPlayer(player)) {
+            return;
+        }
+        
+        if (buttonTexts.size() != buttonImages.size()) {
+            throw new IllegalArgumentException("Button texts and images must have the same size");
+        }
+
+        SimpleFormBuilder builder = new SimpleFormBuilder()
+                .title(title)
+                .content(content)
+                .responseHandler(responseHandler);
+
+        for (int i = 0; i < buttonTexts.size(); i++) {
+            builder.button(buttonTexts.get(i), buttonImages.get(i));
+        }
+
+        builder.send(player);
     }
     
     /**
@@ -127,14 +126,26 @@ public class Easy4FormAPI {
      * @param buttonTexts The button texts / 按钮文本
      * @param buttonImageUrls The button image URLs / 按钮图片URL
      * @param responseHandler The response handler / 响应处理器
-     * @deprecated Use {@link cn.enderrealm.easy4form.apiv1.Easy4FormAPI#sendSimpleFormWithUrlImages(Player, String, String, List, List, Consumer)} instead
      */
-    @Deprecated
     public static void sendSimpleFormWithUrlImages(Player player, String title, String content, List<String> buttonTexts, List<String> buttonImageUrls, Consumer<Integer> responseHandler) {
-        Easy4form.getInstance().getVersionManager().logMigrationWarning(
-            "Using deprecated Easy4FormAPI.sendSimpleFormWithUrlImages. Please migrate to apiv1.Easy4FormAPI"
-        );
-        cn.enderrealm.easy4form.apiv1.Easy4FormAPI.sendSimpleFormWithUrlImages(player, title, content, buttonTexts, buttonImageUrls, responseHandler);
+        if (!PlayerUtils.isBedrockPlayer(player)) {
+            return;
+        }
+        
+        if (buttonTexts.size() != buttonImageUrls.size()) {
+            throw new IllegalArgumentException("Button texts and image URLs must have the same size");
+        }
+
+        SimpleFormBuilder builder = new SimpleFormBuilder()
+                .title(title)
+                .content(content)
+                .responseHandler(responseHandler);
+
+        for (int i = 0; i < buttonTexts.size(); i++) {
+            builder.buttonWithUrl(buttonTexts.get(i), buttonImageUrls.get(i));
+        }
+
+        builder.send(player);
     }
 
     /**
@@ -148,14 +159,19 @@ public class Easy4FormAPI {
      * @param trueButtonText The text for the true button / 确认按钮文本
      * @param falseButtonText The text for the false button / 取消按钮文本
      * @param responseHandler A consumer that handles the response / 处理响应的消费者函数
-     * @deprecated Use {@link cn.enderrealm.easy4form.apiv1.Easy4FormAPI#sendModalForm(Player, String, String, String, String, Consumer)} instead
      */
-    @Deprecated
     public static void sendModalForm(Player player, String title, String content, String trueButtonText, String falseButtonText, Consumer<Boolean> responseHandler) {
-        Easy4form.getInstance().getVersionManager().logMigrationWarning(
-            "Using deprecated Easy4FormAPI.sendModalForm. Please migrate to apiv1.Easy4FormAPI"
-        );
-        cn.enderrealm.easy4form.apiv1.Easy4FormAPI.sendModalForm(player, title, content, trueButtonText, falseButtonText, responseHandler);
+        if (!isBedrockPlayer(player)) {
+            return;
+        }
+        
+        new ModalFormBuilder()
+                .title(title)
+                .content(content)
+                .button1(trueButtonText)
+                .button2(falseButtonText)
+                .responseHandler(responseHandler)
+                .send(player);
     }
 
     /**
@@ -167,14 +183,15 @@ public class Easy4FormAPI {
      * @param title The title of the form / 表单标题
      * @param responseHandler A consumer that handles the response / 处理响应的消费者函数
      * @return A CustomFormBuilder instance for adding elements / 用于添加元素的CustomFormBuilder实例
-     * @deprecated Use {@link cn.enderrealm.easy4form.apiv1.Easy4FormAPI#createCustomForm(Player, String, Consumer)} instead
      */
-    @Deprecated
     public static CustomFormBuilder createCustomForm(Player player, String title, Consumer<Map<String, Object>> responseHandler) {
-        Easy4form.getInstance().getVersionManager().logMigrationWarning(
-            "Using deprecated Easy4FormAPI.createCustomForm. Please migrate to apiv1.Easy4FormAPI"
-        );
-        return cn.enderrealm.easy4form.apiv1.Easy4FormAPI.createCustomForm(player, title, responseHandler);
+        if (!isBedrockPlayer(player)) {
+            return null;
+        }
+        
+        return new CustomFormBuilder()
+                .title(title)
+                .responseHandler(responseHandler);
     }
     
     /**
@@ -184,13 +201,8 @@ public class Easy4FormAPI {
      *
      * @param uuid The player UUID to check / 要检查的玩家UUID
      * @return true if the player is a Bedrock player / 如果玩家是基岩版玩家则返回true
-     * @deprecated Use {@link cn.enderrealm.easy4form.apiv1.Easy4FormAPI#isBedrockPlayer(UUID)} instead
      */
-    @Deprecated
     public static boolean isBedrockPlayer(UUID uuid) {
-        Easy4form.getInstance().getVersionManager().logMigrationWarning(
-            "Using deprecated Easy4FormAPI.isBedrockPlayer(UUID). Please migrate to apiv1.Easy4FormAPI"
-        );
-        return cn.enderrealm.easy4form.apiv1.Easy4FormAPI.isBedrockPlayer(uuid);
+        return PlayerUtils.isBedrockPlayer(uuid);
     }
 }
