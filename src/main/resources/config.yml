@@ -15,9 +15,9 @@ uuid-prefix: "00000000-0000"
 # 调试模式
 debug: false
 
-# API version (currently only v1 is supported)
-# API版本（目前仅支持v1）
-api-version: "v1"
+# API version (v1 and v2 are supported, v2 is recommended)
+# API版本（支持v1和v2，推荐使用v2）
+api-version: "v2"
 
 # Enable migration warnings for deprecated API usage
 # 启用已弃用API使用的迁移警告

@@ -13,7 +13,16 @@ import java.util.function.Consumer;
  * Builder for creating modal forms (dialog with two buttons) - API v1
  * <p>
  * 用于创建模态表单（带有两个按钮的对话框）的构建器 - API v1
+ * 
+ * @deprecated This API is based on the old Cumulus interface and is no longer maintained.
+ *             It can still be used but is not recommended. Please use the main proxy package
+ *             which automatically handles compatibility with the new interface, or directly
+ *             use the v2 package for new projects.
+ *             <p>
+ *             该API基于旧版Cumulus接口，已废弃且不再维护。仍可使用但不推荐。
+ *             请使用主代理包（会自动处理新接口兼容性）或直接使用v2包进行新项目开发。
  */
+@Deprecated
 public class ModalFormBuilder {
     private String title = "";
     private String content = "";

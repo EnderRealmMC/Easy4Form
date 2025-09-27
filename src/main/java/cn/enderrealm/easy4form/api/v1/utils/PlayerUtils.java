@@ -11,7 +11,16 @@ import java.util.UUID;
  * Utility class for player-related operations (API v1)
  * <p>
  * 玩家相关操作的工具类 (API v1)
+ * 
+ * @deprecated This API is based on the old Cumulus interface and is no longer maintained.
+ *             It can still be used but is not recommended. Please use the main proxy package
+ *             which automatically handles compatibility with the new interface, or directly
+ *             use the v2 package for new projects.
+ *             <p>
+ *             该API基于旧版Cumulus接口，已废弃且不再维护。仍可使用但不推荐。
+ *             请使用主代理包（会自动处理新接口兼容性）或直接使用v2包进行新项目开发。
  */
+@Deprecated
 public class PlayerUtils {
 
     /**

@@ -1,5 +1,15 @@
 # Easy4Form API 文档 v1
 
+> **⚠️ 废弃警告 / DEPRECATED WARNING**
+> 
+> **中文**: 此 API v1 基于旧版 Cumulus 接口，**已废弃且不再维护**。虽然仍可使用，但**不推荐**用于新项目。请考虑：
+> - **推荐**: 使用主代理包，它会自动处理新接口的兼容性
+> - **备选**: 直接使用 v2 包进行新项目开发
+> 
+> **English**: This API v1 is based on the old Cumulus interface and is **no longer maintained**. While it can still be used, it is **not recommended** for new projects. Please consider:
+> - **Recommended**: Use the main proxy package which automatically handles compatibility with the new interface
+> - **Alternative**: Use the v2 package directly for new projects
+
 **语言**: [English](api.md) | [中文](api_zh.md)
 
 **返回**: [Main Page](../../README.md) | [主页](../../README_ZH.md)
