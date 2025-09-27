@@ -43,9 +43,10 @@ boolean isBedrockPlayer = Easy4FormAPI.isBedrockPlayer(player);
 ```
 
 **Example:**
+
 ```java
 import org.bukkit.entity.Player;
-import cn.enderrealm.easy4form.apiv1.Easy4FormAPI;
+import cn.enderrealm.easy4form.api.v1.Easy4FormAPI;
 
 public void onPlayerJoin(Player player) {
     if (Easy4FormAPI.isBedrockPlayer(player)) {
@@ -75,9 +76,10 @@ FloodgatePlayer floodgatePlayer = Easy4FormAPI.getFloodgatePlayer(player);
 ```
 
 **Example:**
+
 ```java
 import org.bukkit.entity.Player;
-import cn.enderrealm.easy4form.apiv1.Easy4FormAPI;
+import cn.enderrealm.easy4form.api.v1.Easy4FormAPI;
 import org.geysermc.floodgate.api.player.FloodgatePlayer;
 
 public void getPlayerInfo(Player player) {
@@ -120,27 +122,29 @@ Easy4FormAPI.sendSimpleForm(player, "Title", "Content", buttons, response -> {
 ```
 
 **Example: Server Selector**
+
 ```java
 import org.bukkit.entity.Player;
-import cn.enderrealm.easy4form.apiv1.Easy4FormAPI;
+import cn.enderrealm.easy4form.api.v1.Easy4FormAPI;
+
 import java.util.Arrays;
 import java.util.List;
 
 public void showServerSelector(Player player) {
     List<String> servers = Arrays.asList("Survival", "Creative", "Minigames", "Skyblock");
-    
+
     Easy4FormAPI.sendSimpleForm(
-        player,
-        "Server Selector",
-        "Choose a server to connect to:",
-        servers,
-        response -> {
-            if (response != null) {
-                String server = servers.get(response);
-                player.sendMessage("Connecting to " + server + "...");
-                // Code to connect player to the selected server
+            player,
+            "Server Selector",
+            "Choose a server to connect to:",
+            servers,
+            response -> {
+                if (response != null) {
+                    String server = servers.get(response);
+                    player.sendMessage("Connecting to " + server + "...");
+                    // Code to connect player to the selected server
+                }
             }
-        }
     );
 }
 ```
@@ -182,43 +186,44 @@ new SimpleFormBuilder()
 ```
 
 **Example: Shop Categories**
+
 ```java
 import org.bukkit.entity.Player;
-import cn.enderrealm.easy4form.apiv1.SimpleFormBuilder;
+import cn.enderrealm.easy4form.api.v1.SimpleFormBuilder;
 
 public void showShopCategories(Player player) {
     new SimpleFormBuilder()
-        .title("Shop")
-        .content("Select a category:")
-        .button("Weapons")
-        .button("Armor")
-        .button("Tools")
-        .button("Food")
-        .button("Miscellaneous")
-        .responseHandler(response -> {
-            if (response == null) {
-                return; // Form was closed
-            }
-            
-            switch (response) {
-                case 0:
-                    openWeaponsShop(player);
-                    break;
-                case 1:
-                    openArmorShop(player);
-                    break;
-                case 2:
-                    openToolsShop(player);
-                    break;
-                case 3:
-                    openFoodShop(player);
-                    break;
-                case 4:
-                    openMiscShop(player);
-                    break;
-            }
-        })
-        .send(player);
+            .title("Shop")
+            .content("Select a category:")
+            .button("Weapons")
+            .button("Armor")
+            .button("Tools")
+            .button("Food")
+            .button("Miscellaneous")
+            .responseHandler(response -> {
+                if (response == null) {
+                    return; // Form was closed
+                }
+
+                switch (response) {
+                    case 0:
+                        openWeaponsShop(player);
+                        break;
+                    case 1:
+                        openArmorShop(player);
+                        break;
+                    case 2:
+                        openToolsShop(player);
+                        break;
+                    case 3:
+                        openFoodShop(player);
+                        break;
+                    case 4:
+                        openMiscShop(player);
+                        break;
+                }
+            })
+            .send(player);
 }
 ```
 
@@ -262,23 +267,24 @@ Easy4FormAPI.sendModalForm(
 ```
 
 **Example: Teleport Confirmation**
+
 ```java
 import org.bukkit.entity.Player;
-import cn.enderrealm.easy4form.apiv1.Easy4FormAPI;
+import cn.enderrealm.easy4form.api.v1.Easy4FormAPI;
 
 public void confirmTeleport(Player player, Location destination) {
     Easy4FormAPI.sendModalForm(
-        player,
-        "Teleport Confirmation",
-        "Do you want to teleport to the specified location?",
-        "Teleport",
-        "Cancel",
-        response -> {
-            if (response != null && response) {
-                player.teleport(destination);
-                player.sendMessage("Teleported!");
+            player,
+            "Teleport Confirmation",
+            "Do you want to teleport to the specified location?",
+            "Teleport",
+            "Cancel",
+            response -> {
+                if (response != null && response) {
+                    player.teleport(destination);
+                    player.sendMessage("Teleported!");
+                }
             }
-        }
     );
 }
 ```
@@ -320,23 +326,24 @@ new ModalFormBuilder()
 ```
 
 **Example: Delete Home Confirmation**
+
 ```java
 import org.bukkit.entity.Player;
-import cn.enderrealm.easy4form.apiv1.ModalFormBuilder;
+import cn.enderrealm.easy4form.api.v1.ModalFormBuilder;
 
 public void confirmDeleteHome(Player player, String homeName) {
     new ModalFormBuilder()
-        .title("Delete Home")
-        .content("Are you sure you want to delete your home \"" + homeName + "\"?")
-        .button1("Delete")
-        .button2("Cancel")
-        .responseHandler(response -> {
-            if (response != null && response) {
-                // Code to delete the home
-                player.sendMessage("Home \"" + homeName + "\" has been deleted.");
-            }
-        })
-        .send(player);
+            .title("Delete Home")
+            .content("Are you sure you want to delete your home \"" + homeName + "\"?")
+            .button1("Delete")
+            .button2("Cancel")
+            .responseHandler(response -> {
+                if (response != null && response) {
+                    // Code to delete the home
+                    player.sendMessage("Home \"" + homeName + "\" has been deleted.");
+                }
+            })
+            .send(player);
 }
 ```
 
@@ -400,41 +407,42 @@ form.label("info", "Please configure your settings below:")
 ```
 
 **Example: Player Profile Form**
+
 ```java
 import org.bukkit.entity.Player;
-import cn.enderrealm.easy4form.apiv1.CustomFormBuilder;
-import cn.enderrealm.easy4form.apiv1.Easy4FormAPI;
+import cn.enderrealm.easy4form.api.v1.CustomFormBuilder;
+import cn.enderrealm.easy4form.api.v1.Easy4FormAPI;
+
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 public void showProfileForm(Player player) {
     List<String> genders = Arrays.asList("Male", "Female", "Other", "Prefer not to say");
     List<String> ageRanges = Arrays.asList("Under 18", "18-24", "25-34", "35-44", "45+", "Prefer not to say");
-    
+
     CustomFormBuilder form = Easy4FormAPI.createCustomForm(player, "Player Profile", response -> {
         if (response == null) {
             return; // Form was closed
         }
-        
+
         // Save the profile information
         String nickname = (String) response.get("nickname");
         String bio = (String) response.get("bio");
         boolean showProfile = (boolean) response.get("showProfile");
         String gender = genders.get(((Float) response.get("gender")).intValue());
         String ageRange = ageRanges.get(((Float) response.get("ageRange")).intValue());
-        
+
         // Code to save the profile information
         player.sendMessage("Profile updated successfully!");
     });
-    
+
     form.label("header", "Please fill out your profile information:")
-        .input("nickname", "Nickname", "Enter your preferred nickname", player.getName())
-        .input("bio", "Biography", "Tell us about yourself", "")
-        .toggle("showProfile", "Show my profile to other players", true)
-        .dropdown("gender", "Gender", genders, 0)
-        .dropdown("ageRange", "Age Range", ageRanges, 0)
-        .send(player);
+            .input("nickname", "Nickname", "Enter your preferred nickname", player.getName())
+            .input("bio", "Biography", "Tell us about yourself", "")
+            .toggle("showProfile", "Show my profile to other players", true)
+            .dropdown("gender", "Gender", genders, 0)
+            .dropdown("ageRange", "Age Range", ageRanges, 0)
+            .send(player);
 }
 ```
 
@@ -488,45 +496,47 @@ new CustomFormBuilder()
 ```
 
 **Example: Server Feedback Form**
+
 ```java
 import org.bukkit.entity.Player;
-import cn.enderrealm.easy4form.apiv1.CustomFormBuilder;
+import cn.enderrealm.easy4form.api.v1.CustomFormBuilder;
+
 import java.util.Arrays;
 import java.util.List;
 
 public void showFeedbackForm(Player player) {
     List<String> ratings = Arrays.asList("Poor", "Fair", "Good", "Very Good", "Excellent");
     List<String> aspects = Arrays.asList("Gameplay", "Community", "Staff", "Events", "Performance");
-    
+
     new CustomFormBuilder()
-        .title("Server Feedback")
-        .label("intro", "We value your feedback! Please let us know how we're doing.")
-        .dropdown("overall", "Overall Experience", ratings, 2)
-        .stepSlider("favorite", "Favorite Aspect", aspects, 0)
-        .input("suggestions", "Suggestions", "Enter your suggestions here", "")
-        .toggle("contact", "May we contact you for more feedback?", false)
-        .responseHandler(response -> {
-            if (response == null) {
-                return; // Form was closed
-            }
-            
-            String overallRating = ratings.get(((Float) response.get("overall")).intValue());
-            String favoriteAspect = aspects.get(((Float) response.get("favorite")).intValue());
-            String suggestions = (String) response.get("suggestions");
-            boolean canContact = (boolean) response.get("contact");
-            
-            // Code to save the feedback
-            player.sendMessage("Thank you for your feedback!");
-            
-            // Notify admins about new feedback
-            for (Player admin : getAdminPlayers()) {
-                admin.sendMessage("New feedback from " + player.getName() + ":");
-                admin.sendMessage("Overall: " + overallRating);
-                admin.sendMessage("Favorite: " + favoriteAspect);
-                admin.sendMessage("Suggestions: " + suggestions);
-            }
-        })
-        .send(player);
+            .title("Server Feedback")
+            .label("intro", "We value your feedback! Please let us know how we're doing.")
+            .dropdown("overall", "Overall Experience", ratings, 2)
+            .stepSlider("favorite", "Favorite Aspect", aspects, 0)
+            .input("suggestions", "Suggestions", "Enter your suggestions here", "")
+            .toggle("contact", "May we contact you for more feedback?", false)
+            .responseHandler(response -> {
+                if (response == null) {
+                    return; // Form was closed
+                }
+
+                String overallRating = ratings.get(((Float) response.get("overall")).intValue());
+                String favoriteAspect = aspects.get(((Float) response.get("favorite")).intValue());
+                String suggestions = (String) response.get("suggestions");
+                boolean canContact = (boolean) response.get("contact");
+
+                // Code to save the feedback
+                player.sendMessage("Thank you for your feedback!");
+
+                // Notify admins about new feedback
+                for (Player admin : getAdminPlayers()) {
+                    admin.sendMessage("New feedback from " + player.getName() + ":");
+                    admin.sendMessage("Overall: " + overallRating);
+                    admin.sendMessage("Favorite: " + favoriteAspect);
+                    admin.sendMessage("Suggestions: " + suggestions);
+                }
+            })
+            .send(player);
 }
 
 private List<Player> getAdminPlayers() {

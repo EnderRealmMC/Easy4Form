@@ -1,6 +1,6 @@
-package cn.enderrealm.easy4form.apiv1;
+package cn.enderrealm.easy4form.api.v1;
 
-import cn.enderrealm.easy4form.apiv1.utils.PlayerUtils;
+import cn.enderrealm.easy4form.api.v1.utils.PlayerUtils;
 import org.bukkit.entity.Player;
 import org.geysermc.cumulus.SimpleForm;
 import org.geysermc.cumulus.component.ButtonComponent;

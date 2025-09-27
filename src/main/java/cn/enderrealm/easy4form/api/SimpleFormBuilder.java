@@ -6,23 +6,33 @@ import org.bukkit.entity.Player;
 import java.util.function.Consumer;
 
 /**
- * Builder for creating simple forms - Legacy API Proxy
+ * Builder for creating simple forms - Multi-Version API Proxy
  * <p>
- * 用于创建简单表单的构建器 - 传统API代理
- * 
- * @deprecated This class is deprecated and will be removed in future versions.
- *             Please use {@link cn.enderrealm.easy4form.apiv1.SimpleFormBuilder} instead.
- *             此类已弃用，将在未来版本中移除。请使用 {@link cn.enderrealm.easy4form.apiv1.SimpleFormBuilder} 代替。
+ * 用于创建简单表单的构建器 - 多版本API代理
+ * <p>
+ * This class provides a unified API interface that automatically routes to the appropriate version
+ * based on the current configuration. It supports multiple API versions seamlessly.
+ * <p>
+ * 此类提供统一的API接口，根据当前配置自动路由到适当的版本。它无缝支持多个API版本。
  */
-@Deprecated
 public class SimpleFormBuilder {
-    private cn.enderrealm.easy4form.apiv1.SimpleFormBuilder delegate;
 
-    public SimpleFormBuilder() {
-        Easy4form.getInstance().getVersionManager().logMigrationWarning(
-            "Using deprecated SimpleFormBuilder. Please migrate to apiv1.SimpleFormBuilder"
-        );
-        this.delegate = new cn.enderrealm.easy4form.apiv1.SimpleFormBuilder();
+    /**
+     * Create a new SimpleFormBuilder instance
+     * <p>
+     * 创建新的SimpleFormBuilder实例
+     *
+     * @return A new SimpleFormBuilder instance / 新的SimpleFormBuilder实例
+     */
+    public static SimpleFormBuilder create() {
+        try {
+            return (SimpleFormBuilder) Easy4form.getInstance().getVersionManager().routeMethodCall(
+                "createSimpleFormBuilder", new Class<?>[]{}
+            );
+        } catch (Exception e) {
+            Easy4form.getInstance().getLogger().severe("Failed to route createSimpleFormBuilder call: " + e.getMessage());
+            return null;
+        }
     }
 
     /**
@@ -32,12 +42,18 @@ public class SimpleFormBuilder {
      *
      * @param title The title / 标题
      * @return The builder instance / 构建器实例
-     * @deprecated Use {@link cn.enderrealm.easy4form.apiv1.SimpleFormBuilder#title(String)} instead
      */
-    @Deprecated
     public SimpleFormBuilder title(String title) {
-        delegate.title(title);
-        return this;
+        try {
+            return (SimpleFormBuilder) Easy4form.getInstance().getVersionManager().routeMethodCall(
+                "simpleFormBuilderTitle", 
+                new Class<?>[]{SimpleFormBuilder.class, String.class}, 
+                this, title
+            );
+        } catch (Exception e) {
+            Easy4form.getInstance().getLogger().severe("Failed to route simpleFormBuilderTitle call: " + e.getMessage());
+            return this;
+        }
     }
 
     /**
@@ -47,12 +63,18 @@ public class SimpleFormBuilder {
      *
      * @param content The content / 内容
      * @return The builder instance / 构建器实例
-     * @deprecated Use {@link cn.enderrealm.easy4form.apiv1.SimpleFormBuilder#content(String)} instead
      */
-    @Deprecated
     public SimpleFormBuilder content(String content) {
-        delegate.content(content);
-        return this;
+        try {
+            return (SimpleFormBuilder) Easy4form.getInstance().getVersionManager().routeMethodCall(
+                "simpleFormBuilderContent", 
+                new Class<?>[]{SimpleFormBuilder.class, String.class}, 
+                this, content
+            );
+        } catch (Exception e) {
+            Easy4form.getInstance().getLogger().severe("Failed to route simpleFormBuilderContent call: " + e.getMessage());
+            return this;
+        }
     }
 
     /**
@@ -62,12 +84,18 @@ public class SimpleFormBuilder {
      *
      * @param text The button text / 按钮文本
      * @return The builder instance / 构建器实例
-     * @deprecated Use {@link cn.enderrealm.easy4form.apiv1.SimpleFormBuilder#button(String)} instead
      */
-    @Deprecated
     public SimpleFormBuilder button(String text) {
-        delegate.button(text);
-        return this;
+        try {
+            return (SimpleFormBuilder) Easy4form.getInstance().getVersionManager().routeMethodCall(
+                "simpleFormBuilderButton", 
+                new Class<?>[]{SimpleFormBuilder.class, String.class}, 
+                this, text
+            );
+        } catch (Exception e) {
+            Easy4form.getInstance().getLogger().severe("Failed to route simpleFormBuilderButton call: " + e.getMessage());
+            return this;
+        }
     }
     
     /**
@@ -78,12 +106,18 @@ public class SimpleFormBuilder {
      * @param text The button text / 按钮文本
      * @param imagePath The path to the image in the resource pack / 资源包中图片的路径
      * @return The builder instance / 构建器实例
-     * @deprecated Use {@link cn.enderrealm.easy4form.apiv1.SimpleFormBuilder#button(String, String)} instead
      */
-    @Deprecated
     public SimpleFormBuilder button(String text, String imagePath) {
-        delegate.button(text, imagePath);
-        return this;
+        try {
+            return (SimpleFormBuilder) Easy4form.getInstance().getVersionManager().routeMethodCall(
+                "simpleFormBuilderButtonWithImage", 
+                new Class<?>[]{SimpleFormBuilder.class, String.class, String.class}, 
+                this, text, imagePath
+            );
+        } catch (Exception e) {
+            Easy4form.getInstance().getLogger().severe("Failed to route simpleFormBuilderButtonWithImage call: " + e.getMessage());
+            return this;
+        }
     }
     
     /**
@@ -94,12 +128,18 @@ public class SimpleFormBuilder {
      * @param text The button text / 按钮文本
      * @param imageUrl The URL of the image / 图片的URL
      * @return The builder instance / 构建器实例
-     * @deprecated Use {@link cn.enderrealm.easy4form.apiv1.SimpleFormBuilder#buttonWithUrl(String, String)} instead
      */
-    @Deprecated
     public SimpleFormBuilder buttonWithUrl(String text, String imageUrl) {
-        delegate.buttonWithUrl(text, imageUrl);
-        return this;
+        try {
+            return (SimpleFormBuilder) Easy4form.getInstance().getVersionManager().routeMethodCall(
+                "simpleFormBuilderButtonWithUrl", 
+                new Class<?>[]{SimpleFormBuilder.class, String.class, String.class}, 
+                this, text, imageUrl
+            );
+        } catch (Exception e) {
+            Easy4form.getInstance().getLogger().severe("Failed to route simpleFormBuilderButtonWithUrl call: " + e.getMessage());
+            return this;
+        }
     }
 
     /**
@@ -109,12 +149,18 @@ public class SimpleFormBuilder {
      *
      * @param responseHandler The response handler / 响应处理器
      * @return The builder instance / 构建器实例
-     * @deprecated Use {@link cn.enderrealm.easy4form.apiv1.SimpleFormBuilder#responseHandler(Consumer)} instead
      */
-    @Deprecated
     public SimpleFormBuilder responseHandler(Consumer<Integer> responseHandler) {
-        delegate.responseHandler(responseHandler);
-        return this;
+        try {
+            return (SimpleFormBuilder) Easy4form.getInstance().getVersionManager().routeMethodCall(
+                "simpleFormBuilderResponseHandler", 
+                new Class<?>[]{SimpleFormBuilder.class, Consumer.class}, 
+                this, responseHandler
+            );
+        } catch (Exception e) {
+            Easy4form.getInstance().getLogger().severe("Failed to route simpleFormBuilderResponseHandler call: " + e.getMessage());
+            return this;
+        }
     }
 
     /**
@@ -123,10 +169,16 @@ public class SimpleFormBuilder {
      * 向玩家发送表单
      *
      * @param player The player to send the form to / 接收表单的玩家
-     * @deprecated Use {@link cn.enderrealm.easy4form.apiv1.SimpleFormBuilder#send(Player)} instead
      */
-    @Deprecated
     public void send(Player player) {
-        delegate.send(player);
+        try {
+            Easy4form.getInstance().getVersionManager().routeMethodCall(
+                "simpleFormBuilderSend", 
+                new Class<?>[]{SimpleFormBuilder.class, Player.class}, 
+                this, player
+            );
+        } catch (Exception e) {
+            Easy4form.getInstance().getLogger().severe("Failed to route simpleFormBuilderSend call: " + e.getMessage());
+        }
     }
 }

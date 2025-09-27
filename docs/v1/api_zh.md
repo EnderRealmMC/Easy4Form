@@ -43,9 +43,10 @@ boolean isBedrockPlayer = Easy4FormAPI.isBedrockPlayer(player);
 ```
 
 **示例：**
+
 ```java
 import org.bukkit.entity.Player;
-import cn.enderrealm.easy4form.apiv1.Easy4FormAPI;
+import cn.enderrealm.easy4form.api.v1.Easy4FormAPI;
 
 public void onPlayerJoin(Player player) {
     if (Easy4FormAPI.isBedrockPlayer(player)) {
@@ -75,9 +76,10 @@ FloodgatePlayer floodgatePlayer = Easy4FormAPI.getFloodgatePlayer(player);
 ```
 
 **示例：**
+
 ```java
 import org.bukkit.entity.Player;
-import cn.enderrealm.easy4form.apiv1.Easy4FormAPI;
+import cn.enderrealm.easy4form.api.v1.Easy4FormAPI;
 import org.geysermc.floodgate.api.player.FloodgatePlayer;
 
 public void getPlayerInfo(Player player) {
@@ -120,27 +122,29 @@ Easy4FormAPI.sendSimpleForm(player, "标题", "内容", buttons, response -> {
 ```
 
 **示例：服务器选择器**
+
 ```java
 import org.bukkit.entity.Player;
-import cn.enderrealm.easy4form.apiv1.Easy4FormAPI;
+import cn.enderrealm.easy4form.api.v1.Easy4FormAPI;
+
 import java.util.Arrays;
 import java.util.List;
 
 public void showServerSelector(Player player) {
     List<String> servers = Arrays.asList("生存服", "创造服", "小游戏", "空岛");
-    
+
     Easy4FormAPI.sendSimpleForm(
-        player,
-        "服务器选择器",
-        "选择要连接的服务器：",
-        servers,
-        response -> {
-            if (response != null) {
-                String server = servers.get(response);
-                player.sendMessage("正在连接到" + server + "...");
-                // 连接玩家到选定服务器的代码
+            player,
+            "服务器选择器",
+            "选择要连接的服务器：",
+            servers,
+            response -> {
+                if (response != null) {
+                    String server = servers.get(response);
+                    player.sendMessage("正在连接到" + server + "...");
+                    // 连接玩家到选定服务器的代码
+                }
             }
-        }
     );
 }
 ```
@@ -182,43 +186,44 @@ new SimpleFormBuilder()
 ```
 
 **示例：商店分类**
+
 ```java
 import org.bukkit.entity.Player;
-import cn.enderrealm.easy4form.apiv1.SimpleFormBuilder;
+import cn.enderrealm.easy4form.api.v1.SimpleFormBuilder;
 
 public void showShopCategories(Player player) {
     new SimpleFormBuilder()
-        .title("商店")
-        .content("选择一个分类：")
-        .button("武器", "textures/items/diamond_sword")      // 带资源包图标的按钮
-        .button("盔甲", "textures/items/diamond_chestplate") // 带资源包图标的按钮
-        .button("工具", "textures/items/diamond_pickaxe")   // 带资源包图标的按钮
-        .button("食物", "textures/items/apple")            // 带资源包图标的按钮
-        .button("杂项")                                    // 无图标按钮
-        .responseHandler(response -> {
-            if (response == null) {
-                return; // 表单被关闭
-            }
-            
-            switch (response) {
-                case 0:
-                    openWeaponsShop(player);
-                    break;
-                case 1:
-                    openArmorShop(player);
-                    break;
-                case 2:
-                    openToolsShop(player);
-                    break;
-                case 3:
-                    openFoodShop(player);
-                    break;
-                case 4:
-                    openMiscShop(player);
-                    break;
-            }
-        })
-        .send(player);
+            .title("商店")
+            .content("选择一个分类：")
+            .button("武器", "textures/items/diamond_sword")      // 带资源包图标的按钮
+            .button("盔甲", "textures/items/diamond_chestplate") // 带资源包图标的按钮
+            .button("工具", "textures/items/diamond_pickaxe")   // 带资源包图标的按钮
+            .button("食物", "textures/items/apple")            // 带资源包图标的按钮
+            .button("杂项")                                    // 无图标按钮
+            .responseHandler(response -> {
+                if (response == null) {
+                    return; // 表单被关闭
+                }
+
+                switch (response) {
+                    case 0:
+                        openWeaponsShop(player);
+                        break;
+                    case 1:
+                        openArmorShop(player);
+                        break;
+                    case 2:
+                        openToolsShop(player);
+                        break;
+                    case 3:
+                        openFoodShop(player);
+                        break;
+                    case 4:
+                        openMiscShop(player);
+                        break;
+                }
+            })
+            .send(player);
 }
 
 /**
@@ -227,25 +232,25 @@ public void showShopCategories(Player player) {
 public void showServerSelector(Player player) {
     List<String> servers = Arrays.asList("生存服", "创造服", "小游戏", "空岛");
     List<String> images = Arrays.asList(
-        "textures/blocks/grass_side",
-        "textures/blocks/command_block",
-        "textures/items/diamond",
-        "textures/blocks/end_stone"
+            "textures/blocks/grass_side",
+            "textures/blocks/command_block",
+            "textures/items/diamond",
+            "textures/blocks/end_stone"
     );
-    
+
     Easy4FormAPI.sendSimpleFormWithImages(
-        player,
-        "服务器选择器",
-        "选择要连接的服务器：",
-        servers,
-        images,
-        response -> {
-            if (response != null) {
-                String server = servers.get(response);
-                player.sendMessage("正在连接到" + server + "...");
-                // 连接玩家到选定服务器的代码
+            player,
+            "服务器选择器",
+            "选择要连接的服务器：",
+            servers,
+            images,
+            response -> {
+                if (response != null) {
+                    String server = servers.get(response);
+                    player.sendMessage("正在连接到" + server + "...");
+                    // 连接玩家到选定服务器的代码
+                }
             }
-        }
     );
 }
 ```
@@ -290,23 +295,24 @@ Easy4FormAPI.sendModalForm(
 ```
 
 **示例：传送确认**
+
 ```java
 import org.bukkit.entity.Player;
-import cn.enderrealm.easy4form.apiv1.Easy4FormAPI;
+import cn.enderrealm.easy4form.api.v1.Easy4FormAPI;
 
 public void confirmTeleport(Player player, Location destination) {
     Easy4FormAPI.sendModalForm(
-        player,
-        "传送确认",
-        "您想要传送到指定位置吗？",
-        "传送",
-        "取消",
-        response -> {
-            if (response != null && response) {
-                player.teleport(destination);
-                player.sendMessage("已传送！");
+            player,
+            "传送确认",
+            "您想要传送到指定位置吗？",
+            "传送",
+            "取消",
+            response -> {
+                if (response != null && response) {
+                    player.teleport(destination);
+                    player.sendMessage("已传送！");
+                }
             }
-        }
     );
 }
 ```
@@ -332,23 +338,24 @@ new ModalFormBuilder()
 ```
 
 **示例：删除家确认**
+
 ```java
 import org.bukkit.entity.Player;
-import cn.enderrealm.easy4form.apiv1.ModalFormBuilder;
+import cn.enderrealm.easy4form.api.v1.ModalFormBuilder;
 
 public void confirmDeleteHome(Player player, String homeName) {
     new ModalFormBuilder()
-        .title("删除家")
-        .content("您确定要删除您的家 \"" + homeName + "\" 吗？")
-        .button1("删除")
-        .button2("取消")
-        .responseHandler(response -> {
-            if (response != null && response) {
-                // 删除家的代码
-                player.sendMessage("家 \"" + homeName + "\" 已被删除。");
-            }
-        })
-        .send(player);
+            .title("删除家")
+            .content("您确定要删除您的家 \"" + homeName + "\" 吗？")
+            .button1("删除")
+            .button2("取消")
+            .responseHandler(response -> {
+                if (response != null && response) {
+                    // 删除家的代码
+                    player.sendMessage("家 \"" + homeName + "\" 已被删除。");
+                }
+            })
+            .send(player);
 }
 ```
 
@@ -412,41 +419,42 @@ form.label("info", "请在下方配置您的设置：")
 ```
 
 **示例：玩家资料表单**
+
 ```java
 import org.bukkit.entity.Player;
-import cn.enderrealm.easy4form.apiv1.CustomFormBuilder;
-import cn.enderrealm.easy4form.apiv1.Easy4FormAPI;
+import cn.enderrealm.easy4form.api.v1.CustomFormBuilder;
+import cn.enderrealm.easy4form.api.v1.Easy4FormAPI;
+
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 public void showProfileForm(Player player) {
     List<String> genders = Arrays.asList("男", "女", "其他", "不愿透露");
     List<String> ageRanges = Arrays.asList("18岁以下", "18-24岁", "25-34岁", "35-44岁", "45岁以上", "不愿透露");
-    
+
     CustomFormBuilder form = Easy4FormAPI.createCustomForm(player, "玩家资料", response -> {
         if (response == null) {
             return; // 表单被关闭
         }
-        
+
         // 保存资料信息
         String nickname = (String) response.get("nickname");
         String bio = (String) response.get("bio");
         boolean showProfile = (boolean) response.get("showProfile");
         String gender = genders.get(((Float) response.get("gender")).intValue());
         String ageRange = ageRanges.get(((Float) response.get("ageRange")).intValue());
-        
+
         // 保存资料信息的代码
         player.sendMessage("资料更新成功！");
     });
-    
+
     form.label("header", "请填写您的资料信息：")
-        .input("nickname", "昵称", "输入您的首选昵称", player.getName())
-        .input("bio", "个人简介", "介绍一下您自己", "")
-        .toggle("showProfile", "向其他玩家显示我的资料", true)
-        .dropdown("gender", "性别", genders, 0)
-        .dropdown("ageRange", "年龄段", ageRanges, 0)
-        .send(player);
+            .input("nickname", "昵称", "输入您的首选昵称", player.getName())
+            .input("bio", "个人简介", "介绍一下您自己", "")
+            .toggle("showProfile", "向其他玩家显示我的资料", true)
+            .dropdown("gender", "性别", genders, 0)
+            .dropdown("ageRange", "年龄段", ageRanges, 0)
+            .send(player);
 }
 ```
 
@@ -500,45 +508,47 @@ new CustomFormBuilder()
 ```
 
 **示例：服务器反馈表单**
+
 ```java
 import org.bukkit.entity.Player;
-import cn.enderrealm.easy4form.apiv1.CustomFormBuilder;
+import cn.enderrealm.easy4form.api.v1.CustomFormBuilder;
+
 import java.util.Arrays;
 import java.util.List;
 
 public void showFeedbackForm(Player player) {
     List<String> ratings = Arrays.asList("差", "一般", "良好", "很好", "优秀");
     List<String> aspects = Arrays.asList("游戏玩法", "社区", "管理员", "活动", "性能");
-    
+
     new CustomFormBuilder()
-        .title("服务器反馈")
-        .label("intro", "我们重视您的反馈！请让我们知道我们的表现如何。")
-        .dropdown("overall", "整体体验", ratings, 2)
-        .stepSlider("favorite", "最喜欢的方面", aspects, 0)
-        .input("suggestions", "建议", "在此输入您的建议", "")
-        .toggle("contact", "我们可以联系您获取更多反馈吗？", false)
-        .responseHandler(response -> {
-            if (response == null) {
-                return; // 表单被关闭
-            }
-            
-            String overallRating = ratings.get(((Float) response.get("overall")).intValue());
-            String favoriteAspect = aspects.get(((Float) response.get("favorite")).intValue());
-            String suggestions = (String) response.get("suggestions");
-            boolean canContact = (boolean) response.get("contact");
-            
-            // 保存反馈的代码
-            player.sendMessage("感谢您的反馈！");
-            
-            // 通知管理员有新反馈
-            for (Player admin : getAdminPlayers()) {
-                admin.sendMessage("来自 " + player.getName() + " 的新反馈：");
-                admin.sendMessage("整体评价：" + overallRating);
-                admin.sendMessage("最喜欢的方面：" + favoriteAspect);
-                admin.sendMessage("建议：" + suggestions);
-            }
-        })
-        .send(player);
+            .title("服务器反馈")
+            .label("intro", "我们重视您的反馈！请让我们知道我们的表现如何。")
+            .dropdown("overall", "整体体验", ratings, 2)
+            .stepSlider("favorite", "最喜欢的方面", aspects, 0)
+            .input("suggestions", "建议", "在此输入您的建议", "")
+            .toggle("contact", "我们可以联系您获取更多反馈吗？", false)
+            .responseHandler(response -> {
+                if (response == null) {
+                    return; // 表单被关闭
+                }
+
+                String overallRating = ratings.get(((Float) response.get("overall")).intValue());
+                String favoriteAspect = aspects.get(((Float) response.get("favorite")).intValue());
+                String suggestions = (String) response.get("suggestions");
+                boolean canContact = (boolean) response.get("contact");
+
+                // 保存反馈的代码
+                player.sendMessage("感谢您的反馈！");
+
+                // 通知管理员有新反馈
+                for (Player admin : getAdminPlayers()) {
+                    admin.sendMessage("来自 " + player.getName() + " 的新反馈：");
+                    admin.sendMessage("整体评价：" + overallRating);
+                    admin.sendMessage("最喜欢的方面：" + favoriteAspect);
+                    admin.sendMessage("建议：" + suggestions);
+                }
+            })
+            .send(player);
 }
 
 private List<Player> getAdminPlayers() {

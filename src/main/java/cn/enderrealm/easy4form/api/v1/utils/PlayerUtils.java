@@ -1,4 +1,4 @@
-package cn.enderrealm.easy4form.apiv1.utils;
+package cn.enderrealm.easy4form.api.v1.utils;
 
 import cn.enderrealm.easy4form.Easy4form;
 import org.bukkit.entity.Player;

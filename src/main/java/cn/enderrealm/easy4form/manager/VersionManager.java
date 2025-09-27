@@ -3,7 +3,11 @@ package cn.enderrealm.easy4form.manager;
 import org.bukkit.configuration.file.FileConfiguration;
 import org.bukkit.plugin.java.JavaPlugin;
 
+import java.lang.reflect.Method;
+import java.lang.reflect.InvocationTargetException;
+import java.util.HashMap;
 import java.util.HashSet;
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -81,7 +85,7 @@ public class VersionManager {
         }
         
         // Log the warning with English text
-        plugin.getLogger().warning("[MIGRATION WARNING] " + message + " - Please consider migrating to the new API in apiv1 package for better future compatibility.");
+        plugin.getLogger().warning("[MIGRATION WARNING] " + message + " - Please consider migrating to the new API package for better future compatibility.");
         
         // Add to warned messages to avoid spam
         warnedMessages.add(message);
@@ -102,5 +106,67 @@ public class VersionManager {
     @SuppressWarnings("unchecked")
     public <T> T getConfigValue(String path, T defaultValue) {
         return (T) plugin.getConfig().get(path, defaultValue);
+    }
+    
+    // ========== Dynamic API Version Routing ==========
+    
+    /**
+     * Route method call to appropriate version using reflection
+     * <p>
+     * 使用反射将方法调用路由到适当的版本
+     *
+     * @param methodName The method name / 方法名
+     * @param paramTypes Parameter types / 参数类型
+     * @param args Method arguments / 方法参数
+     * @return Method result / 方法结果
+     */
+    public Object routeMethodCall(String methodName, Class<?>[] paramTypes, Object... args) {
+        try {
+            // Use configured API version to construct class name
+            String fullClassName = "cn.enderrealm.easy4form.api." + currentApiVersion + ".Easy4FormAPI";
+            Class<?> targetClass = Class.forName(fullClassName);
+            Method method = targetClass.getMethod(methodName, paramTypes);
+            return method.invoke(null, args);
+        } catch (ClassNotFoundException | NoSuchMethodException | IllegalAccessException | InvocationTargetException e) {
+            // Fallback to v1 implementation
+            try {
+                String fallbackClassName = "cn.enderrealm.easy4form.api.v1.Easy4FormAPI";
+                Class<?> fallbackClass = Class.forName(fallbackClassName);
+                Method method = fallbackClass.getMethod(methodName, paramTypes);
+                return method.invoke(null, args);
+            } catch (Exception fallbackException) {
+                plugin.getLogger().severe("Failed to route method call " + methodName + ": " + fallbackException.getMessage());
+                throw new RuntimeException("API routing failed", fallbackException);
+            }
+        }
+    }
+    
+    /**
+     * Route constructor call to appropriate version using reflection
+     * <p>
+     * 使用反射将构造函数调用路由到适当的版本
+     *
+     * @param className The class name without version package / 类名（不包含版本包）
+     * @param paramTypes Parameter types / 参数类型
+     * @param args Constructor arguments / 构造函数参数
+     * @return New instance / 新实例
+     */
+    public Object routeConstructorCall(String className, Class<?>[] paramTypes, Object... args) {
+        try {
+            // Use configured API version to construct class name
+            String fullClassName = "cn.enderrealm.easy4form.api." + currentApiVersion + "." + className;
+            Class<?> targetClass = Class.forName(fullClassName);
+            return targetClass.getConstructor(paramTypes).newInstance(args);
+        } catch (Exception e) {
+            // Fallback to v1 implementation
+            try {
+                String fallbackClassName = "cn.enderrealm.easy4form.api.v1." + className;
+                Class<?> fallbackClass = Class.forName(fallbackClassName);
+                return fallbackClass.getConstructor(paramTypes).newInstance(args);
+            } catch (Exception fallbackException) {
+                plugin.getLogger().severe("Failed to route constructor call " + className + ": " + fallbackException.getMessage());
+                throw new RuntimeException("API routing failed", fallbackException);
+            }
+        }
     }
 }
