@@ -26,12 +26,21 @@ public class ModalFormBuilder {
      */
     public static ModalFormBuilder create() {
         try {
-            return (ModalFormBuilder) Easy4form.getInstance().getVersionManager().routeMethodCall(
-                "createModalFormBuilder", new Class<?>[]{}
+            // Create a new proxy instance
+            ModalFormBuilder proxy = new ModalFormBuilder();
+            
+            // Initialize the actual builder instance through version manager
+            Easy4form.getInstance().getVersionManager().routeMethodCall(
+                "createModalForm", 
+                new Class<?>[]{}, 
+                proxy
             );
+            
+            return proxy;
         } catch (Exception e) {
-            Easy4form.getInstance().getLogger().severe("Failed to route createModalFormBuilder call: " + e.getMessage());
-            return null;
+            Easy4form.getInstance().getLogger().severe("Failed to route createModalForm call: " + e.getMessage());
+            e.printStackTrace();
+            return new ModalFormBuilder();
         }
     }
 

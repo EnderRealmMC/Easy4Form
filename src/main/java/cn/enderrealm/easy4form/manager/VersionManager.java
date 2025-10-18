@@ -19,6 +19,9 @@ public class VersionManager {
     private boolean enableMigrationWarnings;
     private final V2CompatibilityHandler compatibilityHandler;
     
+    // Map to store actual builder instances for each proxy instance
+    private final java.util.Map<Object, Object> proxyToActualBuilderMap = new java.util.concurrent.ConcurrentHashMap<>();
+    
     public VersionManager(JavaPlugin plugin) {
         this.plugin = plugin;
         this.compatibilityHandler = new V2CompatibilityHandler();
@@ -100,20 +103,24 @@ public class VersionManager {
      * @return FormBuilder instance / FormBuilder实例
      */
     private Object createFormBuilder(String builderType) {
+        // For FormBuilder creation, we need to return the proxy class instance
+        // that wraps the actual implementation, not the implementation itself
         try {
-            String builderClassName = "cn.enderrealm.easy4form.api." + currentApiVersion + "." + builderType;
-            Class<?> builderClass = Class.forName(builderClassName);
-            return builderClass.getDeclaredConstructor().newInstance();
-        } catch (Exception e) {
-            // Fallback to v1
-            try {
-                String fallbackClassName = "cn.enderrealm.easy4form.api.v1." + builderType;
-                Class<?> fallbackClass = Class.forName(fallbackClassName);
-                return fallbackClass.getDeclaredConstructor().newInstance();
-            } catch (Exception fallbackException) {
-                plugin.getLogger().severe("Failed to create " + builderType + ": " + fallbackException.getMessage());
-                throw new RuntimeException(builderType + " creation failed", fallbackException);
+            if ("SimpleFormBuilder".equals(builderType)) {
+                // Create a new proxy SimpleFormBuilder instance
+                return new cn.enderrealm.easy4form.api.SimpleFormBuilder();
+            } else if ("CustomFormBuilder".equals(builderType)) {
+                // Create a new proxy CustomFormBuilder instance  
+                return new cn.enderrealm.easy4form.api.CustomFormBuilder();
+            } else if ("ModalFormBuilder".equals(builderType)) {
+                // Create a new proxy ModalFormBuilder instance
+                return new cn.enderrealm.easy4form.api.ModalFormBuilder();
+            } else {
+                throw new IllegalArgumentException("Unknown builder type: " + builderType);
             }
+        } catch (Exception e) {
+            plugin.getLogger().severe("Failed to create " + builderType + ": " + e.getMessage());
+            throw new RuntimeException(builderType + " creation failed", e);
         }
     }
     
@@ -133,32 +140,73 @@ public class VersionManager {
         String actualMethodName = methodName.substring(prefix.length());
         actualMethodName = actualMethodName.substring(0, 1).toLowerCase() + actualMethodName.substring(1);
         
-        // The first argument should be the FormBuilder instance
+        // The first argument should be the FormBuilder proxy instance
         if (args.length > 0 && args[0] != null) {
             try {
-                // If configured for v2, use compatibility handler
-                if (isVersionV2OrGreater(currentApiVersion)) {
-                    return compatibilityHandler.handleMethodInvocation(actualMethodName, prefix, paramTypes, args);
+                Object proxyInstance = args[0];
+                
+                // Get or create the actual builder instance for this proxy
+                Object actualBuilder = proxyToActualBuilderMap.get(proxyInstance);
+                if (actualBuilder == null) {
+                    String builderType = getBuilderTypeFromPrefix(prefix);
+                    actualBuilder = createActualFormBuilder(builderType);
+                    proxyToActualBuilderMap.put(proxyInstance, actualBuilder);
                 }
                 
-                // For v1, use direct invocation
-                Object builderInstance = args[0];
-                Class<?> builderClass = builderInstance.getClass();
-                
-                // Create new parameter types and arguments without the builder instance
+                // Create new parameter types and arguments without the proxy builder instance
                 Class<?>[] newParamTypes = new Class<?>[paramTypes.length - 1];
                 Object[] newArgs = new Object[args.length - 1];
                 System.arraycopy(paramTypes, 1, newParamTypes, 0, newParamTypes.length);
                 System.arraycopy(args, 1, newArgs, 0, newArgs.length);
                 
-                Method method = builderClass.getMethod(actualMethodName, newParamTypes);
-                return method.invoke(builderInstance, newArgs);
+                // Invoke the method on the actual implementation
+                Class<?> actualBuilderClass = actualBuilder.getClass();
+                Method method = actualBuilderClass.getMethod(actualMethodName, newParamTypes);
+                Object result = method.invoke(actualBuilder, newArgs);
+                
+                // If the result is the actual builder instance, return the proxy instead
+                if (result == actualBuilder) {
+                    return proxyInstance; // Return the proxy instance
+                }
+                return result;
             } catch (Exception e) {
                 plugin.getLogger().severe("Failed to invoke " + prefix + " method " + actualMethodName + ": " + e.getMessage());
+                e.printStackTrace();
                 throw new RuntimeException(prefix + " method invocation failed", e);
             }
         }
         return null;
+    }
+    
+    private String getBuilderTypeFromPrefix(String prefix) {
+        switch (prefix) {
+            case "simpleFormBuilder":
+                return "SimpleFormBuilder";
+            case "customFormBuilder":
+                return "CustomFormBuilder";
+            case "modalFormBuilder":
+                return "ModalFormBuilder";
+            default:
+                throw new IllegalArgumentException("Unknown builder prefix: " + prefix);
+        }
+    }
+    
+    private Object createActualFormBuilder(String builderType) {
+        try {
+            String builderClassName = "cn.enderrealm.easy4form.api." + currentApiVersion + "." + builderType;
+            Class<?> builderClass = Class.forName(builderClassName);
+            return builderClass.getDeclaredConstructor().newInstance();
+        } catch (Exception e) {
+            // Fallback to v1
+            try {
+                String fallbackClassName = "cn.enderrealm.easy4form.api.v1." + builderType;
+                Class<?> fallbackClass = Class.forName(fallbackClassName);
+                return fallbackClass.getDeclaredConstructor().newInstance();
+            } catch (Exception fallbackException) {
+                plugin.getLogger().severe("Failed to create actual " + builderType + ": " + fallbackException.getMessage());
+                throw new RuntimeException(builderType + " creation failed", fallbackException);
+            }
+        }
     }
     
     /**
@@ -209,14 +257,14 @@ public class VersionManager {
      * @return Method result / 方法结果
      */
     public Object routeMethodCall(String methodName, Class<?>[] paramTypes, Object... args) {
-        // Handle FormBuilder creation
-        if ("createSimpleFormBuilder".equals(methodName)) {
+        // Handle FormBuilder creation with parameters - these should be routed to version-specific implementations
+        if ("createSimpleForm".equals(methodName) && paramTypes.length == 0) {
             return createFormBuilder("SimpleFormBuilder");
         }
-        if ("createCustomFormBuilder".equals(methodName)) {
+        if ("createCustomForm".equals(methodName) && paramTypes.length == 0) {
             return createFormBuilder("CustomFormBuilder");
         }
-        if ("createModalFormBuilder".equals(methodName)) {
+        if ("createModalForm".equals(methodName) && paramTypes.length == 0) {
             return createFormBuilder("ModalFormBuilder");
         }
         
@@ -229,6 +277,93 @@ public class VersionManager {
         }
         if (methodName.startsWith("modalFormBuilder")) {
             return invokeFormBuilderMethod(methodName, "modalFormBuilder", paramTypes, args);
+        }
+        
+        // Handle createCustomForm with parameters - need to return proxy with actual builder mapped
+        if ("createCustomForm".equals(methodName) && paramTypes.length > 0) {
+            try {
+                // Create the actual builder using version-specific API
+                Object actualBuilder = null;
+                try {
+                    String fullClassName = "cn.enderrealm.easy4form.api." + currentApiVersion + ".Easy4FormAPI";
+                    Class<?> targetClass = Class.forName(fullClassName);
+                    Method method = targetClass.getMethod(methodName, paramTypes);
+                    actualBuilder = method.invoke(null, args);
+                } catch (Exception e) {
+                    // Fallback to v1
+                    String fallbackClassName = "cn.enderrealm.easy4form.api.v1.Easy4FormAPI";
+                    Class<?> fallbackClass = Class.forName(fallbackClassName);
+                    Method method = fallbackClass.getMethod(methodName, paramTypes);
+                    actualBuilder = method.invoke(null, args);
+                }
+                
+                // Create proxy and map it to actual builder
+                Object proxyBuilder = new cn.enderrealm.easy4form.api.CustomFormBuilder();
+                proxyToActualBuilderMap.put(proxyBuilder, actualBuilder);
+                return proxyBuilder;
+            } catch (Exception e) {
+                plugin.getLogger().severe("Failed to route createCustomForm call: " + e.getMessage());
+                e.printStackTrace();
+                throw new RuntimeException("createCustomForm routing failed", e);
+            }
+        }
+        
+        // Handle createSimpleForm with parameters - need to return proxy with actual builder mapped
+        if ("createSimpleForm".equals(methodName) && paramTypes.length > 0) {
+            try {
+                // Create the actual builder using version-specific API
+                Object actualBuilder = null;
+                try {
+                    String fullClassName = "cn.enderrealm.easy4form.api." + currentApiVersion + ".Easy4FormAPI";
+                    Class<?> targetClass = Class.forName(fullClassName);
+                    Method method = targetClass.getMethod(methodName, paramTypes);
+                    actualBuilder = method.invoke(null, args);
+                } catch (Exception e) {
+                    // Fallback to v1
+                    String fallbackClassName = "cn.enderrealm.easy4form.api.v1.Easy4FormAPI";
+                    Class<?> fallbackClass = Class.forName(fallbackClassName);
+                    Method method = fallbackClass.getMethod(methodName, paramTypes);
+                    actualBuilder = method.invoke(null, args);
+                }
+                
+                // Create proxy and map it to actual builder
+                Object proxyBuilder = new cn.enderrealm.easy4form.api.SimpleFormBuilder();
+                proxyToActualBuilderMap.put(proxyBuilder, actualBuilder);
+                return proxyBuilder;
+            } catch (Exception e) {
+                plugin.getLogger().severe("Failed to route createSimpleForm call: " + e.getMessage());
+                e.printStackTrace();
+                throw new RuntimeException("createSimpleForm routing failed", e);
+            }
+        }
+        
+        // Handle createModalForm with parameters - need to return proxy with actual builder mapped
+        if ("createModalForm".equals(methodName) && paramTypes.length > 0) {
+            try {
+                // Create the actual builder using version-specific API
+                Object actualBuilder = null;
+                try {
+                    String fullClassName = "cn.enderrealm.easy4form.api." + currentApiVersion + ".Easy4FormAPI";
+                    Class<?> targetClass = Class.forName(fullClassName);
+                    Method method = targetClass.getMethod(methodName, paramTypes);
+                    actualBuilder = method.invoke(null, args);
+                } catch (Exception e) {
+                    // Fallback to v1
+                    String fallbackClassName = "cn.enderrealm.easy4form.api.v1.Easy4FormAPI";
+                    Class<?> fallbackClass = Class.forName(fallbackClassName);
+                    Method method = fallbackClass.getMethod(methodName, paramTypes);
+                    actualBuilder = method.invoke(null, args);
+                }
+                
+                // Create proxy and map it to actual builder
+                Object proxyBuilder = new cn.enderrealm.easy4form.api.ModalFormBuilder();
+                proxyToActualBuilderMap.put(proxyBuilder, actualBuilder);
+                return proxyBuilder;
+            } catch (Exception e) {
+                plugin.getLogger().severe("Failed to route createModalForm call: " + e.getMessage());
+                e.printStackTrace();
+                throw new RuntimeException("createModalForm routing failed", e);
+            }
         }
         
         // Handle regular API methods
@@ -247,6 +382,7 @@ public class VersionManager {
                 return method.invoke(null, args);
             } catch (Exception fallbackException) {
                 plugin.getLogger().severe("Failed to route method call " + methodName + ": " + fallbackException.getMessage());
+                fallbackException.printStackTrace();
                 throw new RuntimeException("API routing failed", fallbackException);
             }
         }

@@ -1,7 +1,6 @@
 package cn.enderrealm.easy4form.api;
 
 import cn.enderrealm.easy4form.Easy4form;
-import cn.enderrealm.easy4form.api.v1.CustomFormBuilder;
 import org.bukkit.entity.Player;
 import org.geysermc.floodgate.api.player.FloodgatePlayer;
 
@@ -101,6 +100,7 @@ public class Easy4FormAPI {
             );
         } catch (Exception e) {
             Easy4form.getInstance().getLogger().severe("Failed to route sendSimpleForm call: " + e.getMessage());
+            e.printStackTrace();
         }
     }
     
@@ -125,6 +125,7 @@ public class Easy4FormAPI {
             );
         } catch (Exception e) {
             Easy4form.getInstance().getLogger().severe("Failed to route sendSimpleFormWithImages call: " + e.getMessage());
+            e.printStackTrace();
         }
     }
     
@@ -181,20 +182,21 @@ public class Easy4FormAPI {
      * <p>
      * 向玩家发送自定义表单
      *
-     * @param player The player to send the form to / 接收表单的玩家
-     * @param title The title of the form / 表单标题
+     * @param player          The player to send the form to / 接收表单的玩家
+     * @param title           The title of the form / 表单标题
      * @param responseHandler A consumer that handles the response / 处理响应的消费者函数
      * @return A CustomFormBuilder instance for adding elements / 用于添加元素的CustomFormBuilder实例
      */
-    public static CustomFormBuilder createCustomForm(Player player, String title, Consumer<Map<String, Object>> responseHandler) {
+    public static cn.enderrealm.easy4form.api.CustomFormBuilder createCustomForm(Player player, String title, Consumer<Map<String, Object>> responseHandler) {
         try {
-            return (CustomFormBuilder) Easy4form.getInstance().getVersionManager().routeMethodCall(
+            return (cn.enderrealm.easy4form.api.CustomFormBuilder) Easy4form.getInstance().getVersionManager().routeMethodCall(
                 "createCustomForm", 
                 new Class<?>[]{Player.class, String.class, Consumer.class}, 
                 player, title, responseHandler
             );
         } catch (Exception e) {
             Easy4form.getInstance().getLogger().severe("Failed to route createCustomForm call: " + e.getMessage());
+            e.printStackTrace();
             return null;
         }
     }

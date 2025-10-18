@@ -1,6 +1,5 @@
 package cn.enderrealm.easy4form;
 
-import cn.enderrealm.easy4form.api.Easy4FormAPI;
 import cn.enderrealm.easy4form.manager.VersionManager;
 import cn.enderrealm.easy4form.utils.DebugUtils;
 import org.bukkit.plugin.java.JavaPlugin;

@@ -26,12 +26,21 @@ public class SimpleFormBuilder {
      */
     public static SimpleFormBuilder create() {
         try {
-            return (SimpleFormBuilder) Easy4form.getInstance().getVersionManager().routeMethodCall(
-                "createSimpleFormBuilder", new Class<?>[]{}
+            // Create a new proxy instance
+            SimpleFormBuilder proxy = new SimpleFormBuilder();
+            
+            // Initialize the actual builder instance through version manager
+            Easy4form.getInstance().getVersionManager().routeMethodCall(
+                "createSimpleForm", 
+                new Class<?>[]{}, 
+                proxy
             );
+            
+            return proxy;
         } catch (Exception e) {
-            Easy4form.getInstance().getLogger().severe("Failed to route createSimpleFormBuilder call: " + e.getMessage());
-            return null;
+            Easy4form.getInstance().getLogger().severe("Failed to route createSimpleForm call: " + e.getMessage());
+            e.printStackTrace();
+            return new SimpleFormBuilder();
         }
     }
 
@@ -110,12 +119,12 @@ public class SimpleFormBuilder {
     public SimpleFormBuilder button(String text, String imagePath) {
         try {
             return (SimpleFormBuilder) Easy4form.getInstance().getVersionManager().routeMethodCall(
-                "simpleFormBuilderButtonWithImage", 
+                "simpleFormBuilderButton", 
                 new Class<?>[]{SimpleFormBuilder.class, String.class, String.class}, 
                 this, text, imagePath
             );
         } catch (Exception e) {
-            Easy4form.getInstance().getLogger().severe("Failed to route simpleFormBuilderButtonWithImage call: " + e.getMessage());
+            Easy4form.getInstance().getLogger().severe("Failed to route simpleFormBuilderButton call: " + e.getMessage());
             return this;
         }
     }

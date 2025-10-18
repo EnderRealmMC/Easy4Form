@@ -49,9 +49,9 @@ public class CustomFormBuilder {
     }
 
     /**
-     * Add a label component
+     * Add a label to the form
      * <p>
-     * 添加标签组件
+     * 向表单添加标签
      *
      * @param name The component name / 组件名称
      * @param text The label text / 标签文本
@@ -59,8 +59,21 @@ public class CustomFormBuilder {
      */
     public CustomFormBuilder label(String name, String text) {
         componentIndexMap.put(name, componentIndex++);
-        builder.component(LabelComponent.of(text));
+        builder.label(text);
         return this;
+    }
+
+    /**
+     * Add a label to the form with auto-generated name
+     * <p>
+     * 向表单添加标签（自动生成名称）
+     *
+     * @param text The label text / 标签文本
+     * @return The builder instance / 构建器实例
+     */
+    public CustomFormBuilder labelAuto(String text) {
+        String autoName = "label_" + componentIndex;
+        return label(autoName, text);
     }
 
     /**
@@ -277,6 +290,7 @@ public class CustomFormBuilder {
         CustomForm form;
         if (responseHandler != null) {
             form = builder.validResultHandler(formResponse -> {
+                // 使用HashMap替换TypeSafeMap，直接返回原始类型
                 Map<String, Object> responseMap = new HashMap<>();
                 
                 // Map component responses by name using the new iterator approach
@@ -295,7 +309,9 @@ public class CustomFormBuilder {
                 }
                 
                 responseHandler.accept(responseMap);
-            }).invalidResultHandler(() -> responseHandler.accept(new HashMap<>())).build();
+            }).closedOrInvalidResultHandler(() -> {
+                responseHandler.accept(new HashMap<>());
+            }).build();
         } else {
             form = builder.build();
         }

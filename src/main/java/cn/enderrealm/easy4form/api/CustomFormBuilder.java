@@ -28,12 +28,21 @@ public class CustomFormBuilder {
      */
     public static CustomFormBuilder create() {
         try {
-            return (CustomFormBuilder) Easy4form.getInstance().getVersionManager().routeMethodCall(
-                "createCustomFormBuilder", new Class<?>[]{}
+            // Create a new proxy instance
+            CustomFormBuilder proxy = new CustomFormBuilder();
+            
+            // Initialize the actual builder instance through version manager
+            Easy4form.getInstance().getVersionManager().routeMethodCall(
+                "createCustomForm", 
+                new Class<?>[]{}, 
+                proxy
             );
+            
+            return proxy;
         } catch (Exception e) {
-            Easy4form.getInstance().getLogger().severe("Failed to route createCustomFormBuilder call: " + e.getMessage());
-            return null;
+            Easy4form.getInstance().getLogger().severe("Failed to route createCustomForm call: " + e.getMessage());
+            e.printStackTrace();
+            return new CustomFormBuilder();
         }
     }
 

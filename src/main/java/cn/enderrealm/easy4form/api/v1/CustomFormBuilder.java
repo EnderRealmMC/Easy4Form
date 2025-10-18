@@ -63,6 +63,19 @@ public class CustomFormBuilder {
     }
 
     /**
+     * Add a label to the form with auto-generated ID
+     * <p>
+     * 向表单添加标签（自动生成ID）
+     *
+     * @param text The label text / 标签文本
+     * @return The builder instance / 构建器实例
+     */
+    public CustomFormBuilder labelAuto(String text) {
+        String autoId = "label_" + components.size();
+        return label(autoId, text);
+    }
+
+    /**
      * Add an input field to the form
      * <p>
      * 向表单添加输入框
@@ -108,9 +121,9 @@ public class CustomFormBuilder {
      * @param defaultValue The default value / 默认值
      * @return The builder instance / 构建器实例
      */
-    public CustomFormBuilder slider(String id, String text, float min, float max, float step, float defaultValue) {
+    public CustomFormBuilder slider(String id, String text, int min, int max, int step, int defaultValue) {
         componentIds.put(components.size(), id);
-        components.add(SliderComponent.of(text, min, max, step, defaultValue));
+        components.add(SliderComponent.of(text, (float) min, (float) max, (float) step, (float) defaultValue));
         return this;
     }
 
@@ -187,6 +200,7 @@ public class CustomFormBuilder {
         formBuilder.responseHandler((form, responseData) -> {
             CustomFormResponse response = form.parseResponse(responseData);
             if (response.isCorrect() && responseHandler != null) {
+                // Use HashMap instead of TypeSafeMap to return original types directly
                 Map<String, Object> result = new HashMap<>();
                 for (int i = 0; i < components.size(); i++) {
                     String id = componentIds.get(i);
