@@ -1,3 +1,6 @@
 [submodule "Easy4FormDemo"]
 	path = Easy4FormDemo
 	url = https://cnb.cool/EnderRealm/public/Demos/Easy4FormDemo
+[submodule "Docs"]
+	path = Docs
+	url = https://cnb.cool/EnderRealm/public/DOCS/Easy4FormDocs
