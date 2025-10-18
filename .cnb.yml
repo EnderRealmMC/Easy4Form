@@ -10,7 +10,7 @@ master:
 
 # 发布触发器配置
 "**":
-  release_trigger:
+  web_trigger:
     - docker:
         image: maven:3.9.6-amazoncorretto-21
       stages:

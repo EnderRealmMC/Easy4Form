@@ -8,13 +8,6 @@ branch:
           # 默认环境变量
           PROJECT_NAME: Easy4Form
         inputs:
-          # 版本号输入框
-          VERSION:
-            name: 版本号
-            description: 将自动从pom.xml获取当前版本号
-            required: false
-            type: input
-            default: ""
           # 发布内容多行编辑器
           RELEASE_CONTENT:
             name: 发布内容
