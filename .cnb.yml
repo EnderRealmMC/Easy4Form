@@ -40,7 +40,7 @@ master:
             git pull origin ${BUILD_BRANCH}
             
             # 构建项目
-            mvn clean package -s ./settings.xml
+            mvn clean install -s ./settings.xml
         - name: 创建发布
           script: |
             echo "正在创建 ${RELEASE_TYPE} 版本 ${VERSION}"
