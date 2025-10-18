@@ -27,6 +27,9 @@ master:
             echo "构建分支: ${BUILD_BRANCH}"
             echo "发布内容:"
             echo "${RELEASE_CONTENT}"
+            
+            # 导出版本号到环境变量
+            echo "VERSION=${CURRENT_VERSION}" >> $CNB_ENV
           exports:
             VERSION: CURRENT_VERSION
         - name: 构建项目
@@ -77,6 +80,9 @@ master:
             echo "构建分支: ${BUILD_BRANCH}"
             echo "发布内容:"
             echo "${RELEASE_CONTENT}"
+            
+            # 导出版本号到环境变量
+            echo "VERSION=${CURRENT_VERSION}" >> $CNB_ENV
           exports:
             VERSION: CURRENT_VERSION
         - name: 构建项目
