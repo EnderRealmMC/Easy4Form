@@ -1,4 +1,4 @@
-package cn.enderrealm.easy4form.apiv1.utils;
+package cn.enderrealm.easy4form.api.v2.utils;
 
 import cn.enderrealm.easy4form.Easy4form;
 import org.bukkit.entity.Player;
@@ -8,9 +8,9 @@ import org.geysermc.floodgate.api.player.FloodgatePlayer;
 import java.util.UUID;
 
 /**
- * Utility class for player-related operations (API v1)
+ * Utility class for player operations - API v2
  * <p>
- * 玩家相关操作的工具类 (API v1)
+ * 玩家操作工具类 - API v2
  */
 public class PlayerUtils {
 

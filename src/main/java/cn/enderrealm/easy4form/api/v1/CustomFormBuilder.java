@@ -1,6 +1,6 @@
-package cn.enderrealm.easy4form.apiv1;
+package cn.enderrealm.easy4form.api.v1;
 
-import cn.enderrealm.easy4form.apiv1.utils.PlayerUtils;
+import cn.enderrealm.easy4form.api.v1.utils.PlayerUtils;
 import org.bukkit.entity.Player;
 import org.geysermc.cumulus.CustomForm;
 import org.geysermc.cumulus.component.*;
@@ -18,7 +18,16 @@ import java.util.function.Consumer;
  * Builder for creating custom forms with various input elements - API v1
  * <p>
  * 用于创建带有各种输入元素的自定义表单的构建器 - API v1
+ * 
+ * @deprecated This API is based on the old Cumulus interface and is no longer maintained.
+ *             It can still be used but is not recommended. Please use the main proxy package
+ *             which automatically handles compatibility with the new interface, or directly
+ *             use the v2 package for new projects.
+ *             <p>
+ *             该API基于旧版Cumulus接口，已废弃且不再维护。仍可使用但不推荐。
+ *             请使用主代理包（会自动处理新接口兼容性）或直接使用v2包进行新项目开发。
  */
+@Deprecated
 public class CustomFormBuilder {
     private String title = "";
     private final List<Component> components = new ArrayList<>();
@@ -51,6 +60,19 @@ public class CustomFormBuilder {
         componentIds.put(components.size(), id);
         components.add(LabelComponent.of(text));
         return this;
+    }
+
+    /**
+     * Add a label to the form with auto-generated ID
+     * <p>
+     * 向表单添加标签（自动生成ID）
+     *
+     * @param text The label text / 标签文本
+     * @return The builder instance / 构建器实例
+     */
+    public CustomFormBuilder labelAuto(String text) {
+        String autoId = "label_" + components.size();
+        return label(autoId, text);
     }
 
     /**
@@ -99,9 +121,9 @@ public class CustomFormBuilder {
      * @param defaultValue The default value / 默认值
      * @return The builder instance / 构建器实例
      */
-    public CustomFormBuilder slider(String id, String text, float min, float max, float step, float defaultValue) {
+    public CustomFormBuilder slider(String id, String text, int min, int max, int step, int defaultValue) {
         componentIds.put(components.size(), id);
-        components.add(SliderComponent.of(text, min, max, step, defaultValue));
+        components.add(SliderComponent.of(text, (float) min, (float) max, (float) step, (float) defaultValue));
         return this;
     }
 
@@ -178,6 +200,7 @@ public class CustomFormBuilder {
         formBuilder.responseHandler((form, responseData) -> {
             CustomFormResponse response = form.parseResponse(responseData);
             if (response.isCorrect() && responseHandler != null) {
+                // Use HashMap instead of TypeSafeMap to return original types directly
                 Map<String, Object> result = new HashMap<>();
                 for (int i = 0; i < components.size(); i++) {
                     String id = componentIds.get(i);

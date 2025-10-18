@@ -1,5 +1,9 @@
 # Easy4Form
 
+**语言**: [English](README.md) | [中文](README_ZH.md)
+
+**文档**: [API Documentation v1](docs/v1/api.md) | [API 文档 v1](docs/v1/api_zh.md)
+
 基于Floodgate的简化Form接口，使得在Java服务器上为基岩版玩家创建和发送表单变得更加简单。
 
 ## 简介
@@ -33,7 +37,7 @@ Easy4Form是一个Bukkit/Spigot插件，提供了一个简化的接口，用于�
 <repositories>
     <repository>
         <id>enderrealm-public</id>
-        <url>https://maven.cnb.cool/EnderRealm/public/enderrealm-public-repo</url>
+        <url>https://maven.cnb.cool/EnderRealm/public/enderrealm-public-repo/-/packages/</url>
     </repository>
 </repositories>
 ```
@@ -45,7 +49,7 @@ Easy4Form是一个Bukkit/Spigot插件，提供了一个简化的接口，用于�
     <dependency>
         <groupId>cn.enderrealm</groupId>
         <artifactId>easy4form</artifactId>
-        <version>1.0.0</version>
+        <version>1.0-SNAPSHOT</version>
         <scope>provided</scope>
     </dependency>
 </dependencies>
@@ -58,7 +62,7 @@ Easy4Form是一个Bukkit/Spigot插件，提供了一个简化的接口，用于�
 ```gradle
 repositories {
     maven {
-        url 'https://maven.cnb.cool/EnderRealm/public/enderrealm-public-repo'
+        url 'https://maven.cnb.cool/EnderRealm/public/enderrealm-public-repo/-/packages/'
     }
 }
 ```
@@ -67,7 +71,7 @@ repositories {
 
 ```gradle
 dependencies {
-    compileOnly 'cn.enderrealm:easy4form:1.0.0'
+    compileOnly 'cn.enderrealm:easy4form:1.0-SNAPSHOT'
 }
 ```
 
@@ -76,14 +80,21 @@ dependencies {
 Easy4Form现在包含一个配置文件（`config.yml`），具有以下选项：
 
 ```yaml
-# 基岩版玩家检测模式 (floodgate, uuid)
-detection-mode: "floodgate"
+# 基岩版玩家检测模式
+# 选项: floodgate（使用Floodgate API）, uuid（使用UUID前缀）
+detection-mode: floodgate
 
-# 基岩版玩家的UUID前缀（仅在detection-mode设置为"uuid"时使用）
+# 基岩版玩家的UUID前缀（仅在detection-mode为'uuid'时使用）
 uuid-prefix: "00000000-0000"
 
-# 调试模式 (true, false)
+# 调试模式
 debug: false
+
+# API版本（目前仅支持v1）
+api-version: "v1"
+
+# 启用已弃用API使用的迁移警告
+migration-warnings: true
 ```
 
 ### 检测模式
@@ -147,9 +158,7 @@ form.input("name", "名称", "输入您的名称", player.getName())
     .send(player);
 ```
 
-## 文档
 
-有关详细文档和示例，请参阅[API文档](docs/api_zh.md)。
 
 ## 许可证
 

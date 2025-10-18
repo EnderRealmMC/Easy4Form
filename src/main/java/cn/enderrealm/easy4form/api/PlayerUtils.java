@@ -1,22 +1,21 @@
 package cn.enderrealm.easy4form.api;
 
 import cn.enderrealm.easy4form.Easy4form;
-import cn.enderrealm.easy4form.manager.VersionManager;
 import org.bukkit.entity.Player;
 import org.geysermc.floodgate.api.player.FloodgatePlayer;
 
 import java.util.UUID;
 
 /**
- * Player utilities for Easy4Form - Legacy API Proxy
+ * Utility class for player-related operations - Multi-Version API Proxy
  * <p>
- * Easy4Form的玩家工具类 - 传统API代理
- * 
- * @deprecated This class is deprecated and will be removed in future versions.
- *             Please use {@link cn.enderrealm.easy4form.apiv1.utils.PlayerUtils} instead.
- *             此类已弃用，将在未来版本中移除。请使用 {@link cn.enderrealm.easy4form.apiv1.utils.PlayerUtils} 代替。
+ * 玩家相关操作的工具类 - 多版本API代理
+ * <p>
+ * This class provides a unified API interface that automatically routes to the appropriate version
+ * based on the current configuration. It supports multiple API versions seamlessly.
+ * <p>
+ * 此类提供统一的API接口，根据当前配置自动路由到适当的版本。它无缝支持多个API版本。
  */
-@Deprecated
 public class PlayerUtils {
 
     /**
@@ -26,31 +25,39 @@ public class PlayerUtils {
      *
      * @param player The player to check / 要检查的玩家
      * @return true if the player is a Bedrock player / 如果玩家是基岩版玩家则返回true
-     * @deprecated Use {@link cn.enderrealm.easy4form.apiv1.utils.PlayerUtils#isBedrockPlayer(Player)} instead
      */
-    @Deprecated
     public static boolean isBedrockPlayer(Player player) {
-        Easy4form.getInstance().getVersionManager().logMigrationWarning(
-            "Using deprecated PlayerUtils.isBedrockPlayer(Player). Please migrate to apiv1.utils.PlayerUtils"
-        );
-        return cn.enderrealm.easy4form.apiv1.utils.PlayerUtils.isBedrockPlayer(player);
+        try {
+            return (Boolean) Easy4form.getInstance().getVersionManager().routeMethodCall(
+                "isBedrockPlayer", 
+                new Class<?>[]{Player.class}, 
+                player
+            );
+        } catch (Exception e) {
+            Easy4form.getInstance().getLogger().severe("Failed to route isBedrockPlayer call: " + e.getMessage());
+            return false;
+        }
     }
 
     /**
-     * Check if a player UUID is a Bedrock player by UUID prefix
+     * Check if a player is a Bedrock player by UUID
      * <p>
-     * 通过UUID前缀检查玩家是否为基岩版玩家
+     * 通过UUID检查玩家是否为基岩版玩家
      *
-     * @param uuid The player UUID to check / 要检查的玩家UUID
+     * @param uuid The player's UUID / 玩家的UUID
      * @return true if the player is a Bedrock player / 如果玩家是基岩版玩家则返回true
-     * @deprecated Use {@link cn.enderrealm.easy4form.apiv1.utils.PlayerUtils#isBedrockPlayerByUUID(UUID)} instead
      */
-    @Deprecated
     public static boolean isBedrockPlayerByUUID(UUID uuid) {
-        Easy4form.getInstance().getVersionManager().logMigrationWarning(
-            "Using deprecated PlayerUtils.isBedrockPlayerByUUID(UUID). Please migrate to apiv1.utils.PlayerUtils"
-        );
-        return cn.enderrealm.easy4form.apiv1.utils.PlayerUtils.isBedrockPlayerByUUID(uuid);
+        try {
+            return (Boolean) Easy4form.getInstance().getVersionManager().routeMethodCall(
+                "isBedrockPlayerByUUID", 
+                new Class<?>[]{UUID.class}, 
+                uuid
+            );
+        } catch (Exception e) {
+            Easy4form.getInstance().getLogger().severe("Failed to route isBedrockPlayerByUUID call: " + e.getMessage());
+            return false;
+        }
     }
 
     /**
@@ -59,50 +66,60 @@ public class PlayerUtils {
      * 获取玩家的FloodgatePlayer实例
      *
      * @param player The player / 玩家
-     * @return The FloodgatePlayer instance, or null if the player is not a Bedrock player
-     *         / FloodgatePlayer实例，如果玩家不是基岩版玩家则返回null
-     * @deprecated Use {@link cn.enderrealm.easy4form.apiv1.utils.PlayerUtils#getFloodgatePlayer(Player)} instead
+     * @return The FloodgatePlayer instance, or null if not a Bedrock player / FloodgatePlayer实例，如果不是基岩版玩家则返回null
      */
-    @Deprecated
     public static FloodgatePlayer getFloodgatePlayer(Player player) {
-        Easy4form.getInstance().getVersionManager().logMigrationWarning(
-            "Using deprecated PlayerUtils.getFloodgatePlayer(Player). Please migrate to apiv1.utils.PlayerUtils"
-        );
-        return cn.enderrealm.easy4form.apiv1.utils.PlayerUtils.getFloodgatePlayer(player);
+        try {
+            return (FloodgatePlayer) Easy4form.getInstance().getVersionManager().routeMethodCall(
+                "getFloodgatePlayer", 
+                new Class<?>[]{Player.class}, 
+                player
+            );
+        } catch (Exception e) {
+            Easy4form.getInstance().getLogger().severe("Failed to route getFloodgatePlayer call: " + e.getMessage());
+            return null;
+        }
     }
 
     /**
-     * Get the FloodgatePlayer instance for a player UUID
+     * Get the FloodgatePlayer instance for a player by UUID
      * <p>
-     * 通过UUID获取FloodgatePlayer实例
+     * 通过UUID获取玩家的FloodgatePlayer实例
      *
-     * @param uuid The player UUID / 玩家UUID
-     * @return The FloodgatePlayer instance, or null if the player is not a Bedrock player
-     *         / FloodgatePlayer实例，如果玩家不是基岩版玩家则返回null
-     * @deprecated Use {@link cn.enderrealm.easy4form.apiv1.utils.PlayerUtils#getFloodgatePlayer(UUID)} instead
+     * @param uuid The player's UUID / 玩家的UUID
+     * @return The FloodgatePlayer instance, or null if not a Bedrock player / FloodgatePlayer实例，如果不是基岩版玩家则返回null
      */
-    @Deprecated
     public static FloodgatePlayer getFloodgatePlayer(UUID uuid) {
-        Easy4form.getInstance().getVersionManager().logMigrationWarning(
-            "Using deprecated PlayerUtils.getFloodgatePlayer(UUID). Please migrate to apiv1.utils.PlayerUtils"
-        );
-        return cn.enderrealm.easy4form.apiv1.utils.PlayerUtils.getFloodgatePlayer(uuid);
+        try {
+            return (FloodgatePlayer) Easy4form.getInstance().getVersionManager().routeMethodCall(
+                "getFloodgatePlayerByUUID", 
+                new Class<?>[]{UUID.class}, 
+                uuid
+            );
+        } catch (Exception e) {
+            Easy4form.getInstance().getLogger().severe("Failed to route getFloodgatePlayerByUUID call: " + e.getMessage());
+            return null;
+        }
     }
 
     /**
-     * Check if a player UUID is a Bedrock player
+     * Check if a player is a Bedrock player by UUID (alternative method)
      * <p>
-     * 检查玩家UUID是否为基岩版玩家
+     * 通过UUID检查玩家是否为基岩版玩家（替代方法）
      *
-     * @param uuid The player UUID to check / 要检查的玩家UUID
+     * @param uuid The player's UUID / 玩家的UUID
      * @return true if the player is a Bedrock player / 如果玩家是基岩版玩家则返回true
-     * @deprecated Use {@link cn.enderrealm.easy4form.apiv1.utils.PlayerUtils#isBedrockPlayer(UUID)} instead
      */
-    @Deprecated
     public static boolean isBedrockPlayer(UUID uuid) {
-        Easy4form.getInstance().getVersionManager().logMigrationWarning(
-            "Using deprecated PlayerUtils.isBedrockPlayer(UUID). Please migrate to apiv1.utils.PlayerUtils"
-        );
-        return cn.enderrealm.easy4form.apiv1.utils.PlayerUtils.isBedrockPlayer(uuid);
+        try {
+            return (Boolean) Easy4form.getInstance().getVersionManager().routeMethodCall(
+                "isBedrockPlayerUUID", 
+                new Class<?>[]{UUID.class}, 
+                uuid
+            );
+        } catch (Exception e) {
+            Easy4form.getInstance().getLogger().severe("Failed to route isBedrockPlayerUUID call: " + e.getMessage());
+            return false;
+        }
     }
 }

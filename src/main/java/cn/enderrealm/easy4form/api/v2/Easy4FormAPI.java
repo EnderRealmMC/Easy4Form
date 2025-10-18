@@ -1,6 +1,6 @@
-package cn.enderrealm.easy4form.apiv1;
+package cn.enderrealm.easy4form.api.v2;
 
-import cn.enderrealm.easy4form.apiv1.utils.PlayerUtils;
+import cn.enderrealm.easy4form.api.v2.utils.PlayerUtils;
 import org.bukkit.entity.Player;
 import org.geysermc.floodgate.api.player.FloodgatePlayer;
 
@@ -10,9 +10,9 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 /**
- * Easy4Form API v1 - A simplified Form API for Floodgate
+ * Easy4Form API v2 - A simplified Form API for Floodgate (using new Cumulus interfaces)
  * <p>
- * Easy4Form API v1 - 基于Floodgate的简化Form接口
+ * Easy4Form API v2 - 基于Floodgate的简化Form接口（使用新版Cumulus接口）
  */
 public class Easy4FormAPI {
 
@@ -59,92 +59,102 @@ public class Easy4FormAPI {
      * <p>
      * 向玩家发送简单表单
      *
-     * @param player The player to send the form to / 接收表单的玩家
-     * @param title The title of the form / 表单标题
-     * @param content The content of the form / 表单内容
-     * @param buttons The buttons to display / 要显示的按钮
+     * @param player The player / 玩家
+     * @param title The form title / 表单标题
+     * @param content The form content / 表单内容
+     * @param buttons The button texts / 按钮文本列表
      * @param responseHandler The response handler / 响应处理器
      */
     public static void sendSimpleForm(Player player, String title, String content, List<String> buttons, Consumer<Integer> responseHandler) {
-        if (!PlayerUtils.isBedrockPlayer(player)) {
+        if (!isBedrockPlayer(player)) {
             return;
         }
-
+        
         SimpleFormBuilder builder = new SimpleFormBuilder()
                 .title(title)
                 .content(content)
                 .responseHandler(responseHandler);
-
-        for (String button : buttons) {
-            builder.button(button);
+        
+        for (String buttonText : buttons) {
+            builder.button(buttonText);
         }
-
+        
         builder.send(player);
     }
-    
+
     /**
-     * Send a simple form with image buttons to a player
+     * Send a simple form with images to a player
      * <p>
-     * 向玩家发送带图片按钮的简单表单
+     * 向玩家发送带图片的简单表单
      *
-     * @param player The player to send the form to / 接收表单的玩家
-     * @param title The title of the form / 表单标题
-     * @param content The content of the form / 表单内容
-     * @param buttonTexts The button texts / 按钮文本
-     * @param buttonImages The button images (resource pack paths) / 按钮图片（资源包路径）
+     * @param player The player / 玩家
+     * @param title The form title / 表单标题
+     * @param content The form content / 表单内容
+     * @param buttonTexts The button texts / 按钮文本列表
+     * @param buttonImages The button image paths / 按钮图片路径列表
      * @param responseHandler The response handler / 响应处理器
      */
     public static void sendSimpleFormWithImages(Player player, String title, String content, List<String> buttonTexts, List<String> buttonImages, Consumer<Integer> responseHandler) {
-        if (!PlayerUtils.isBedrockPlayer(player)) {
+        if (!isBedrockPlayer(player)) {
             return;
         }
         
         if (buttonTexts.size() != buttonImages.size()) {
-            throw new IllegalArgumentException("Button texts and images must have the same size");
+            throw new IllegalArgumentException("Button texts and images lists must have the same size");
         }
-
+        
         SimpleFormBuilder builder = new SimpleFormBuilder()
                 .title(title)
                 .content(content)
                 .responseHandler(responseHandler);
-
+        
         for (int i = 0; i < buttonTexts.size(); i++) {
-            builder.button(buttonTexts.get(i), buttonImages.get(i));
+            String imagePath = buttonImages.get(i);
+            if (imagePath != null && !imagePath.isEmpty()) {
+                builder.button(buttonTexts.get(i), imagePath);
+            } else {
+                builder.button(buttonTexts.get(i));
+            }
         }
-
+        
         builder.send(player);
     }
-    
+
     /**
-     * Send a simple form with URL image buttons to a player
+     * Send a simple form with URL images to a player
      * <p>
-     * 向玩家发送带URL图片按钮的简单表单
+     * 向玩家发送带URL图片的简单表单
      *
-     * @param player The player to send the form to / 接收表单的玩家
-     * @param title The title of the form / 表单标题
-     * @param content The content of the form / 表单内容
-     * @param buttonTexts The button texts / 按钮文本
-     * @param buttonImageUrls The button image URLs / 按钮图片URL
+     * @param player The player / 玩家
+     * @param title The form title / 表单标题
+     * @param content The form content / 表单内容
+     * @param buttonTexts The button texts / 按钮文本列表
+     * @param buttonImageUrls The button image URLs / 按钮图片URL列表
      * @param responseHandler The response handler / 响应处理器
      */
     public static void sendSimpleFormWithUrlImages(Player player, String title, String content, List<String> buttonTexts, List<String> buttonImageUrls, Consumer<Integer> responseHandler) {
-        if (!PlayerUtils.isBedrockPlayer(player)) {
+        if (!isBedrockPlayer(player)) {
             return;
         }
         
         if (buttonTexts.size() != buttonImageUrls.size()) {
-            throw new IllegalArgumentException("Button texts and image URLs must have the same size");
+            throw new IllegalArgumentException("Button texts and image URLs lists must have the same size");
         }
-
+        
         SimpleFormBuilder builder = new SimpleFormBuilder()
                 .title(title)
                 .content(content)
                 .responseHandler(responseHandler);
-
+        
         for (int i = 0; i < buttonTexts.size(); i++) {
-            builder.buttonWithUrl(buttonTexts.get(i), buttonImageUrls.get(i));
+            String imageUrl = buttonImageUrls.get(i);
+            if (imageUrl != null && !imageUrl.isEmpty()) {
+                builder.buttonWithUrl(buttonTexts.get(i), imageUrl);
+            } else {
+                builder.button(buttonTexts.get(i));
+            }
         }
-
+        
         builder.send(player);
     }
 
@@ -153,12 +163,12 @@ public class Easy4FormAPI {
      * <p>
      * 向玩家发送模态表单
      *
-     * @param player The player to send the form to / 接收表单的玩家
-     * @param title The title of the form / 表单标题
-     * @param content The content of the form / 表单内容
-     * @param trueButtonText The text for the true button / 确认按钮文本
-     * @param falseButtonText The text for the false button / 取消按钮文本
-     * @param responseHandler A consumer that handles the response / 处理响应的消费者函数
+     * @param player The player / 玩家
+     * @param title The form title / 表单标题
+     * @param content The form content / 表单内容
+     * @param trueButtonText The true button text / 确认按钮文本
+     * @param falseButtonText The false button text / 取消按钮文本
+     * @param responseHandler The response handler / 响应处理器
      */
     public static void sendModalForm(Player player, String title, String content, String trueButtonText, String falseButtonText, Consumer<Boolean> responseHandler) {
         if (!isBedrockPlayer(player)) {
@@ -175,14 +185,14 @@ public class Easy4FormAPI {
     }
 
     /**
-     * Send a custom form to a player
+     * Create a custom form builder
      * <p>
-     * 向玩家发送自定义表单
+     * 创建自定义表单构建器
      *
-     * @param player The player to send the form to / 接收表单的玩家
-     * @param title The title of the form / 表单标题
-     * @param responseHandler A consumer that handles the response / 处理响应的消费者函数
-     * @return A CustomFormBuilder instance for adding elements / 用于添加元素的CustomFormBuilder实例
+     * @param player The player / 玩家
+     * @param title The form title / 表单标题
+     * @param responseHandler The response handler / 响应处理器
+     * @return The custom form builder / 自定义表单构建器
      */
     public static CustomFormBuilder createCustomForm(Player player, String title, Consumer<Map<String, Object>> responseHandler) {
         if (!isBedrockPlayer(player)) {
@@ -193,14 +203,14 @@ public class Easy4FormAPI {
                 .title(title)
                 .responseHandler(responseHandler);
     }
-    
+
     /**
-     * Check if a player UUID is a Bedrock player
+     * Check if a player UUID belongs to a Bedrock player
      * <p>
-     * 检查玩家UUID是否为基岩版玩家
+     * 检查UUID是否属于基岩版玩家
      *
-     * @param uuid The player UUID to check / 要检查的玩家UUID
-     * @return true if the player is a Bedrock player / 如果玩家是基岩版玩家则返回true
+     * @param uuid The player UUID / 玩家UUID
+     * @return true if the UUID belongs to a Bedrock player / 如果UUID属于基岩版玩家则返回true
      */
     public static boolean isBedrockPlayer(UUID uuid) {
         return PlayerUtils.isBedrockPlayer(uuid);

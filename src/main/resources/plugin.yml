@@ -1,5 +1,5 @@
 name: easy4form
-version: '1.0-SNAPSHOT'
+version: '2.0.0'
 main: cn.enderrealm.easy4form.Easy4form
 api-version: '1.18'
 depend: [floodgate]

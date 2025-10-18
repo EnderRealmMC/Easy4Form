@@ -1,6 +1,6 @@
-package cn.enderrealm.easy4form.api;
+package cn.enderrealm.easy4form.api.v1;
 
-import cn.enderrealm.easy4form.Easy4form;
+import cn.enderrealm.easy4form.api.v1.utils.PlayerUtils;
 import org.bukkit.entity.Player;
 import org.geysermc.floodgate.api.player.FloodgatePlayer;
 
@@ -10,15 +10,19 @@ import java.util.UUID;
 import java.util.function.Consumer;
 
 /**
- * Easy4Form API - Multi-Version API Proxy
+ * Easy4Form API v1 - A simplified Form API for Floodgate
  * <p>
- * Easy4Form API - 多版本API代理
- * <p>
- * This class provides a unified API interface that automatically routes to the appropriate version
- * based on the current configuration. It supports multiple API versions seamlessly.
- * <p>
- * 此类提供统一的API接口，根据当前配置自动路由到适当的版本。它无缝支持多个API版本。
+ * Easy4Form API v1 - 基于Floodgate的简化Form接口
+ * 
+ * @deprecated This API is based on the old Cumulus interface and is no longer maintained.
+ *             It can still be used but is not recommended. Please use the main proxy package
+ *             which automatically handles compatibility with the new interface, or directly
+ *             use the v2 package for new projects.
+ *             <p>
+ *             该API基于旧版Cumulus接口，已废弃且不再维护。仍可使用但不推荐。
+ *             请使用主代理包（会自动处理新接口兼容性）或直接使用v2包进行新项目开发。
  */
+@Deprecated
 public class Easy4FormAPI {
 
     /**
@@ -30,14 +34,7 @@ public class Easy4FormAPI {
      * @return true if the player is a Bedrock player / 如果玩家是基岩版玩家则返回true
      */
     public static boolean isBedrockPlayer(Player player) {
-        try {
-            return (Boolean) Easy4form.getInstance().getVersionManager().routeMethodCall(
-                "isBedrockPlayer", new Class<?>[]{Player.class}, player
-            );
-        } catch (Exception e) {
-            Easy4form.getInstance().getLogger().severe("Failed to route isBedrockPlayer call: " + e.getMessage());
-            return false;
-        }
+        return PlayerUtils.isBedrockPlayer(player);
     }
 
     /**
@@ -50,14 +47,7 @@ public class Easy4FormAPI {
      *         / FloodgatePlayer实例，如果玩家不是基岩版玩家则返回null
      */
     public static FloodgatePlayer getFloodgatePlayer(Player player) {
-        try {
-            return (FloodgatePlayer) Easy4form.getInstance().getVersionManager().routeMethodCall(
-                "getFloodgatePlayer", new Class<?>[]{Player.class}, player
-            );
-        } catch (Exception e) {
-            Easy4form.getInstance().getLogger().severe("Failed to route getFloodgatePlayer call: " + e.getMessage());
-            return null;
-        }
+        return PlayerUtils.getFloodgatePlayer(player);
     }
 
     /**
@@ -70,14 +60,7 @@ public class Easy4FormAPI {
      *         / FloodgatePlayer实例，如果玩家不是基岩版玩家则返回null
      */
     public static FloodgatePlayer getFloodgatePlayer(UUID uuid) {
-        try {
-            return (FloodgatePlayer) Easy4form.getInstance().getVersionManager().routeMethodCall(
-                "getFloodgatePlayer", new Class<?>[]{UUID.class}, uuid
-            );
-        } catch (Exception e) {
-            Easy4form.getInstance().getLogger().severe("Failed to route getFloodgatePlayer call: " + e.getMessage());
-            return null;
-        }
+        return PlayerUtils.getFloodgatePlayer(uuid);
     }
 
     /**
@@ -92,16 +75,20 @@ public class Easy4FormAPI {
      * @param responseHandler The response handler / 响应处理器
      */
     public static void sendSimpleForm(Player player, String title, String content, List<String> buttons, Consumer<Integer> responseHandler) {
-        try {
-            Easy4form.getInstance().getVersionManager().routeMethodCall(
-                "sendSimpleForm", 
-                new Class<?>[]{Player.class, String.class, String.class, List.class, Consumer.class}, 
-                player, title, content, buttons, responseHandler
-            );
-        } catch (Exception e) {
-            Easy4form.getInstance().getLogger().severe("Failed to route sendSimpleForm call: " + e.getMessage());
-            e.printStackTrace();
+        if (!PlayerUtils.isBedrockPlayer(player)) {
+            return;
         }
+
+        SimpleFormBuilder builder = new SimpleFormBuilder()
+                .title(title)
+                .content(content)
+                .responseHandler(responseHandler);
+
+        for (String button : buttons) {
+            builder.button(button);
+        }
+
+        builder.send(player);
     }
     
     /**
@@ -117,16 +104,24 @@ public class Easy4FormAPI {
      * @param responseHandler The response handler / 响应处理器
      */
     public static void sendSimpleFormWithImages(Player player, String title, String content, List<String> buttonTexts, List<String> buttonImages, Consumer<Integer> responseHandler) {
-        try {
-            Easy4form.getInstance().getVersionManager().routeMethodCall(
-                "sendSimpleFormWithImages", 
-                new Class<?>[]{Player.class, String.class, String.class, List.class, List.class, Consumer.class}, 
-                player, title, content, buttonTexts, buttonImages, responseHandler
-            );
-        } catch (Exception e) {
-            Easy4form.getInstance().getLogger().severe("Failed to route sendSimpleFormWithImages call: " + e.getMessage());
-            e.printStackTrace();
+        if (!PlayerUtils.isBedrockPlayer(player)) {
+            return;
         }
+        
+        if (buttonTexts.size() != buttonImages.size()) {
+            throw new IllegalArgumentException("Button texts and images must have the same size");
+        }
+
+        SimpleFormBuilder builder = new SimpleFormBuilder()
+                .title(title)
+                .content(content)
+                .responseHandler(responseHandler);
+
+        for (int i = 0; i < buttonTexts.size(); i++) {
+            builder.button(buttonTexts.get(i), buttonImages.get(i));
+        }
+
+        builder.send(player);
     }
     
     /**
@@ -142,15 +137,24 @@ public class Easy4FormAPI {
      * @param responseHandler The response handler / 响应处理器
      */
     public static void sendSimpleFormWithUrlImages(Player player, String title, String content, List<String> buttonTexts, List<String> buttonImageUrls, Consumer<Integer> responseHandler) {
-        try {
-            Easy4form.getInstance().getVersionManager().routeMethodCall(
-                "sendSimpleFormWithUrlImages", 
-                new Class<?>[]{Player.class, String.class, String.class, List.class, List.class, Consumer.class}, 
-                player, title, content, buttonTexts, buttonImageUrls, responseHandler
-            );
-        } catch (Exception e) {
-            Easy4form.getInstance().getLogger().severe("Failed to route sendSimpleFormWithUrlImages call: " + e.getMessage());
+        if (!PlayerUtils.isBedrockPlayer(player)) {
+            return;
         }
+        
+        if (buttonTexts.size() != buttonImageUrls.size()) {
+            throw new IllegalArgumentException("Button texts and image URLs must have the same size");
+        }
+
+        SimpleFormBuilder builder = new SimpleFormBuilder()
+                .title(title)
+                .content(content)
+                .responseHandler(responseHandler);
+
+        for (int i = 0; i < buttonTexts.size(); i++) {
+            builder.buttonWithUrl(buttonTexts.get(i), buttonImageUrls.get(i));
+        }
+
+        builder.send(player);
     }
 
     /**
@@ -166,15 +170,17 @@ public class Easy4FormAPI {
      * @param responseHandler A consumer that handles the response / 处理响应的消费者函数
      */
     public static void sendModalForm(Player player, String title, String content, String trueButtonText, String falseButtonText, Consumer<Boolean> responseHandler) {
-        try {
-            Easy4form.getInstance().getVersionManager().routeMethodCall(
-                "sendModalForm", 
-                new Class<?>[]{Player.class, String.class, String.class, String.class, String.class, Consumer.class}, 
-                player, title, content, trueButtonText, falseButtonText, responseHandler
-            );
-        } catch (Exception e) {
-            Easy4form.getInstance().getLogger().severe("Failed to route sendModalForm call: " + e.getMessage());
+        if (!isBedrockPlayer(player)) {
+            return;
         }
+        
+        new ModalFormBuilder()
+                .title(title)
+                .content(content)
+                .button1(trueButtonText)
+                .button2(falseButtonText)
+                .responseHandler(responseHandler)
+                .send(player);
     }
 
     /**
@@ -182,23 +188,19 @@ public class Easy4FormAPI {
      * <p>
      * 向玩家发送自定义表单
      *
-     * @param player          The player to send the form to / 接收表单的玩家
-     * @param title           The title of the form / 表单标题
+     * @param player The player to send the form to / 接收表单的玩家
+     * @param title The title of the form / 表单标题
      * @param responseHandler A consumer that handles the response / 处理响应的消费者函数
      * @return A CustomFormBuilder instance for adding elements / 用于添加元素的CustomFormBuilder实例
      */
-    public static cn.enderrealm.easy4form.api.CustomFormBuilder createCustomForm(Player player, String title, Consumer<Map<String, Object>> responseHandler) {
-        try {
-            return (cn.enderrealm.easy4form.api.CustomFormBuilder) Easy4form.getInstance().getVersionManager().routeMethodCall(
-                "createCustomForm", 
-                new Class<?>[]{Player.class, String.class, Consumer.class}, 
-                player, title, responseHandler
-            );
-        } catch (Exception e) {
-            Easy4form.getInstance().getLogger().severe("Failed to route createCustomForm call: " + e.getMessage());
-            e.printStackTrace();
+    public static CustomFormBuilder createCustomForm(Player player, String title, Consumer<Map<String, Object>> responseHandler) {
+        if (!isBedrockPlayer(player)) {
             return null;
         }
+        
+        return new CustomFormBuilder()
+                .title(title)
+                .responseHandler(responseHandler);
     }
     
     /**
@@ -210,13 +212,6 @@ public class Easy4FormAPI {
      * @return true if the player is a Bedrock player / 如果玩家是基岩版玩家则返回true
      */
     public static boolean isBedrockPlayer(UUID uuid) {
-        try {
-            return (Boolean) Easy4form.getInstance().getVersionManager().routeMethodCall(
-                "isBedrockPlayer", new Class<?>[]{UUID.class}, uuid
-            );
-        } catch (Exception e) {
-            Easy4form.getInstance().getLogger().severe("Failed to route isBedrockPlayer call: " + e.getMessage());
-            return false;
-        }
+        return PlayerUtils.isBedrockPlayer(uuid);
     }
 }
