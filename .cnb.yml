@@ -41,29 +41,58 @@ master:
             
             # 构建项目
             mvn clean install -s ./settings.xml
-        - name: 创建发布 (预览版)
+        - name: 创建发布
           type: git:release
-          condition: ${{ RELEASE_TYPE == 'preview' }}
           options:
-            tag: "v${{ VERSION }}-preview"
-            title: "Easy4Form ${{ VERSION }} (预览版)"
-            description: "${{ RELEASE_CONTENT }}"
-            preRelease: true
-            latest: false
-            assets:
-              - path: "target/easy4form-*.jar"
-                exclude: "target/*-shaded.jar"
-                name: "Easy4Form-${{ VERSION }}-preview.jar"
-        - name: 创建发布 (正式版)
-          type: git:release
-          condition: ${{ RELEASE_TYPE != 'preview' }}
-          options:
-            tag: "v${{ VERSION }}"
-            title: "Easy4Form ${{ VERSION }}"
-            description: "${{ RELEASE_CONTENT }}"
+            tag: "v${VERSION}"
+            title: "Easy4Form ${VERSION}"
+            description: "${RELEASE_CONTENT}"
             preRelease: false
             latest: true
             assets:
               - path: "target/easy4form-*.jar"
                 exclude: "target/*-shaded.jar"
-                name: "Easy4Form-${{ VERSION }}.jar"
+                name: "Easy4Form-${VERSION}.jar"
+  web_trigger_preview:
+    - docker:
+        image: maven:3.9.6-amazoncorretto-21
+      stages:
+        - name: 环境变量输出
+          script: |
+            echo "项目名称: ${PROJECT_NAME}"
+            
+            # 从pom.xml自动获取版本号
+            CURRENT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+            echo "自动从pom.xml获取版本号: ${CURRENT_VERSION}"
+            export VERSION=${CURRENT_VERSION}
+            
+            echo "版本号: ${VERSION}"
+            echo "发布类型: ${RELEASE_TYPE}"
+            echo "构建分支: ${BUILD_BRANCH}"
+            echo "发布内容:"
+            echo "${RELEASE_CONTENT}"
+        - name: 构建项目
+          script: |
+            # 安装git
+            echo "安装git..."
+            yum update -y && yum install -y git
+            
+            # 切换到指定分支
+            echo "切换到分支: ${BUILD_BRANCH}"
+            git checkout ${BUILD_BRANCH}
+            git pull origin ${BUILD_BRANCH}
+            
+            # 构建项目
+            mvn clean install -s ./settings.xml
+        - name: 创建发布
+          type: git:release
+          options:
+            tag: "v${VERSION}-preview"
+            title: "Easy4Form ${VERSION} (预览版)"
+            description: "${RELEASE_CONTENT}"
+            preRelease: true
+            latest: false
+            assets:
+              - path: "target/easy4form-*.jar"
+                exclude: "target/*-shaded.jar"
+                name: "Easy4Form-${VERSION}-preview.jar"
