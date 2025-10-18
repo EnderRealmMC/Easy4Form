@@ -45,25 +45,25 @@ master:
           type: git:release
           condition: ${{ RELEASE_TYPE == 'preview' }}
           options:
-            tag: "v${{ mvn help:evaluate -Dexpression=project.version -q -DforceStdout }}-preview"
-            title: "Easy4Form ${{ mvn help:evaluate -Dexpression=project.version -q -DforceStdout }} (预览版)"
-            description: "${RELEASE_CONTENT}"
+            tag: "v${{ VERSION }}-preview"
+            title: "Easy4Form ${{ VERSION }} (预览版)"
+            description: "${{ RELEASE_CONTENT }}"
             preRelease: true
             latest: false
             assets:
               - path: "target/easy4form-*.jar"
                 exclude: "target/*-shaded.jar"
-                name: "Easy4Form-${{ mvn help:evaluate -Dexpression=project.version -q -DforceStdout }}-preview.jar"
+                name: "Easy4Form-${{ VERSION }}-preview.jar"
         - name: 创建发布 (正式版)
           type: git:release
           condition: ${{ RELEASE_TYPE != 'preview' }}
           options:
-            tag: "v${{ mvn help:evaluate -Dexpression=project.version -q -DforceStdout }}"
-            title: "Easy4Form ${{ mvn help:evaluate -Dexpression=project.version -q -DforceStdout }}"
-            description: "${RELEASE_CONTENT}"
+            tag: "v${{ VERSION }}"
+            title: "Easy4Form ${{ VERSION }}"
+            description: "${{ RELEASE_CONTENT }}"
             preRelease: false
             latest: true
             assets:
               - path: "target/easy4form-*.jar"
                 exclude: "target/*-shaded.jar"
-                name: "Easy4Form-${{ mvn help:evaluate -Dexpression=project.version -q -DforceStdout }}.jar"
+                name: "Easy4Form-${{ VERSION }}.jar"
