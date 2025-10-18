@@ -41,14 +41,29 @@ master:
             
             # 构建项目
             mvn clean install -s ./settings.xml
-        - name: 创建发布
+        - name: 创建发布 (预览版)
           type: git:release
+          condition: ${{ RELEASE_TYPE == 'preview' }}
+          options:
+            tag: "v${{ mvn help:evaluate -Dexpression=project.version -q -DforceStdout }}-preview"
+            title: "Easy4Form ${{ mvn help:evaluate -Dexpression=project.version -q -DforceStdout }} (预览版)"
+            description: "${RELEASE_CONTENT}"
+            preRelease: true
+            latest: false
+            assets:
+              - path: "target/easy4form-*.jar"
+                exclude: "target/*-shaded.jar"
+                name: "Easy4Form-${{ mvn help:evaluate -Dexpression=project.version -q -DforceStdout }}-preview.jar"
+        - name: 创建发布 (正式版)
+          type: git:release
+          condition: ${{ RELEASE_TYPE != 'preview' }}
           options:
             tag: "v${{ mvn help:evaluate -Dexpression=project.version -q -DforceStdout }}"
             title: "Easy4Form ${{ mvn help:evaluate -Dexpression=project.version -q -DforceStdout }}"
             description: "${RELEASE_CONTENT}"
-            preRelease: ${{ RELEASE_TYPE == 'preview' }}
-            latest: ${{ RELEASE_TYPE != 'preview' }}
+            preRelease: false
+            latest: true
             assets:
-              - path: "target/*.jar"
+              - path: "target/easy4form-*.jar"
+                exclude: "target/*-shaded.jar"
                 name: "Easy4Form-${{ mvn help:evaluate -Dexpression=project.version -q -DforceStdout }}.jar"
