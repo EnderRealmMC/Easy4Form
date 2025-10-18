@@ -43,14 +43,18 @@ master:
             mvn clean install -s ./settings.xml
         - name: 创建发布
           script: |
+            # 安装git用于创建标签
+            echo "安装git..."
+            yum update -y && yum install -y git
+            
+            # 重新获取版本号（确保在当前stage可用）
+            CURRENT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+            VERSION=${CURRENT_VERSION}
+            
             echo "正在创建 ${RELEASE_TYPE} 版本 ${VERSION}"
             echo "发布标题: Easy4Form ${VERSION}"
             echo "发布内容:"
             echo "${RELEASE_CONTENT}"
-            
-            # 安装git用于创建标签
-            echo "安装git..."
-            yum update -y && yum install -y git
             
             # 创建Git标签
             TAG_NAME="v${VERSION}"
@@ -63,5 +67,11 @@ master:
             
             git tag -a "${TAG_NAME}" -m "${RELEASE_CONTENT}"
             git push origin "${TAG_NAME}"
+            
+            # 创建CNB Release
+            cnb release create \
+              --tag "${TAG_NAME}" \
+              --title "Easy4Form ${VERSION}" \
+              --description "${RELEASE_CONTENT}"
             
             echo "发布流程完成 - 标签 ${TAG_NAME} 已创建并推送到远程仓库"
