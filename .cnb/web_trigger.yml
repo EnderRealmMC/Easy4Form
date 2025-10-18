@@ -3,7 +3,7 @@ branch:
   - buttons:
       - name: 发布版本
         description: Easy4Form ${VERSION}
-        event: release_trigger
+        event: web_trigger
         env:
           # 默认环境变量
           PROJECT_NAME: Easy4Form
