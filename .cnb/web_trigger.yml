@@ -11,8 +11,8 @@ branch:
           # 版本号输入框
           VERSION:
             name: 版本号
-            description: 请输入版本号（如：1.0.0），将自动从pom.xml获取当前版本作为默认值
-            required: true
+            description: 将自动从pom.xml获取当前版本号
+            required: false
             type: input
             default: ""
           # 发布内容多行编辑器

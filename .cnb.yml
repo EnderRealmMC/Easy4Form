@@ -18,14 +18,10 @@ master:
           script: |
             echo "项目名称: ${PROJECT_NAME}"
             
-            # 如果版本号为空，则从pom.xml自动获取
-            if [ -z "${VERSION}" ]; then
-              CURRENT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-              echo "自动从pom.xml获取版本号: ${CURRENT_VERSION}"
-              export VERSION=${CURRENT_VERSION}
-            else
-              echo "用户指定版本号: ${VERSION}"
-            fi
+            # 从pom.xml自动获取版本号
+            CURRENT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+            echo "自动从pom.xml获取版本号: ${CURRENT_VERSION}"
+            export VERSION=${CURRENT_VERSION}
             
             echo "版本号: ${VERSION}"
             echo "发布类型: ${RELEASE_TYPE}"
@@ -39,13 +35,6 @@ master:
             git checkout ${BUILD_BRANCH}
             git pull origin ${BUILD_BRANCH}
             
-            # 如果版本号与当前不同，则更新pom.xml版本
-            CURRENT_VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
-            if [ "${CURRENT_VERSION}" != "${VERSION}" ]; then
-              echo "更新项目版本从 ${CURRENT_VERSION} 到 ${VERSION}"
-              mvn versions:set -DnewVersion=${VERSION} -DgenerateBackupPoms=false
-            fi
-            
             # 构建项目
             mvn clean deploy -s ./settings.xml
         - name: 创建发布
@@ -54,14 +43,6 @@ master:
             echo "发布标题: Easy4Form ${VERSION}"
             echo "发布内容:"
             echo "${RELEASE_CONTENT}"
-            
-            # 提交版本变更（如果有）
-            if git status --porcelain | grep -q "pom.xml"; then
-              echo "提交版本变更"
-              git add pom.xml
-              git commit -m "更新版本到 ${VERSION}"
-              git push origin ${BUILD_BRANCH}
-            fi
             
             # 创建Git标签
             TAG_NAME="v${VERSION}"
