@@ -30,6 +30,10 @@ master:
             echo "${RELEASE_CONTENT}"
         - name: 构建项目
           script: |
+            # 安装git
+            echo "安装git..."
+            yum update -y && yum install -y git
+            
             # 切换到指定分支
             echo "切换到分支: ${BUILD_BRANCH}"
             git checkout ${BUILD_BRANCH}
@@ -43,6 +47,10 @@ master:
             echo "发布标题: Easy4Form ${VERSION}"
             echo "发布内容:"
             echo "${RELEASE_CONTENT}"
+            
+            # 安装git用于创建标签
+            echo "安装git..."
+            yum update -y && yum install -y git
             
             # 创建Git标签
             TAG_NAME="v${VERSION}"
