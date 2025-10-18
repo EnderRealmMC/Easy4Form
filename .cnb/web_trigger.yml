@@ -1,0 +1,61 @@
+branch:
+  # 正式版发布触发器 - 在所有分支显示
+  - buttons:
+      - name: 发布正式版
+        description: Easy4Form 正式版
+        event: web_trigger
+        env:
+          # 默认环境变量
+          PROJECT_NAME: Easy4Form
+          RELEASE_TYPE: official
+        inputs:
+          # 发布内容多行编辑器
+          RELEASE_CONTENT:
+            name: 发布内容
+            description: 请输入发布说明和更新内容
+            required: true
+            type: textarea
+            default: |
+              ## 新特性
+              - 新增功能
+              - 优化体验
+              
+              ## 修复
+              - 修复已知问题
+          # 构建分支选择
+          BUILD_BRANCH:
+            name: 构建分支
+            description: 选择要构建的分支
+            required: true
+            type: input
+            default: master
+  # 预览版发布触发器 - 在所有分支显示
+  - buttons:
+      - name: 发布预览版
+        description: Easy4Form 预览版
+        event: web_trigger_preview
+        env:
+          # 默认环境变量
+          PROJECT_NAME: Easy4Form
+          RELEASE_TYPE: preview
+        inputs:
+          # 发布内容多行编辑器
+          RELEASE_CONTENT:
+            name: 发布内容
+            description: 请输入发布说明和更新内容
+            required: true
+            type: textarea
+            default: |
+              ## 预览版更新
+              - 新功能预览
+              - 测试版本
+              
+              ## 注意
+              - 此为预览版本，可能存在不稳定因素
+          # 构建分支选择
+          BUILD_BRANCH:
+            name: 构建分支
+            description: 选择要构建的分支
+            required: true
+            type: input
+            default: master
