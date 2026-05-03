@@ -1,0 +1,91 @@
+name: Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+      packages: write
+    
+    steps:
+    - name: Checkout code
+      uses: actions/checkout@v4
+    
+    - name: Set up JDK 17
+      uses: actions/setup-java@v4
+      with:
+        java-version: '17'
+        distribution: 'temurin'
+        cache: maven
+    
+    - name: Extract project info from pom.xml
+      id: project-info
+      run: |
+        # 从 pom.xml 获取版本号
+        VERSION=$(mvn help:evaluate -Dexpression=project.version -q -DforceStdout)
+        echo "version=$VERSION" >> $GITHUB_OUTPUT
+        
+        # 从 pom.xml 获取项目名称
+        NAME=$(mvn help:evaluate -Dexpression=project.name -q -DforceStdout)
+        echo "name=$NAME" >> $GITHUB_OUTPUT
+        
+        echo "Project: $NAME, Version: $VERSION"
+    
+    - name: Extract release notes from release.md
+      id: release-notes
+      run: |
+        VERSION="${{ steps.project-info.outputs.version }}"
+        
+        # 从 release.md 提取特定版本的更新内容
+        # 查找以 ## [版本号] 或 ## 版本号 开头的部分
+        RELEASE_NOTES=$(awk -v ver="$VERSION" '
+          BEGIN { found=0; content="" }
+          /^## \[?v?'"$VERSION"'\]?/ { found=1; next }
+          /^## / { if(found) exit }
+          found { content = content $0 "\n" }
+          END { print content }
+        ' release.md)
+        
+        # 如果没有找到内容，使用默认内容
+        if [ -z "$RELEASE_NOTES" ]; then
+          RELEASE_NOTES="Release version $VERSION"
+        fi
+        
+        # 将多行内容写入输出（使用 GitHub Actions 的特殊语法）
+        echo "notes<<EOF" >> $GITHUB_OUTPUT
+        echo "$RELEASE_NOTES" >> $GITHUB_OUTPUT
+        echo "EOF" >> $GITHUB_OUTPUT
+    
+    - name: Build with Maven
+      run: mvn clean package -s ./settings.xml
+    
+    - name: Create Release
+      id: create-release
+      uses: actions/create-release@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        tag_name: v${{ steps.project-info.outputs.version }}
+        release_name: ${{ steps.project-info.outputs.name }} v${{ steps.project-info.outputs.version }}
+        body: ${{ steps.release-notes.outputs.notes }}
+        draft: false
+        prerelease: false
+    
+    - name: Upload JAR to Release
+      uses: actions/upload-release-asset@v1
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      with:
+        upload_url: ${{ steps.create-release.outputs.upload_url }}
+        asset_path: ./target/easy4form-${{ steps.project-info.outputs.version }}.jar
+        asset_name: easy4form-${{ steps.project-info.outputs.version }}.jar
+        asset_content_type: application/java-archive
+    
+    - name: Publish to GitHub Packages
+      run: mvn deploy -s ./settings.xml
+      env:
+        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        GITHUB_ACTOR: ${{ github.actor }}
