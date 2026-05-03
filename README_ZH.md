@@ -21,7 +21,7 @@ Easy4Form是一个Bukkit/Spigot插件，提供了一个简化的接口，用于�
 
 ## 安装
 
-1. 从[发布页面](https://cnb.cool/EnderRealm/public/Easy4Form/-/releases)下载最新版本的Easy4Form
+1. 从[发布页面](https://github.com/EnderRealmMC/Easy4Form/releases)下载最新版本的Easy4Form
 2. 将JAR文件放入服务器的`plugins`文件夹中
 3. 重启服务器
 
@@ -36,8 +36,8 @@ Easy4Form是一个Bukkit/Spigot插件，提供了一个简化的接口，用于�
 ```xml
 <repositories>
     <repository>
-        <id>enderrealm-public</id>
-        <url>https://maven.cnb.cool/EnderRealm/public/enderrealm-public-repo/-/packages/</url>
+        <id>github</id>
+        <url>https://maven.pkg.github.com/EnderRealmMC/Easy4Form</url>
     </repository>
 </repositories>
 ```
@@ -62,7 +62,11 @@ Easy4Form是一个Bukkit/Spigot插件，提供了一个简化的接口，用于�
 ```gradle
 repositories {
     maven {
-        url 'https://maven.cnb.cool/EnderRealm/public/enderrealm-public-repo/-/packages/'
+        url 'https://maven.pkg.github.com/EnderRealmMC/Easy4Form'
+        credentials {
+            username = System.getenv("GITHUB_ACTOR")
+            password = System.getenv("GITHUB_TOKEN")
+        }
     }
 }
 ```
@@ -175,5 +179,5 @@ form.input("name", "名称", "输入您的名称", player.getName())
 
 ## 支持
 
-如果您遇到任何问题或有疑问，请在CNB上[提交问题](https://cnb.cool/EnderRealm/public/Easy4Form/-/issues)。
+如果您遇到任何问题或有疑问，请在 GitHub 上[提交问题](https://github.com/EnderRealmMC/Easy4Form/issues)。
 
