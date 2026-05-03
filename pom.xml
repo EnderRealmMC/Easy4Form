@@ -14,10 +14,9 @@
     <!-- 配置发布仓库 -->
     <distributionManagement>
         <repository>
-            <!-- 须与 settings.xml 中 server 的 id 一致 -->
-            <id>enderrealm-public/enderrealm-public-repo</id>
-            <name>enderrealm-public/enderrealm-public-repo</name>
-            <url>https://maven.cnb.cool/EnderRealm/public/enderrealm-public-repo/-/packages/</url>
+            <id>github</id>
+            <name>GitHub Packages</name>
+            <url>https://maven.pkg.github.com/EnderRealmMC/Easy4Form</url>
         </repository>
     </distributionManagement>
 
