@@ -2,11 +2,11 @@
 
 **Language**: [English](README.md) | [中文](README_ZH.md)
 
-A simplified Form API for Floodgate, making it easier to create and send forms to Bedrock players from your Java server. Since 3.0.0 the library uses a public facade backed by internal form providers; the first provider sends Bedrock forms through Floodgate and Cumulus.
+A provider-based Form API making it easier to create and send forms from your Java server. Since 3.0.0 the library uses a public facade backed by internal form providers; the current provider sends Bedrock forms through Floodgate and Cumulus, and a Java dialog provider can be added without changing the facade.
 
 ## Introduction
 
-Easy4Form is a Bukkit/Spigot plugin that provides a simplified interface for creating and sending forms to Bedrock players through the Floodgate API. It supports all three types of forms available in Bedrock Edition:
+Easy4Form is a Bukkit/Spigot plugin that provides a simplified interface for creating and sending forms. The bundled Cumulus provider sends forms to Bedrock players through the Floodgate API. It supports all three types of forms available in Bedrock Edition:
 
 - **Simple Forms**: A list of buttons that the player can click
 - **Modal Forms**: A dialog with two buttons (yes/no, confirm/cancel, etc.)
@@ -15,7 +15,7 @@ Easy4Form is a Bukkit/Spigot plugin that provides a simplified interface for cre
 ## Requirements
 
 - Minecraft server with Bukkit/Spigot/Paper 1.18+
-- [Floodgate](https://github.com/GeyserMC/Floodgate) plugin installed
+- [Floodgate](https://github.com/GeyserMC/Floodgate) plugin for the Bedrock form provider (optional; without it Bedrock forms are disabled)
 
 ## Installation
 
@@ -90,6 +90,11 @@ dependencies {
 Easy4Form includes a configuration file (`config.yml`) with the following options:
 
 ```yaml
+# One provider per platform; use none to disable forms for that platform
+providers:
+  bedrock-form: cumulus # cumulus | none
+  java-dialog: none     # reserved, no implementation yet
+
 # Detection mode for Bedrock players
 # Options: floodgate, uuid
 detection-mode: floodgate
@@ -101,6 +106,14 @@ uuid-prefix: "00000000-0000"
 debug: false
 ```
 
+### Provider Selection
+
+Each platform takes exactly one provider name from `config.yml`:
+
+- `bedrock-form: cumulus` enables the Cumulus provider. It requires Floodgate; when Floodgate is missing, the provider is skipped automatically and Bedrock forms are disabled.
+- `bedrock-form: none` disables Bedrock forms without disabling the plugin.
+- `java-dialog: none` is reserved for a future Java dialog provider.
+
 ### Detection Modes
 
 - **floodgate**: Uses the Floodgate API to detect Bedrock players (recommended)
@@ -110,7 +123,8 @@ You can customize the UUID prefix used for detection when in `uuid` mode.
 
 ## Features
 
-- **Simplified API**: Easy-to-use API for creating and sending forms to Bedrock players
+- **Simplified API**: Easy-to-use API for creating and sending forms
+- **Configurable Providers**: Select the provider for each platform (`cumulus` or `none`); Bedrock forms degrade automatically when Floodgate is unavailable
 - **Fluent Interface**: All form builders use a fluent interface, allowing method chaining for cleaner code
 - **Type Safety**: Response handlers provide type-safe access to form responses
 - **Comprehensive Documentation**: Detailed documentation with examples for all form types

@@ -2,11 +2,11 @@
 
 **语言**: [English](README.md) | [中文](README_ZH.md)
 
-基于Floodgate的简化Form接口，使得在Java服务器上为基岩版玩家创建和发送表单变得更加简单。自 3.0.0 起，库采用公开门面加内部表单 Provider 的架构；首个 Provider 通过 Floodgate 与 Cumulus 发送基岩版表单。
+基于 Provider 的简化 Form 接口，使得在 Java 服务器上创建和发送表单变得更加简单。自 3.0.0 起，库采用公开门面加内部表单 Provider 的架构；当前 Provider 通过 Floodgate 与 Cumulus 发送基岩版表单，未来可在不改动门面的前提下接入 Java 版 Dialog Provider。
 
 ## 简介
 
-Easy4Form是一个Bukkit/Spigot插件，提供了一个简化的接口，用于通过Floodgate API为基岩版玩家创建和发送表单。它支持基岩版中可用的所有三种表单类型：
+Easy4Form是一个Bukkit/Spigot插件，提供了一个简化的接口，用于创建和发送表单。内置的 Cumulus Provider 通过 Floodgate API 为基岩版玩家发送表单。它支持基岩版中可用的所有三种表单类型：
 
 - **简单表单**：玩家可以点击的按钮列表
 - **模态表单**：带有两个按钮的对话框（是/否，确认/取消等）
@@ -15,7 +15,7 @@ Easy4Form是一个Bukkit/Spigot插件，提供了一个简化的接口，用于�
 ## 要求
 
 - 运行Bukkit/Spigot/Paper 1.18+的Minecraft服务器
-- 安装了[Floodgate](https://github.com/GeyserMC/Floodgate)插件
+- [Floodgate](https://github.com/GeyserMC/Floodgate)插件（基岩版表单 Provider 需要；缺失时自动禁用基岩版表单）
 
 ## 安装
 
@@ -90,6 +90,11 @@ dependencies {
 Easy4Form包含一个配置文件（`config.yml`），具有以下选项：
 
 ```yaml
+# 每个平台只能选择一个 Provider，none 表示禁用该平台表单
+providers:
+  bedrock-form: cumulus # cumulus | none
+  java-dialog: none     # 预留，暂无可用实现
+
 # 基岩版玩家检测模式
 # 选项: floodgate（使用Floodgate API）, uuid（使用UUID前缀）
 detection-mode: floodgate
@@ -101,6 +106,14 @@ uuid-prefix: "00000000-0000"
 debug: false
 ```
 
+### Provider 选择
+
+每个平台从 `config.yml` 中选择唯一的 Provider：
+
+- `bedrock-form: cumulus` 启用 Cumulus Provider。它依赖 Floodgate；Floodgate 缺失时会自动跳过并禁用基岩版表单。
+- `bedrock-form: none` 禁用基岩版表单，但不影响插件启用。
+- `java-dialog: none` 为未来的 Java 版 Dialog Provider 预留。
+
 ### 检测模式
 
 - **floodgate**：使用Floodgate API检测基岩版玩家（推荐）
@@ -110,7 +123,8 @@ debug: false
 
 ## 特性
 
-- **简化API**：易于使用的API，用于为基岩版玩家创建和发送表单
+- **简化API**：易于使用的API，用于创建和发送表单
+- **可配置 Provider**：按平台选择 Provider（`cumulus` 或 `none`）；Floodgate 不可用时基岩版表单自动降级
 - **流畅接口**：所有表单构建器都使用流畅的接口，允许方法链接以获得更清晰的代码
 - **类型安全**：响应处理器提供对表单响应的类型安全访问
 - **全面的文档**：详细的文档，包含所有表单类型的示例

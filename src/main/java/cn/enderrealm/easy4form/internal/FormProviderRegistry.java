@@ -14,12 +14,14 @@ public final class FormProviderRegistry {
     private final List<FormProvider> providers = new CopyOnWriteArrayList<>();
 
     /**
-     * 注册 Provider。
+     * 注册 Provider，同一平台只保留最后一次注册的实现。
      *
      * @param provider Provider
      */
     public void register(FormProvider provider) {
-        providers.add(Objects.requireNonNull(provider, "provider"));
+        Objects.requireNonNull(provider, "provider");
+        providers.removeIf(existing -> existing.platform() == provider.platform());
+        providers.add(provider);
     }
 
     /**
@@ -27,6 +29,15 @@ public final class FormProviderRegistry {
      */
     public void clear() {
         providers.clear();
+    }
+
+    /**
+     * 判断是否没有任何已注册的 Provider。
+     *
+     * @return 没有 Provider 时返回 true
+     */
+    public boolean isEmpty() {
+        return providers.isEmpty();
     }
 
     /**
@@ -45,5 +56,15 @@ public final class FormProviderRegistry {
             }
         }
         return null;
+    }
+
+    /**
+     * 判断是否存在可接管指定玩家的 Provider。
+     *
+     * @param player 玩家
+     * @return 存在时返回 true
+     */
+    public boolean hasProvider(Player player) {
+        return find(player) != null;
     }
 }

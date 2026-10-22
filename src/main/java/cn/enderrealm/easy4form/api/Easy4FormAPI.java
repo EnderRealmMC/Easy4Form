@@ -70,7 +70,7 @@ public class Easy4FormAPI {
             Consumer<Integer> responseHandler
     ) {
         try {
-            if (!isBedrockPlayer(player)) {
+            if (!hasActiveProvider(player)) {
                 return;
             }
             SimpleFormBuilder builder = new SimpleFormBuilder()
@@ -109,7 +109,7 @@ public class Easy4FormAPI {
             Consumer<Integer> responseHandler
     ) {
         try {
-            if (!isBedrockPlayer(player)) {
+            if (!hasActiveProvider(player)) {
                 return;
             }
             if (buttonTexts.size() != buttonImages.size()) {
@@ -156,7 +156,7 @@ public class Easy4FormAPI {
             Consumer<Integer> responseHandler
     ) {
         try {
-            if (!isBedrockPlayer(player)) {
+            if (!hasActiveProvider(player)) {
                 return;
             }
             if (buttonTexts.size() != buttonImageUrls.size()) {
@@ -203,7 +203,7 @@ public class Easy4FormAPI {
             Consumer<Boolean> responseHandler
     ) {
         try {
-            if (!isBedrockPlayer(player)) {
+            if (!hasActiveProvider(player)) {
                 return;
             }
             new ModalFormBuilder()
@@ -228,7 +228,7 @@ public class Easy4FormAPI {
      * @param player          接收表单的玩家
      * @param title           表单标题
      * @param responseHandler 响应处理器
-     * @return 自定义表单构建器；玩家不是基岩版玩家时返回 null
+     * @return 自定义表单构建器；没有可用 Provider 时返回 null
      */
     public static CustomFormBuilder createCustomForm(
             Player player,
@@ -236,7 +236,7 @@ public class Easy4FormAPI {
             Consumer<Map<String, Object>> responseHandler
     ) {
         try {
-            if (!isBedrockPlayer(player)) {
+            if (!hasActiveProvider(player)) {
                 return null;
             }
             return new CustomFormBuilder()
@@ -250,5 +250,16 @@ public class Easy4FormAPI {
             );
             return null;
         }
+    }
+
+    /**
+     * 判断是否存在可接管该玩家的 Provider。
+     *
+     * @param player 玩家
+     * @return 存在可用 Provider 时返回 true
+     */
+    private static boolean hasActiveProvider(Player player) {
+        Easy4form plugin = Easy4form.getInstance();
+        return plugin != null && plugin.getFormProviderRegistry().hasProvider(player);
     }
 }

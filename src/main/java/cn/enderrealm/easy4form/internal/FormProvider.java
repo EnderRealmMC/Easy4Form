@@ -17,6 +17,13 @@ public interface FormProvider {
     String name();
 
     /**
+     * 获取该 Provider 承载的表单平台。
+     *
+     * @return 表单平台
+     */
+    FormPlatform platform();
+
+    /**
      * 判断该 Provider 是否可以为指定玩家发送表单。
      *
      * @param player 玩家

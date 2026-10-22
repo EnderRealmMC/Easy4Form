@@ -1,10 +1,27 @@
 # Easy4Form Configuration
 # Easy4Form 配置文件
 
+# Form provider selection, one provider per platform
+# 表单 Provider 选择，每个平台只能启用一个
+# Available providers: cumulus (Bedrock forms), none (disabled)
+# 可用 Provider：cumulus（基岩版表单）, none（禁用）
+providers:
+  # Bedrock form provider
+  # 基岩版表单 Provider
+  # Requires the Floodgate plugin; automatically disabled when Floodgate is unavailable
+  # 需要 Floodgate 插件；Floodgate 不可用时自动降级为 none
+  bedrock-form: cumulus
+
+  # Java dialog provider (reserved, no implementation yet)
+  # Java 版 Dialog Provider（预留，暂无可用实现）
+  java-dialog: none
+
 # Detection mode for Bedrock players
 # 基岩版玩家检测模式
 # Options: floodgate, uuid
 # 选项: floodgate（使用Floodgate API）, uuid（使用UUID前缀）
+# Falls back to UUID prefix detection when Floodgate is unavailable
+# Floodgate 不可用时自动回退到 UUID 前缀检测
 detection-mode: floodgate
 
 # UUID prefix for Bedrock players (only used when detection-mode is 'uuid')

@@ -3,6 +3,7 @@ package cn.enderrealm.easy4form.internal.cumulus;
 import cn.enderrealm.easy4form.internal.ButtonDefinition;
 import cn.enderrealm.easy4form.internal.CustomComponent;
 import cn.enderrealm.easy4form.internal.FormDefinition;
+import cn.enderrealm.easy4form.internal.FormPlatform;
 import cn.enderrealm.easy4form.internal.FormProvider;
 import cn.enderrealm.easy4form.internal.FormResponse;
 import cn.enderrealm.easy4form.utils.PlayerUtils;
@@ -30,6 +31,11 @@ public final class CumulusProvider implements FormProvider {
     @Override
     public String name() {
         return "cumulus";
+    }
+
+    @Override
+    public FormPlatform platform() {
+        return FormPlatform.BEDROCK_FORM;
     }
 
     @Override
