@@ -1,170 +1,121 @@
 package cn.enderrealm.easy4form.api;
 
 import cn.enderrealm.easy4form.Easy4form;
+import cn.enderrealm.easy4form.internal.FormDefinition;
+import cn.enderrealm.easy4form.internal.FormProvider;
+import cn.enderrealm.easy4form.internal.FormResponse;
 import org.bukkit.entity.Player;
 
 import java.util.function.Consumer;
+import java.util.logging.Level;
 
 /**
- * Builder for creating modal forms - Multi-Version API Proxy
- * <p>
- * 用于创建模态表单的构建器 - 多版本API代理
- * <p>
- * This class provides a unified API interface that automatically routes to the appropriate version
- * based on the current configuration. It supports multiple API versions seamlessly.
- * <p>
- * 此类提供统一的API接口，根据当前配置自动路由到适当的版本。它无缝支持多个API版本。
+ * 用于创建模态表单的构建器。
  */
 public class ModalFormBuilder {
 
+    private String title;
+    private String content;
+    private String button1;
+    private String button2;
+    private Consumer<Boolean> responseHandler;
+
     /**
-     * Create a new ModalFormBuilder instance
-     * <p>
-     * 创建新的ModalFormBuilder实例
+     * 创建新的 ModalFormBuilder 实例。
+     */
+    public ModalFormBuilder() {
+    }
+
+    /**
+     * 创建新的 ModalFormBuilder 实例。
      *
-     * @return A new ModalFormBuilder instance / 新的ModalFormBuilder实例
+     * @return 新的构建器实例
      */
     public static ModalFormBuilder create() {
-        try {
-            // Create a new proxy instance
-            ModalFormBuilder proxy = new ModalFormBuilder();
-            
-            // Initialize the actual builder instance through version manager
-            Easy4form.getInstance().getVersionManager().routeMethodCall(
-                "createModalForm", 
-                new Class<?>[]{}, 
-                proxy
-            );
-            
-            return proxy;
-        } catch (Exception e) {
-            Easy4form.getInstance().getLogger().severe("Failed to route createModalForm call: " + e.getMessage());
-            e.printStackTrace();
-            return new ModalFormBuilder();
-        }
+        return new ModalFormBuilder();
     }
 
     /**
-     * Set the title of the form
-     * <p>
-     * 设置表单标题
+     * 设置表单标题。
      *
-     * @param title The title / 标题
-     * @return This builder instance / 构建器实例
+     * @param title 标题
+     * @return 构建器实例
      */
     public ModalFormBuilder title(String title) {
-        try {
-            return (ModalFormBuilder) Easy4form.getInstance().getVersionManager().routeMethodCall(
-                "modalFormBuilderTitle", 
-                new Class<?>[]{ModalFormBuilder.class, String.class}, 
-                this, title
-            );
-        } catch (Exception e) {
-            Easy4form.getInstance().getLogger().severe("Failed to route modalFormBuilderTitle call: " + e.getMessage());
-            return this;
-        }
+        this.title = title;
+        return this;
     }
 
     /**
-     * Set the content of the form
-     * <p>
-     * 设置表单内容
+     * 设置表单内容。
      *
-     * @param content The content / 内容
-     * @return This builder instance / 构建器实例
+     * @param content 内容
+     * @return 构建器实例
      */
     public ModalFormBuilder content(String content) {
-        try {
-            return (ModalFormBuilder) Easy4form.getInstance().getVersionManager().routeMethodCall(
-                "modalFormBuilderContent", 
-                new Class<?>[]{ModalFormBuilder.class, String.class}, 
-                this, content
-            );
-        } catch (Exception e) {
-            Easy4form.getInstance().getLogger().severe("Failed to route modalFormBuilderContent call: " + e.getMessage());
-            return this;
-        }
+        this.content = content;
+        return this;
     }
 
     /**
-     * Set the first button (usually "Yes" or "Confirm")
-     * <p>
-     * 设置第一个按钮（通常是"是"或"确认"）
+     * 设置第一个按钮（通常是“是”或“确认”）。
      *
-     * @param text The button text / 按钮文本
-     * @return This builder instance / 构建器实例
+     * @param text 按钮文本
+     * @return 构建器实例
      */
     public ModalFormBuilder button1(String text) {
-        try {
-            return (ModalFormBuilder) Easy4form.getInstance().getVersionManager().routeMethodCall(
-                "modalFormBuilderButton1", 
-                new Class<?>[]{ModalFormBuilder.class, String.class}, 
-                this, text
-            );
-        } catch (Exception e) {
-            Easy4form.getInstance().getLogger().severe("Failed to route modalFormBuilderButton1 call: " + e.getMessage());
-            return this;
-        }
+        this.button1 = text;
+        return this;
     }
 
     /**
-     * Set the second button (usually "No" or "Cancel")
-     * <p>
-     * 设置第二个按钮（通常是"否"或"取消"）
+     * 设置第二个按钮（通常是“否”或“取消”）。
      *
-     * @param text The button text / 按钮文本
-     * @return This builder instance / 构建器实例
+     * @param text 按钮文本
+     * @return 构建器实例
      */
     public ModalFormBuilder button2(String text) {
-        try {
-            return (ModalFormBuilder) Easy4form.getInstance().getVersionManager().routeMethodCall(
-                "modalFormBuilderButton2", 
-                new Class<?>[]{ModalFormBuilder.class, String.class}, 
-                this, text
-            );
-        } catch (Exception e) {
-            Easy4form.getInstance().getLogger().severe("Failed to route modalFormBuilderButton2 call: " + e.getMessage());
-            return this;
-        }
+        this.button2 = text;
+        return this;
     }
 
     /**
-     * Set the response handler for the form
-     * <p>
-     * 设置表单的响应处理器
+     * 设置响应处理器。
      *
-     * @param responseHandler The response handler / 响应处理器
-     * @return This builder instance / 构建器实例
+     * @param responseHandler 响应处理器
+     * @return 构建器实例
      */
     public ModalFormBuilder responseHandler(Consumer<Boolean> responseHandler) {
-        try {
-            return (ModalFormBuilder) Easy4form.getInstance().getVersionManager().routeMethodCall(
-                "modalFormBuilderResponseHandler", 
-                new Class<?>[]{ModalFormBuilder.class, Consumer.class}, 
-                this, responseHandler
-            );
-        } catch (Exception e) {
-            Easy4form.getInstance().getLogger().severe("Failed to route modalFormBuilderResponseHandler call: " + e.getMessage());
-            return this;
-        }
+        this.responseHandler = responseHandler;
+        return this;
     }
 
     /**
-     * Send the form to a player
-     * <p>
-     * 向玩家发送表单
+     * 向玩家发送表单。
      *
-     * @param player The player to send the form to / 接收表单的玩家
+     * @param player 接收表单的玩家
      */
     public void send(Player player) {
         try {
-            Easy4form.getInstance().getVersionManager().routeMethodCall(
-                "modalFormBuilderSend", 
-                new Class<?>[]{ModalFormBuilder.class, Player.class}, 
-                this, player
+            FormProvider provider = Easy4form.getInstance().getFormProviderRegistry().find(player);
+            if (provider == null) {
+                return;
+            }
+            FormDefinition.Modal form = new FormDefinition.Modal(title, content, button1, button2);
+            Consumer<FormResponse> handler = responseHandler == null ? null : response -> {
+                if (response instanceof FormResponse.Modal modal) {
+                    responseHandler.accept(modal.firstButton());
+                    return;
+                }
+                responseHandler.accept(null);
+            };
+            provider.send(player, form, handler);
+        } catch (Exception exception) {
+            Easy4form.getInstance().getLogger().log(
+                    Level.SEVERE,
+                    "Failed to send modal form: " + exception.getMessage(),
+                    exception
             );
-        } catch (Exception e) {
-            Easy4form.getInstance().getLogger().severe("Failed to route modalFormBuilderSend call: " + e.getMessage());
         }
     }
 }

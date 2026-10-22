@@ -2,9 +2,7 @@
 
 **Language**: [English](README.md) | [中文](README_ZH.md)
 
-**Documentation**: [API Documentation v1](docs/v1/api.md) | [API 文档 v1](docs/v1/api_zh.md)
-
-A simplified Form API for Floodgate, making it easier to create and send forms to Bedrock players from your Java server.
+A simplified Form API for Floodgate, making it easier to create and send forms to Bedrock players from your Java server. Since 3.0.0 the library uses a public facade backed by internal form providers; the first provider sends Bedrock forms through Floodgate and Cumulus.
 
 ## Introduction
 
@@ -49,7 +47,7 @@ Then add the dependency:
     <dependency>
         <groupId>cn.enderrealm</groupId>
         <artifactId>easy4form</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>3.0.0</version>
         <scope>provided</scope>
     </dependency>
 </dependencies>
@@ -75,13 +73,21 @@ Then add the dependency:
 
 ```gradle
 dependencies {
-    compileOnly 'cn.enderrealm:easy4form:1.0-SNAPSHOT'
+    compileOnly 'cn.enderrealm:easy4form:3.0.0'
 }
 ```
 
+## 3.0.0 Breaking Changes
+
+- The public facade remains `cn.enderrealm.easy4form.api.*`; existing builder and `Easy4FormAPI` calls keep their signatures.
+- `Easy4FormAPI.getFloodgatePlayer(...)` was removed.
+- `cn.enderrealm.easy4form.api.PlayerUtils` moved to `cn.enderrealm.easy4form.utils.PlayerUtils`.
+- `api.v1` and `api.v2` were removed; forms are now dispatched through an internal provider registry.
+- Closed responses: simple and modal forms return `null`; custom forms return an empty map.
+
 ## Configuration
 
-Easy4Form now includes a configuration file (`config.yml`) with the following options:
+Easy4Form includes a configuration file (`config.yml`) with the following options:
 
 ```yaml
 # Detection mode for Bedrock players
@@ -93,12 +99,6 @@ uuid-prefix: "00000000-0000"
 
 # Debug mode
 debug: false
-
-# API version (currently only v1 is supported)
-api-version: "v1"
-
-# Enable migration warnings for deprecated API usage
-migration-warnings: true
 ```
 
 ### Detection Modes

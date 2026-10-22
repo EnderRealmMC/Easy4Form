@@ -2,9 +2,7 @@
 
 **语言**: [English](README.md) | [中文](README_ZH.md)
 
-**文档**: [API Documentation v1](docs/v1/api.md) | [API 文档 v1](docs/v1/api_zh.md)
-
-基于Floodgate的简化Form接口，使得在Java服务器上为基岩版玩家创建和发送表单变得更加简单。
+基于Floodgate的简化Form接口，使得在Java服务器上为基岩版玩家创建和发送表单变得更加简单。自 3.0.0 起，库采用公开门面加内部表单 Provider 的架构；首个 Provider 通过 Floodgate 与 Cumulus 发送基岩版表单。
 
 ## 简介
 
@@ -49,7 +47,7 @@ Easy4Form是一个Bukkit/Spigot插件，提供了一个简化的接口，用于�
     <dependency>
         <groupId>cn.enderrealm</groupId>
         <artifactId>easy4form</artifactId>
-        <version>1.0-SNAPSHOT</version>
+        <version>3.0.0</version>
         <scope>provided</scope>
     </dependency>
 </dependencies>
@@ -75,13 +73,21 @@ repositories {
 
 ```gradle
 dependencies {
-    compileOnly 'cn.enderrealm:easy4form:1.0-SNAPSHOT'
+    compileOnly 'cn.enderrealm:easy4form:3.0.0'
 }
 ```
 
+## 3.0.0 破坏性变更
+
+- 公开门面仍为 `cn.enderrealm.easy4form.api.*`，现有构建器与 `Easy4FormAPI` 调用签名不变。
+- 移除 `Easy4FormAPI.getFloodgatePlayer(...)`。
+- `cn.enderrealm.easy4form.api.PlayerUtils` 迁移至 `cn.enderrealm.easy4form.utils.PlayerUtils`。
+- 删除 `api.v1` 与 `api.v2`，表单改由内部 Provider 注册表分发。
+- 表单关闭响应：简单表单与模态表单返回 `null`，自定义表单返回空 Map。
+
 ## 配置
 
-Easy4Form现在包含一个配置文件（`config.yml`），具有以下选项：
+Easy4Form包含一个配置文件（`config.yml`），具有以下选项：
 
 ```yaml
 # 基岩版玩家检测模式
@@ -93,12 +99,6 @@ uuid-prefix: "00000000-0000"
 
 # 调试模式
 debug: false
-
-# API版本（目前仅支持v1）
-api-version: "v1"
-
-# 启用已弃用API使用的迁移警告
-migration-warnings: true
 ```
 
 ### 检测模式

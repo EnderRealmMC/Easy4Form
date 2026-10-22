@@ -14,11 +14,3 @@ uuid-prefix: "00000000-0000"
 # Debug mode
 # 调试模式
 debug: false
-
-# API version (v1 and v2 are supported, v2 is recommended)
-# API版本（支持v1和v2，推荐使用v2）
-api-version: "v2"
-
-# Enable migration warnings for outdated API version
-# 启用过时API版本的迁移警告
-migration-warnings: true
