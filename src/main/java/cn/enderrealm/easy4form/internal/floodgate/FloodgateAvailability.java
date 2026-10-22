@@ -16,6 +16,17 @@ public final class FloodgateAvailability {
     }
 
     /**
+     * 判断 Floodgate 插件是否已加载（无论是否启用）。
+     *
+     * <p>Cumulus 随 Floodgate 一起提供，Floodgate 完全不存在时基岩版表单能力也不存在。</p>
+     *
+     * @return 插件已加载时返回 true
+     */
+    public static boolean isPresent() {
+        return Bukkit.getPluginManager().getPlugin(PLUGIN_NAME) != null;
+    }
+
+    /**
      * 判断 Floodgate 插件是否已加载并启用。
      *
      * @return 可用时返回 true

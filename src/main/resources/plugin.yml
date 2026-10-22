@@ -2,6 +2,6 @@ name: easy4form
 version: '3.0.0'
 main: cn.enderrealm.easy4form.Easy4form
 api-version: '1.18'
-softdepend: [floodgate]
+softdepend: [floodgate, ViaVersion]
 description: A provider-based Form API with configurable Bedrock and Java form backends
 authors: [EnderRealm]

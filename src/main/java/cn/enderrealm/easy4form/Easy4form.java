@@ -15,6 +15,7 @@ public final class Easy4form extends JavaPlugin {
 
     private static final String PROVIDER_NONE = "none";
     private static final String PROVIDER_CUMULUS = "cumulus";
+    private static final String PROVIDER_PAPER = "paper";
 
     private static Easy4form instance;
     private final FormProviderRegistry formProviderRegistry = new FormProviderRegistry();
@@ -59,13 +60,19 @@ public final class Easy4form extends JavaPlugin {
         if (FloodgateAvailability.isAvailable()) {
             return;
         }
+        if (!FloodgateAvailability.isPresent()) {
+            getLogger().warning(
+                    "Floodgate not found; Bedrock players will be treated as Java players and Bedrock forms are disabled."
+            );
+            return;
+        }
         String detectionMode = getConfig().getString("detection-mode", "floodgate");
         if ("uuid".equalsIgnoreCase(detectionMode)) {
-            getLogger().info("Floodgate not found; using UUID prefix detection.");
+            getLogger().info("Floodgate is installed but not enabled; using UUID prefix detection.");
             return;
         }
         getLogger().warning(
-                "Floodgate not found; detection-mode 'floodgate' falls back to UUID prefix detection."
+                "Floodgate is installed but not enabled; detection-mode 'floodgate' falls back to UUID prefix detection."
         );
     }
 
@@ -112,18 +119,38 @@ public final class Easy4form extends JavaPlugin {
             }
             return new CumulusProvider();
         }
-        if (platform == FormPlatform.JAVA_DIALOG) {
-            getLogger().warning(
-                    "Java dialog provider '" + providerName
-                            + "' is not implemented yet; Java dialogs are disabled."
-            );
-            return null;
+        if (platform == FormPlatform.JAVA_DIALOG && PROVIDER_PAPER.equalsIgnoreCase(providerName)) {
+            return createPaperDialogProvider();
         }
         getLogger().warning(
                 "Unknown " + platform.displayName() + " provider '" + providerName
                         + "'; forms for this platform are disabled."
         );
         return null;
+    }
+
+    /**
+     * 通过反射创建 Paper Dialog Provider。
+     *
+     * <p>Paper 1.21.8 的 Dialog API 在旧服务端不存在，反射可避免类加载失败；
+     * 初始化完成后所有调用都走 {@link FormProvider} 接口，不再有反射开销。</p>
+     *
+     * @return Provider 实例；当前服务端或 Java 版本不支持时返回 null
+     */
+    private FormProvider createPaperDialogProvider() {
+        try {
+            Class<?> providerClass = Class.forName(
+                    "cn.enderrealm.easy4form.internal.paper.PaperDialogProvider"
+            );
+            return (FormProvider) providerClass.getDeclaredConstructor().newInstance();
+        } catch (ReflectiveOperationException | LinkageError | RuntimeException exception) {
+            getLogger().warning(
+                    "Java dialog provider 'paper' requires Paper 1.21.8+ and Java 21; "
+                            + "Java dialogs are disabled. ("
+                            + exception.getClass().getSimpleName() + ": " + exception.getMessage() + ")"
+            );
+            return null;
+        }
     }
 
     @Override

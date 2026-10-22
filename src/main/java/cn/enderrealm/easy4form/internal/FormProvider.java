@@ -40,4 +40,12 @@ public interface FormProvider {
      * @return 发送成功时返回 true
      */
     boolean send(Player player, FormDefinition form, Consumer<FormResponse> responseHandler);
+
+    /**
+     * 释放 Provider 持有的资源。
+     *
+     * <p>插件禁用时由注册表调用，默认无操作。</p>
+     */
+    default void close() {
+    }
 }

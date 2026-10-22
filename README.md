@@ -2,11 +2,11 @@
 
 **Language**: [English](README.md) | [中文](README_ZH.md)
 
-A provider-based Form API making it easier to create and send forms from your Java server. Since 3.0.0 the library uses a public facade backed by internal form providers; the current provider sends Bedrock forms through Floodgate and Cumulus, and a Java dialog provider can be added without changing the facade.
+A provider-based Form API making it easier to create and send forms from your Java server. Since 3.0.0 the library uses a public facade backed by internal form providers; Bedrock forms are sent through Floodgate and Cumulus, and Java players can receive native dialogs on Paper 1.21.8+ (disabled by default, opt-in).
 
 ## Introduction
 
-Easy4Form is a Bukkit/Spigot plugin that provides a simplified interface for creating and sending forms. The bundled Cumulus provider sends forms to Bedrock players through the Floodgate API. It supports all three types of forms available in Bedrock Edition:
+Easy4Form is a Bukkit/Spigot plugin that provides a simplified interface for creating and sending forms. The bundled Cumulus provider sends forms to Bedrock players through the Floodgate API, and the Paper dialog provider sends native Paper 1.21.8 dialogs to Java players. It supports all three types of forms available in Bedrock Edition:
 
 - **Simple Forms**: A list of buttons that the player can click
 - **Modal Forms**: A dialog with two buttons (yes/no, confirm/cancel, etc.)
@@ -16,6 +16,9 @@ Easy4Form is a Bukkit/Spigot plugin that provides a simplified interface for cre
 
 - Minecraft server with Bukkit/Spigot/Paper 1.18+
 - [Floodgate](https://github.com/GeyserMC/Floodgate) plugin for the Bedrock form provider (optional; without it Bedrock forms are disabled)
+- Java dialogs require Paper 1.21.8+, Java 21, and a client on Minecraft 1.21.6+ (disabled by default)
+
+Building this library requires JDK 21 (compiling to Java 17); the public Maven build is fully self-contained and does not need the internal Gradle setup.
 
 ## Installation
 
@@ -93,17 +96,22 @@ Easy4Form includes a configuration file (`config.yml`) with the following option
 # One provider per platform; use none to disable forms for that platform
 providers:
   bedrock-form: cumulus # cumulus | none
-  java-dialog: none     # reserved, no implementation yet
+  java-dialog: none     # paper | none
 
 # Detection mode for Bedrock players
 # Options: floodgate, uuid
 detection-mode: floodgate
 
-# UUID prefix for Bedrock players (only used when detection-mode is 'uuid')
+# UUID prefix for Bedrock players (used in 'uuid' mode or as the fallback; requires Floodgate)
 uuid-prefix: "00000000-0000"
 
 # Debug mode
 debug: false
+
+# Java dialog text
+java-dialog-text:
+  submit: "Submit"
+  close: "Close"
 ```
 
 ### Provider Selection
@@ -112,21 +120,34 @@ Each platform takes exactly one provider name from `config.yml`:
 
 - `bedrock-form: cumulus` enables the Cumulus provider. It requires Floodgate; when Floodgate is missing, the provider is skipped automatically and Bedrock forms are disabled.
 - `bedrock-form: none` disables Bedrock forms without disabling the plugin.
-- `java-dialog: none` is reserved for a future Java dialog provider.
+- `java-dialog: paper` enables the Paper dialog provider. It requires Paper 1.21.8+, Java 21, and the Paper Dialog API; otherwise it degrades to disabled and the plugin stays enabled.
+- `java-dialog: none` disables Java dialogs (default).
+
+Java dialogs are only sent to non-Bedrock players whose client protocol is at least 771 (Minecraft 1.21.6). When ViaVersion is installed, the real client version is read through the ViaAPI; if ViaVersion is present but the version is unavailable, no Java dialog is sent.
+
+### Java Dialog Mapping and Limitations
+
+- Simple forms map to a multi-button dialog; modal forms use two buttons so that closing can be distinguished from clicking "No".
+- Every Java dialog has a footer close button, and custom forms add a submit button (text configurable via `java-dialog-text`).
+- Paper has no dialog close event; the provider binds `exit_action` of `multi_action` to catch both Escape and the close button and maps them to the closed response (`null` for simple/modal, an empty map for custom).
+- Unmappable features: button images, input placeholders, and interleaved label/input layout (labels are rendered together in the body).
 
 ### Detection Modes
 
-- **floodgate**: Uses the Floodgate API to detect Bedrock players (recommended)
-- **uuid**: Uses a UUID prefix to detect Bedrock players (useful when Floodgate detection fails)
+Both modes require the Floodgate plugin to be installed. Cumulus ships with Floodgate, so when Floodgate is absent, Bedrock forms are unavailable and no player is treated as Bedrock.
 
-You can customize the UUID prefix used for detection when in `uuid` mode.
+- **floodgate**: Uses the Floodgate API to detect Bedrock players (recommended). Falls back to the UUID prefix when Floodgate is installed but not enabled or its API call fails.
+- **uuid**: Uses a UUID prefix to detect Bedrock players. Also only active while Floodgate is installed.
+
+You can customize the UUID prefix used for detection.
 
 ## Features
 
 - **Simplified API**: Easy-to-use API for creating and sending forms
-- **Configurable Providers**: Select the provider for each platform (`cumulus` or `none`); Bedrock forms degrade automatically when Floodgate is unavailable
+- **Configurable Providers**: Select the provider for each platform (`cumulus`, `paper`, or `none`); each platform degrades automatically when its dependency is unavailable
 - **Fluent Interface**: All form builders use a fluent interface, allowing method chaining for cleaner code
 - **Type Safety**: Response handlers provide type-safe access to form responses
+- **Capability Query**: `Easy4FormAPI.isFormSupported(Player)` lets callers detect unsupported players and provide their own fallback
 - **Comprehensive Documentation**: Detailed documentation with examples for all form types
 - **Bilingual Support**: Documentation available in both English and Chinese
 
@@ -190,6 +211,7 @@ Contributions are welcome! Please feel free to submit a Pull Request.
 
 - [Floodgate](https://github.com/GeyserMC/Floodgate) - For providing the API to interact with Bedrock players
 - [Cumulus](https://github.com/GeyserMC/Cumulus) - The form library used by Floodgate
+- [Paper](https://github.com/PaperMC/Paper) - For the Java dialog API
 
 ## Support
 

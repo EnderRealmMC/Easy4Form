@@ -54,6 +54,29 @@ public class Easy4FormAPI {
     }
 
     /**
+     * 判断玩家当前是否可接收表单。
+     *
+     * <p>返回 true 表示至少有一个表单 Provider 能接管该玩家，包括基岩版
+     * 与 Java 版 Dialog；返回 false 时发送方法会被静默忽略，响应处理器
+     * 不会触发，调用方需要自行提供兜底交互。</p>
+     *
+     * @param player 要检查的玩家
+     * @return 存在可接管该玩家的 Provider 时返回 true
+     */
+    public static boolean isFormSupported(Player player) {
+        try {
+            return hasActiveProvider(player);
+        } catch (Exception exception) {
+            Easy4form.getInstance().getLogger().log(
+                    Level.SEVERE,
+                    "Failed to check form support: " + exception.getMessage(),
+                    exception
+            );
+            return false;
+        }
+    }
+
+    /**
      * 向玩家发送简单表单。
      *
      * @param player          接收表单的玩家

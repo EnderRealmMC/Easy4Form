@@ -25,9 +25,12 @@ public final class FormProviderRegistry {
     }
 
     /**
-     * 清空所有 Provider。
+     * 释放并清空所有 Provider。
      */
     public void clear() {
+        for (FormProvider provider : providers) {
+            provider.close();
+        }
         providers.clear();
     }
 

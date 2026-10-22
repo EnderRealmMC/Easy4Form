@@ -28,6 +28,8 @@ public final class PlayerUtils {
     /**
      * 通过 UUID 前缀检查玩家是否为基岩版玩家。
      *
+     * <p>仅做前缀匹配，不检查 Floodgate 是否安装；常规判断请使用 {@link #isBedrockPlayer(UUID)}。</p>
+     *
      * @param uuid 玩家 UUID
      * @return 基岩版玩家返回 true
      */
@@ -39,12 +41,16 @@ public final class PlayerUtils {
     /**
      * 检查 UUID 是否为基岩版玩家。
      *
-     * <p>Floodgate 不可用时自动降级为 UUID 前缀检测。</p>
+     * <p>Floodgate 不存在时直接返回 false，因为 Cumulus 与其一同缺失，基岩版表单能力不存在；
+     * Floodgate 已安装但未启用或 API 调用失败时才回退到 UUID 前缀检测。</p>
      *
      * @param uuid 玩家 UUID
      * @return 基岩版玩家返回 true
      */
     public static boolean isBedrockPlayer(UUID uuid) {
+        if (!FloodgateAvailability.isPresent()) {
+            return false;
+        }
         String detectionMode = getConfigString("detection-mode", "floodgate");
         if ("uuid".equalsIgnoreCase(detectionMode)) {
             return isBedrockPlayerByUUID(uuid);
