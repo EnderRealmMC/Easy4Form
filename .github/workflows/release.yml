@@ -1,6 +1,11 @@
 name: Release
 
 on:
+  push:
+    tags:
+      # 打 v<版本号> 标签即触发发布（本文件取自被打标签的那个提交，不要求先合进默认分支）
+      - 'v*'
+  # 保留手动入口：标签触发会先把本 workflow 登记到 Actions，之后页面才会出现 Run workflow 按钮
   workflow_dispatch:
 
 jobs:
@@ -74,13 +79,13 @@ jobs:
         draft: false
         prerelease: false
     
-    - name: Upload JAR to Release
+    - name: Upload bundled JAR to Release
       uses: actions/upload-release-asset@v1
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         upload_url: ${{ steps.create-release.outputs.upload_url }}
-        asset_path: ./target/easy4form-${{ steps.project-info.outputs.version }}.jar
+        asset_path: ./target/easy4form-${{ steps.project-info.outputs.version }}-all.jar
         asset_name: easy4form-${{ steps.project-info.outputs.version }}.jar
         asset_content_type: application/java-archive
     
