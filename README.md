@@ -2,7 +2,7 @@
 
 **Language**: [English](README.md) | [中文](README_ZH.md)
 
-A provider-based Form API making it easier to create and send forms from your Java server. Since 3.0.0 the library uses a public facade backed by internal form providers; Bedrock forms are sent through Floodgate and Cumulus, and Java players can receive native dialogs on Paper 1.21.7+ (disabled by default, opt-in).
+A provider-based Form API making it easier to create and send forms from your Java server. Since 3.0.0 the library uses a public facade backed by internal form providers; Bedrock forms are sent through Floodgate and Cumulus, and Java players can receive native dialogs on Paper 1.21.7+ (disabled by default, opt-in). On top of the facade, `api/dsl` offers extension functions and trailing lambdas for Kotlin developers.
 
 ## Introduction
 
@@ -18,13 +18,15 @@ Easy4Form is a Bukkit/Spigot plugin that provides a simplified interface for cre
 - [Floodgate](https://github.com/GeyserMC/Floodgate) plugin for the Bedrock form provider (optional; without it Bedrock forms are disabled)
 - Java dialogs require Paper 1.21.7+, Java 21, and a client on Minecraft 1.21.6+ (disabled by default)
 
-Building this library requires JDK 21 (compiling to Java 17); the public Maven build is fully self-contained and does not need the internal Gradle setup.
+Building this library requires JDK 21 (compiling to Java 17); the public Maven build is fully self-contained and does not need the internal Gradle setup. Kotlin DSL consumers need a Kotlin 1.9 or newer compiler.
 
 ## Installation
 
-1. Download the latest version of Easy4Form from the [releases page](https://github.com/EnderRealmMC/Easy4Form/releases)
+1. Download `easy4form-3.0.0.jar` from the [releases page](https://github.com/EnderRealmMC/Easy4Form/releases) — it already bundles the Kotlin standard library, so this single file is all the server needs
 2. Place the JAR file in your server's `plugins` folder
 3. Restart your server
+
+Building from source (`mvn clean package`) yields two JARs: `target/easy4form-3.0.0-all.jar` bundles the Kotlin standard library and is the file published on the releases page (under the name `easy4form-3.0.0.jar`), while `target/easy4form-3.0.0.jar` contains only this library's classes and exists for compile-time dependencies; do not deploy the latter on its own.
 
 ## Usage (For Developers)
 
@@ -80,6 +82,8 @@ dependencies {
 }
 ```
 
+Kotlin projects should keep the default (unclassified) artifact as the dependency — it carries no Kotlin standard library, and your own Kotlin plugin already provides one — and declare `easy4form` in `depend:` (or the Paper dependency block). Do not shade another copy of `kotlin-stdlib` into your plugin: the DSL's configuration-lambda types must resolve to a single standard library definition server-wide, and two copies fail at runtime with a `ClassCastException`.
+
 ## 3.0.0 Breaking Changes
 
 - The public facade remains `cn.enderrealm.easy4form.api.*`; existing builder and `Easy4FormAPI` calls keep their signatures.
@@ -87,6 +91,7 @@ dependencies {
 - `cn.enderrealm.easy4form.api.PlayerUtils` moved to `cn.enderrealm.easy4form.utils.PlayerUtils`.
 - `api.v1` and `api.v2` were removed; forms are now dispatched through an internal provider registry.
 - Closed responses: simple and modal forms return `null`; custom forms return an empty map.
+- The deployed bundle now carries the Kotlin standard library and is noticeably larger (build output `*-all.jar`, published on the releases page under the plain `easy4form-3.0.0.jar` name). Java call sites and the dependency coordinate are unchanged — compile against the main artifact, which contains no standard library.
 
 ## Configuration
 
@@ -146,6 +151,7 @@ You can customize the UUID prefix used for detection.
 - **Simplified API**: Easy-to-use API for creating and sending forms
 - **Configurable Providers**: Select the provider for each platform (`cumulus`, `paper`, or `none`); each platform degrades automatically when its dependency is unavailable
 - **Fluent Interface**: All form builders use a fluent interface, allowing method chaining for cleaner code
+- **Kotlin DSL**: `api/dsl` adds `player.simpleForm`, `player.modalForm` and `player.customForm` extension functions with per-button callbacks and typed value access
 - **Type Safety**: Response handlers provide type-safe access to form responses
 - **Capability Query**: `Easy4FormAPI.isFormSupported(Player)` lets callers detect unsupported players and provide their own fallback
 - **Comprehensive Documentation**: Detailed documentation with examples for all form types
@@ -196,6 +202,47 @@ form.input("name", "Name", "Enter your name", player.getName())
     .toggle("notifications", "Enable Notifications", true)
     .send(player);
 ```
+
+### Kotlin DSL
+
+Kotlin developers write the same forms with extension functions and trailing lambdas. Closing and invalid responses go to `closed`:
+
+```kotlin
+import cn.enderrealm.easy4form.api.dsl.customForm
+import cn.enderrealm.easy4form.api.dsl.modalForm
+import cn.enderrealm.easy4form.api.dsl.simpleForm
+
+player.simpleForm("Main Menu", "Pick an action") {
+    button("Start") { index -> player.sendMessage("Button $index") }
+    button("Resource pack icon", "textures/ui/icon") { }
+    buttonWithUrl("Web icon", "https://example.com/a.png") { }
+    closed { player.sendMessage("Dismissed") }
+}
+
+player.modalForm("Confirmation", "Are you sure you want to proceed?", "Yes", "No") {
+    confirm { player.sendMessage("You confirmed!") }
+    cancel { }
+    closed { }
+}
+
+player.customForm("Settings") {
+    label("These settings apply immediately")
+    input("name", "Name", "Enter your name", player.name)
+    toggle("notifications", "Enable Notifications", true)
+    slider("volume", "Volume", 0f, 100f)
+    stepSlider("rank", "Rank", "Bronze", "King", defaultStep = 1)
+    dropdown("language", "Language", "zh_CN", "en_US")
+    submitted { values ->
+        val name = values.string("name")
+        val notifications = values.boolean("notifications")
+        val volume = values.float("volume")
+        val rank = values.intIndex("rank")
+    }
+    closed { player.sendMessage("Not submitted") }
+}
+```
+
+`label` follows the same auto-ID rule as the Java builder and still occupies a component index. When no provider can serve the player, sending is skipped silently and `closed` does not run either; use `Easy4FormAPI.isFormSupported(player)` to build your own fallback.
 
 
 

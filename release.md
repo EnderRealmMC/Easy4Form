@@ -18,6 +18,13 @@
 - 构建改用 Paper 1.21.7 API，编译需要 JDK 21，产物仍以 Java 17 为目标
 - Floodgate 改为软依赖：缺失时自动禁用 Cumulus Provider，且不再把任何玩家识别为基岩版玩家（Cumulus 与表单能力随 Floodgate 一同缺失），插件不再因此停用；仅在 Floodgate 已安装但未启用或 API 调用失败时回退到 UUID 前缀检测
 - 门面发送改为由 Provider 注册表按玩家能力路由，基岩版与 Java 版分别命中对应 Provider
+- 新增 `api/dsl` Kotlin DSL：`player.simpleForm` / `modalForm` / `customForm` 扩展函数加尾随 lambda，逐按钮回调、`confirm`/`cancel`、`submitted`/`closed` 全部由既有 Builder 承载；不新增任何门面之外的能力，Java 调用方式不变
+- DSL 的关闭语义与门面一致，不引入第二套判定：Simple/Modal 的 `null` 与 Custom 的空 `Map` 统一路由到 `closed`；`submitted` 只在拿到非空响应时触发
+- DSL 回调使用 `fun interface`（`FormAction`、`ButtonClick`、`FormSubmit`）而非 Kotlin 函数类型，避免跨插件类加载器解析出两份 `kotlin.jvm.functions`；`FormValues` 提供 `string` / `boolean` / `float` / `intIndex` 类型化取值，取值失败返回 null 不抛异常
+- 构建引入 Kotlin 2.4.21 与 `kotlin-stdlib`，产物拆成两个：`easy4form-3.0.0.jar` 只含本库类（供编译依赖），`easy4form-3.0.0-all.jar` 内置 stdlib（放进 `plugins/` 部署，仍是一个 jar；发布流水线上传的就是它，但资产名沿用 `easy4form-3.0.0.jar`，下载方只需一个文件）；主产物刻意不含 stdlib，否则使用 Kotlin 2.4 以下编译器的项目会因 stdlib 的 `2.4.0` metadata 直接编译失败
+- 编译固定 `-language-version=2.0`，产物 metadata 为 `2.0.0`；实测 Kotlin 1.9.24 与 2.0.21 的消费者均可正常调用 DSL
+- 部署 `-all` 产物的体积约 1.9 MB（原约 70 KB），增加部分全部来自内置的 kotlin-stdlib
+- 使用 DSL 的插件请遵守：依赖坐标用主产物（`provided` / `compileOnly`），不要再自行 shade kotlin-stdlib，全服务器保持一份 stdlib 定义才能让 DSL 的 lambda 正常跨插件传递
 
 ## 2.0.0
 
