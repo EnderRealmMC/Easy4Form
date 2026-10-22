@@ -2,39 +2,51 @@
 
 **Language**: [English](README.md) | [中文](README_ZH.md)
 
-A provider-based Form API making it easier to create and send forms from your Java server. Since 3.0.0 the library uses a public facade backed by internal form providers; Bedrock forms are sent through Floodgate and Cumulus, and Java players can receive native dialogs on Paper 1.21.7+ (disabled by default, opt-in). On top of the facade, `api/dsl` offers extension functions and trailing lambdas for Kotlin developers.
+A cross-platform form library for Minecraft servers. Write the call once: Bedrock players get a Geyser form, Java players get a native dialog on servers that support it.
 
-## Introduction
+## What it solves
 
-Easy4Form is a Bukkit/Spigot plugin that provides a simplified interface for creating and sending forms. The bundled Cumulus provider sends forms to Bedrock players through the Floodgate API, and the Paper dialog provider sends native Paper 1.21.7 dialogs to Java players. It supports all three types of forms available in Bedrock Edition:
+Servers that accept both Java and Geyser players end up with two different interaction layers. Bedrock has a form protocol, Java does not; Java gained native dialogs in 1.21.6, but their semantics do not line up with Bedrock forms either. Easy4Form hides that split behind one facade — you build a single title, body, button and input definition, and the library decides what this particular player can actually receive, keeping the callback semantics identical on both sides.
 
-- **Simple Forms**: A list of buttons that the player can click
-- **Modal Forms**: A dialog with two buttons (yes/no, confirm/cancel, etc.)
-- **Custom Forms**: A form with various input elements (text fields, toggles, sliders, dropdowns, etc.)
+Three form types:
+
+- **Simple form**: a list of buttons, callback receives the clicked button index
+- **Modal form**: a two-button confirmation, callback receives whether the first button was clicked
+- **Custom form**: input elements (text field, toggle, slider, step slider, dropdown), callback receives an id-to-value map
 
 ## Requirements
 
-- Minecraft server with Bukkit/Spigot/Paper 1.18+
-- [Floodgate](https://github.com/GeyserMC/Floodgate) plugin for the Bedrock form provider (optional; without it Bedrock forms are disabled)
-- Java dialogs require Paper 1.21.7+, Java 21, and a client on Minecraft 1.21.6+ (disabled by default)
+We only claim Paper. Spigot, plain Bukkit and other servers have never been tested here, so no behaviour is promised on them.
 
-Building this library requires JDK 21 (compiling to Java 17); the public Maven build is fully self-contained and does not need the internal Gradle setup. Kotlin DSL consumers need a Kotlin 1.9 or newer compiler.
+| Goal | Requirements |
+|------|--------------|
+| Minimum working setup | Paper 1.18+ (Java 17); Bedrock forms additionally need Floodgate (bundles Cumulus) |
+| Full feature set | Paper 1.21.7+ (Java 21), client on Minecraft 1.21.6+, `providers.java-dialog: paper`; Bedrock side still needs Floodgate |
+| Optional | ViaVersion — when present, the real client protocol decides whether Java dialogs are sent |
 
-## Installation
+On servers older than Paper 1.21.7 Java players simply receive nothing, while Bedrock forms keep working. The plugin is compiled against Java 17 and declares `api-version: 1.18`.
 
-1. Download `easy4form-3.0.0.jar` from the [releases page](https://github.com/EnderRealmMC/Easy4Form/releases) — it already bundles the Kotlin standard library, so this single file is all the server needs
-2. Place the JAR file in your server's `plugins` folder
-3. Restart your server
+## Installation (server owners)
 
-Building from source (`mvn clean package`) yields two JARs: `target/easy4form-3.0.0-all.jar` bundles the Kotlin standard library and is the file published on the releases page (under the name `easy4form-3.0.0.jar`), while `target/easy4form-3.0.0.jar` contains only this library's classes and exists for compile-time dependencies; do not deploy the latter on its own.
+1. Download `easy4form-3.0.0.jar` from [Releases](https://github.com/EnderRealmMC/Easy4Form/releases)
+2. Drop it into the server's `plugins/` folder
+3. Restart the server
 
-## Usage (For Developers)
+Easy4Form is a library, not a plugin that hands out menus, so installing it changes nothing visible. The configuration file is created on first start at `plugins/easy4form/config.yml`.
 
-To use Easy4Form as a dependency in your project, you can import it using either Maven or Gradle:
+Java dialogs are off by default and must be enabled explicitly:
 
-### Maven
+```yaml
+providers:
+  bedrock-form: cumulus   # cumulus | none
+  java-dialog: paper      # paper | none, defaults to none
+```
 
-Add the following repository to your `pom.xml`:
+Missing dependencies degrade instead of crashing: without Floodgate no Bedrock form channel is registered, and on an unsupported server the Java dialog channel cannot be registered. Both cases log a single warning and the plugin still enables.
+
+## Using it as a dependency (plugin authors)
+
+Maven:
 
 ```xml
 <repositories>
@@ -43,11 +55,7 @@ Add the following repository to your `pom.xml`:
         <url>https://maven.pkg.github.com/EnderRealmMC/Easy4Form</url>
     </repository>
 </repositories>
-```
 
-Then add the dependency:
-
-```xml
 <dependencies>
     <dependency>
         <groupId>cn.enderrealm</groupId>
@@ -58,9 +66,7 @@ Then add the dependency:
 </dependencies>
 ```
 
-### Gradle
-
-Add the following repository to your `build.gradle`:
+Gradle:
 
 ```gradle
 repositories {
@@ -72,194 +78,263 @@ repositories {
         }
     }
 }
-```
 
-Then add the dependency:
-
-```gradle
 dependencies {
     compileOnly 'cn.enderrealm:easy4form:3.0.0'
 }
 ```
 
-Kotlin projects should keep the default (unclassified) artifact as the dependency — it carries no Kotlin standard library, and your own Kotlin plugin already provides one — and declare `easy4form` in `depend:` (or the Paper dependency block). Do not shade another copy of `kotlin-stdlib` into your plugin: the DSL's configuration-lambda types must resolve to a single standard library definition server-wide, and two copies fail at runtime with a `ClassCastException`.
+Declare `depend: [easy4form]` in your `plugin.yml` (or `softdepend` and fall back yourself with `isFormSupported`, below).
 
-## 3.0.0 Breaking Changes
+## Quick start (Java)
 
-- The public facade remains `cn.enderrealm.easy4form.api.*`; existing builder and `Easy4FormAPI` calls keep their signatures.
-- `Easy4FormAPI.getFloodgatePlayer(...)` was removed.
-- `cn.enderrealm.easy4form.api.PlayerUtils` moved to `cn.enderrealm.easy4form.utils.PlayerUtils`.
-- `api.v1` and `api.v2` were removed; forms are now dispatched through an internal provider registry.
-- Closed responses: simple and modal forms return `null`; custom forms return an empty map.
-- The deployed bundle now carries the Kotlin standard library and is noticeably larger (build output `*-all.jar`, published on the releases page under the plain `easy4form-3.0.0.jar` name). Java call sites and the dependency coordinate are unchanged — compile against the main artifact, which contains no standard library.
-
-## Configuration
-
-Easy4Form includes a configuration file (`config.yml`) with the following options:
-
-```yaml
-# One provider per platform; use none to disable forms for that platform
-providers:
-  bedrock-form: cumulus # cumulus | none
-  java-dialog: none     # paper | none
-
-# Detection mode for Bedrock players
-# Options: floodgate, uuid
-detection-mode: floodgate
-
-# UUID prefix for Bedrock players (used in 'uuid' mode or as the fallback; requires Floodgate)
-uuid-prefix: "00000000-0000"
-
-# Debug mode
-debug: false
-
-# Java dialog text
-java-dialog-text:
-  submit: "Submit"
-  close: "Close"
-```
-
-### Provider Selection
-
-Each platform takes exactly one provider name from `config.yml`:
-
-- `bedrock-form: cumulus` enables the Cumulus provider. It requires Floodgate; when Floodgate is missing, the provider is skipped automatically and Bedrock forms are disabled.
-- `bedrock-form: none` disables Bedrock forms without disabling the plugin.
-- `java-dialog: paper` enables the Paper dialog provider. It requires Paper 1.21.7+, Java 21, and the Paper Dialog API; otherwise it degrades to disabled and the plugin stays enabled.
-- `java-dialog: none` disables Java dialogs (default).
-
-Java dialogs are only sent to non-Bedrock players whose client protocol is at least 771 (Minecraft 1.21.6). When ViaVersion is installed, the real client version is read through the ViaAPI; if ViaVersion is present but the version is unavailable, no Java dialog is sent.
-
-### Java Dialog Mapping and Limitations
-
-- Simple forms map to a multi-button dialog; modal forms use two buttons so that closing can be distinguished from clicking "No".
-- Every Java dialog has a footer close button, and custom forms add a submit button (text configurable via `java-dialog-text`).
-- Paper has no dialog close event; the provider binds `exit_action` of `multi_action` to catch both Escape and the close button and maps them to the closed response (`null` for simple/modal, an empty map for custom).
-- Unmappable features: button images, input placeholders, and interleaved label/input layout (labels are rendered together in the body).
-
-### Detection Modes
-
-Both modes require the Floodgate plugin to be installed. Cumulus ships with Floodgate, so when Floodgate is absent, Bedrock forms are unavailable and no player is treated as Bedrock.
-
-- **floodgate**: Uses the Floodgate API to detect Bedrock players (recommended). Falls back to the UUID prefix when Floodgate is installed but not enabled or its API call fails.
-- **uuid**: Uses a UUID prefix to detect Bedrock players. Also only active while Floodgate is installed.
-
-You can customize the UUID prefix used for detection.
-
-## Features
-
-- **Simplified API**: Easy-to-use API for creating and sending forms
-- **Configurable Providers**: Select the provider for each platform (`cumulus`, `paper`, or `none`); each platform degrades automatically when its dependency is unavailable
-- **Fluent Interface**: All form builders use a fluent interface, allowing method chaining for cleaner code
-- **Kotlin DSL**: `api/dsl` adds `player.simpleForm`, `player.modalForm` and `player.customForm` extension functions with per-button callbacks and typed value access
-- **Type Safety**: Response handlers provide type-safe access to form responses
-- **Capability Query**: `Easy4FormAPI.isFormSupported(Player)` lets callers detect unsupported players and provide their own fallback
-- **Comprehensive Documentation**: Detailed documentation with examples for all form types
-- **Bilingual Support**: Documentation available in both English and Chinese
-
-## Quick Examples
-
-### Simple Form
+### Simple form
 
 ```java
-List<String> buttons = Arrays.asList("Button 1", "Button 2", "Button 3");
-Easy4FormAPI.sendSimpleForm(player, "Title", "Content", buttons, response -> {
-    if (response != null) {
-        player.sendMessage("You clicked button: " + buttons.get(response));
+import cn.enderrealm.easy4form.api.Easy4FormAPI;
+
+List<String> buttons = Arrays.asList("Shop", "Teleport", "Settings", "Exit");
+
+Easy4FormAPI.sendSimpleForm(player, "Main menu", "Pick an option", buttons, index -> {
+    if (index == null) {
+        player.sendMessage("You closed the form");
+        return;
+    }
+    switch (index) {
+        case 0: openShop(player); break;
+        case 1: openTeleport(player); break;
+        case 2: openSettings(player); break;
+        default: player.sendMessage("Bye!");
     }
 });
 ```
 
-### Modal Form
+Buttons with images (Bedrock players only — Java dialogs have no equivalent, so images are dropped):
+
+```java
+// resource pack path
+Easy4FormAPI.sendSimpleFormWithImages(
+    player, "Shop", "Choose a category",
+    Arrays.asList("Weapons", "Armour", "Food"),
+    Arrays.asList("textures/items/diamond_sword.png",
+                  "textures/items/diamond_chestplate.png",
+                  "textures/items/apple.png"),
+    index -> { /* ... */ });
+
+// URL images
+Easy4FormAPI.sendSimpleFormWithUrlImages(
+    player, "Shop", "Choose a category",
+    Arrays.asList("Weapons", "Armour", "Food"),
+    Arrays.asList("https://example.com/sword.png",
+                  "https://example.com/armor.png",
+                  "https://example.com/food.png"),
+    index -> { /* ... */ });
+```
+
+Both lists must be the same size; a `null` or empty entry makes that button text-only.
+
+### Modal form
 
 ```java
 Easy4FormAPI.sendModalForm(
     player,
-    "Confirmation",
-    "Are you sure you want to proceed?",
-    "Yes",
-    "No",
-    response -> {
-        if (response != null && response) {
-            player.sendMessage("You confirmed!");
+    "Confirm delete",
+    "Delete this item? This cannot be undone.",
+    "Delete",   // first button, callback receives true
+    "Cancel",   // second button, callback receives false
+    confirmed -> {
+        if (confirmed == null) {
+            player.sendMessage("You closed the dialog");
+        } else if (confirmed) {
+            deleteItem(player);
         }
     }
 );
 ```
 
-### Custom Form
+### Custom form
 
 ```java
-CustomFormBuilder form = Easy4FormAPI.createCustomForm(player, "Settings", response -> {
-    if (response != null) {
-        String name = (String) response.get("name");
-        boolean notifications = (boolean) response.get("notifications");
-        player.sendMessage("Settings saved!");
+Easy4FormAPI.createCustomForm(player, "Settings", values -> {
+    if (values.isEmpty()) {
+        player.sendMessage("You closed the settings");
+        return;
     }
-});
+    String name = (String) values.get("player_name");
+    boolean notifications = (boolean) values.get("notifications");
+    int volume = ((Number) values.get("volume")).intValue();
+    int language = (Integer) values.get("language");   // selected option index
+    saveSettings(player, name, notifications, volume, language);
+})
+.input("player_name", "Player name", "Type your name", player.getName())
+.toggle("notifications", "Enable notifications", true)
+.slider("volume", "Volume", 0f, 100f, 10f, 50f)
+.dropdown("language", "Language", Arrays.asList("中文", "English", "日本語"), 0)
+.send(player);
+```
 
-form.input("name", "Name", "Enter your name", player.getName())
-    .toggle("notifications", "Enable Notifications", true)
+`createCustomForm` returns `null` when the player has no usable form channel, so check before chaining, or use a builder instead.
+
+### Builder style
+
+All three builders expose `create()` plus a public no-arg constructor and chain the same way:
+
+```java
+new SimpleFormBuilder()
+    .title("Custom menu")
+    .content("Pick an action")
+    .button("Option 1")
+    .button("Option 2", "textures/ui/icon")
+    .buttonWithUrl("Option 3", "https://example.com/a.png")
+    .responseHandler(index -> { /* ... */ })
+    .send(player);
+
+new ModalFormBuilder()
+    .title("Confirm teleport")
+    .content("You are about to travel to another world")
+    .button1("Teleport now")
+    .button2("Cancel")
+    .responseHandler(confirmed -> { /* ... */ })
     .send(player);
 ```
 
-### Kotlin DSL
+## Quick start (Kotlin DSL)
 
-Kotlin developers write the same forms with extension functions and trailing lambdas. Closing and invalid responses go to `closed`:
+Extension functions and trailing lambdas on top of the same facade, with per-button callbacks written next to the button. The DSL is sugar only — it offers nothing beyond the Java API above.
 
 ```kotlin
 import cn.enderrealm.easy4form.api.dsl.customForm
 import cn.enderrealm.easy4form.api.dsl.modalForm
 import cn.enderrealm.easy4form.api.dsl.simpleForm
 
-player.simpleForm("Main Menu", "Pick an action") {
-    button("Start") { index -> player.sendMessage("Button $index") }
+player.simpleForm("Main menu", "Pick an action") {
+    button("Start game") { /* this button was clicked */ }
     button("Resource pack icon", "textures/ui/icon") { }
-    buttonWithUrl("Web icon", "https://example.com/a.png") { }
-    closed { player.sendMessage("Dismissed") }
+    buttonWithUrl("Web button", "https://example.com/a.png") { }
+    closed { /* the player closed the form — the Java side would get null */ }
 }
 
-player.modalForm("Confirmation", "Are you sure you want to proceed?", "Yes", "No") {
-    confirm { player.sendMessage("You confirmed!") }
+player.modalForm("Confirm exit", "Leave now?", "Yes", "No") {
+    confirm { }
     cancel { }
     closed { }
 }
 
-player.customForm("Settings") {
-    label("These settings apply immediately")
-    input("name", "Name", "Enter your name", player.name)
-    toggle("notifications", "Enable Notifications", true)
-    slider("volume", "Volume", 0f, 100f)
-    stepSlider("rank", "Rank", "Bronze", "King", defaultStep = 1)
+player.customForm("Profile") {
+    label("Fill in your details")
+    input("name", "Nickname", "Type a nickname", "Steve")
+    toggle("public", "Public profile", true)
+    slider("volume", "Volume", 0f, 100f)                  // step defaults to 1f, default value defaults to min
+    stepSlider("rank", "Rank", "Bronze", "Silver", "Royal", defaultStep = 1)
     dropdown("language", "Language", "zh_CN", "en_US")
     submitted { values ->
-        val name = values.string("name")
-        val notifications = values.boolean("notifications")
-        val volume = values.float("volume")
-        val rank = values.intIndex("rank")
+        values.string("name")       // input
+        values.boolean("public")    // toggle
+        values.float("volume")      // slider
+        values.intIndex("rank")     // selected index for stepSlider / dropdown
     }
-    closed { player.sendMessage("Not submitted") }
+    closed { /* the empty Map from the Java facade lands here */ }
 }
 ```
 
-`label` follows the same auto-ID rule as the Java builder and still occupies a component index. When no provider can serve the player, sending is skipped silently and `closed` does not run either; use `Easy4FormAPI.isFormSupported(player)` to build your own fallback.
+`FormValues` also exposes `keys` and `operator get`; every accessor returns `null` instead of throwing.
 
+Two Kotlin specifics: the compiler must be Kotlin 1.9 or newer, and you should depend on the main artifact (`provided` / `compileOnly`) without shading kotlin-stdlib into your own plugin — the server must contain exactly one copy of the standard library, otherwise lambdas passed across plugin class loaders fail with a cast error at runtime.
 
+## API overview
+
+| Entry point | Purpose |
+|-------------|---------|
+| `Easy4FormAPI.sendSimpleForm(...)` | Send a button list, callback receives the index |
+| `Easy4FormAPI.sendSimpleFormWithImages(...)` | Resource pack button images, Bedrock only |
+| `Easy4FormAPI.sendSimpleFormWithUrlImages(...)` | URL button images, Bedrock only |
+| `Easy4FormAPI.sendModalForm(...)` | Send a two-button confirmation |
+| `Easy4FormAPI.createCustomForm(...)` | Returns a custom form builder, or `null` when no form channel is available |
+| `Easy4FormAPI.isFormSupported(player)` | Whether this player can receive a form at all |
+| `Easy4FormAPI.isBedrockPlayer(player \| uuid)` | Bedrock player detection |
+| `SimpleFormBuilder` / `ModalFormBuilder` / `CustomFormBuilder` | Chainable construction, submitted with `send(player)` |
+| `simpleForm` / `modalForm` / `customForm` in `api.dsl` | Kotlin extension functions |
+| `cn.enderrealm.easy4form.utils.PlayerUtils` | Low-level detection helper |
+
+## Custom form components
+
+| Component | Method | Value in the callback |
+|-----------|--------|-----------------------|
+| Label | `label(id, text)`, `label(text)` | `null` (display only; auto id is `label_<index>`) |
+| Text field | `input(id, text, placeholder, defaultValue)` | `String` |
+| Toggle | `toggle(id, text, defaultValue)` | `Boolean` |
+| Slider | `slider(id, text, min, max, step, defaultValue)` | `Float` |
+| Step slider | `stepSlider(id, text, steps, defaultStep)` | `Integer` selected index |
+| Dropdown | `dropdown(id, text, options, defaultOption)` | `Integer` selected index |
+
+Labels also consume a component index: they appear in the response (as `null`), so counting by index must include them. Reading by id is unaffected.
+
+## Response and close semantics
+
+| Form type | Normal response | Closed or invalid |
+|-----------|-----------------|-------------------|
+| Simple | Button index `Integer` | `null` |
+| Modal | Whether the first button was clicked `Boolean` | `null` |
+| Custom | Id-to-value `Map` | Empty `Map` (never `null`) |
+
+When no form channel serves the player, sending is silently skipped — no exception, and no "closed" callback either. Check before offering a fallback:
+
+```java
+if (Easy4FormAPI.isFormSupported(player)) {
+    Easy4FormAPI.sendSimpleForm(player, "Main menu", "Pick an option", buttons, index -> { /* ... */ });
+} else {
+    player.sendMessage("Your client cannot open forms, use /menu instead");
+}
+```
+
+## Configuration
+
+`plugins/easy4form/config.yml`:
+
+| Key | Values | Default | Meaning |
+|-----|--------|---------|---------|
+| `providers.bedrock-form` | `cumulus` / `none` | `cumulus` | Bedrock forms; automatically falls back to `none` without Floodgate |
+| `providers.java-dialog` | `paper` / `none` | `none` | Native Java dialogs; requires Paper 1.21.7+ and Java 21 |
+| `detection-mode` | `floodgate` / `uuid` | `floodgate` | How Bedrock players are detected; both modes require Floodgate to be installed |
+| `uuid-prefix` | string | `00000000-0000` | Prefix used by `uuid` mode and by the fallback path |
+| `java-dialog-text.submit` | string | `Submit` | Custom form submit button text, supports `§` colour codes |
+| `java-dialog-text.close` | string | `Close` | Footer close button text, also handles Escape, supports `§` colour codes |
+| `debug` | boolean | `false` | Verbose logging |
+
+## Known limitations
+
+- Button images (resource pack and URL) only reach Bedrock players; Java dialogs have no equivalent and drop them
+- Input placeholders only apply on Bedrock
+- `label` elements of a custom form are rendered together in the body area of a Java dialog instead of interleaved with the inputs
+- Paper has no dialog close event and the protocol has no client-to-server close packet; the library normalises Escape and the footer close button into a closed response through the dialog's exit action, which relies on vanilla dialog behaviour
+- Java dialog responses come from a client-supplied custom click payload and can be forged — re-validate amounts, quantities and option indexes on the server
+- Callbacks are asynchronous; do not block inside them
+
+## Building from source
+
+JDK 21 is required (the output still targets Java 17):
+
+```bash
+mvn clean package
+```
+
+Two artifacts are produced: `easy4form-3.0.0-all.jar` bundles kotlin-stdlib and is the one that belongs in `plugins/` (Releases publish it under the name `easy4form-3.0.0.jar`), while `easy4form-3.0.0.jar` contains only this library's classes and exists for compile-time dependencies.
+
+## Documentation
+
+- Changelog: [release.md](release.md)
+- The public contract covers `cn.enderrealm.easy4form.api` and `cn.enderrealm.easy4form.api.dsl` only; `internal` may change at any time, so do not depend on it
 
 ## License
 
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
-## Contributing
-
-Contributions are welcome! Please feel free to submit a Pull Request.
+MIT License — see [LICENSE](LICENSE).
 
 ## Credits
 
-- [Floodgate](https://github.com/GeyserMC/Floodgate) - For providing the API to interact with Bedrock players
-- [Cumulus](https://github.com/GeyserMC/Cumulus) - The form library used by Floodgate
-- [Paper](https://github.com/PaperMC/Paper) - For the Java dialog API
+- [Floodgate](https://github.com/GeyserMC/Floodgate) and [Cumulus](https://github.com/GeyserMC/Cumulus) — the Bedrock form channel
+- [Paper](https://github.com/PaperMC/Paper) — the Java dialog API
+- [ViaVersion](https://github.com/ViaVersion/ViaVersion) — real client protocol on transVersion servers
 
 ## Support
 
-If you encounter any issues or have questions, please [open an issue](https://github.com/EnderRealmMC/Easy4Form/issues) on GitHub.
+Bugs and feature requests: [open an issue](https://github.com/EnderRealmMC/Easy4Form/issues).

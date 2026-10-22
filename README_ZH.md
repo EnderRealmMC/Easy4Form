@@ -2,39 +2,51 @@
 
 **语言**: [English](README.md) | [中文](README_ZH.md)
 
-基于 Provider 的简化 Form 接口，使得在 Java 服务器上创建和发送表单变得更加简单。自 3.0.0 起，库采用公开门面加内部表单 Provider 的架构；基岩版表单通过 Floodgate 与 Cumulus 发送，Java 版玩家可在 Paper 1.21.7+ 上接收原生 Dialog（默认关闭，需显式启用）。门面之上另有 `api/dsl`，为 Kotlin 开发者提供扩展函数与尾随 lambda 写法。
+面向 Minecraft 服务端的跨平台表单库。业务代码只写一次调用，基岩版玩家收到 Geyser 表单，Java 版玩家在支持的服务端上收到原生 Dialog。
 
-## 简介
+## 它解决什么问题
 
-Easy4Form是一个Bukkit/Spigot插件，提供了一个简化的接口，用于创建和发送表单。内置的 Cumulus Provider 通过 Floodgate API 为基岩版玩家发送表单；Paper Dialog Provider 为 Java 版玩家发送 Paper 1.21.7 的原生 Dialog。它支持基岩版中可用的所有三种表单类型：
+服务端同时接纳 Java 玩家和 Geyser 玩家时，交互层是分裂的：基岩版有表单协议，Java 版没有；Java 版从 1.21.6 起有了原生 Dialog，语义又和基岩版表单不完全一致。Easy4Form 把这层差异收在一个门面后面——同一份标题、正文、按钮和输入组件，交给库去判断该给这个玩家发什么，回调参数也保持同一套语义。
 
-- **简单表单**：玩家可以点击的按钮列表
-- **模态表单**：带有两个按钮的对话框（是/否，确认/取消等）
-- **自定义表单**：带有各种输入元素的表单（文本框，开关，滑块，下拉菜单等）
+三种表单类型：
 
-## 要求
+- **简单表单**：一组按钮，返回被点击按钮的下标
+- **模态表单**：两个按钮的确认框，返回是否点击了第一个按钮
+- **自定义表单**：文本框、开关、滑块、步进滑块、下拉框等输入组件，返回组件 ID 到值的映射
 
-- 运行Bukkit/Spigot/Paper 1.18+的Minecraft服务器
-- [Floodgate](https://github.com/GeyserMC/Floodgate)插件（基岩版表单 Provider 需要；缺失时自动禁用基岩版表单）
-- Java 版 Dialog 需要 Paper 1.21.7+ 与 Java 21，且玩家客户端为 Minecraft 1.21.6+（默认不启用）
+## 版本要求
 
-构建本库需要 JDK 21（编译目标为 Java 17），公共 Maven 构建即可完成，无需访问内部 Gradle。使用 Kotlin DSL 的项目需要 Kotlin 1.9 或更高版本的编译器。
+只声明 Paper。Spigot、Bukkit 等其他服务端我们从未实测过，不承诺行为一致。
 
-## 安装
+| 目标 | 要求 |
+|------|------|
+| 最低可用 | Paper 1.18+（Java 17）；基岩版表单还需 Floodgate（随附 Cumulus） |
+| 完整功能 | Paper 1.21.7+（Java 21）、玩家客户端 Minecraft 1.21.6+、`providers.java-dialog: paper`；基岩版侧仍需 Floodgate |
+| 可选 | ViaVersion：安装后按真实客户端协议决定是否发送 Java 版 Dialog |
 
-1. 从[发布页面](https://github.com/EnderRealmMC/Easy4Form/releases)下载 `easy4form-3.0.0.jar`（已内置 Kotlin 标准库，服务器只需要这一个文件）
-2. 将JAR文件放入服务器的`plugins`文件夹中
-3. 重启服务器
+低于 Paper 1.21.7 的服务端上，Java 玩家不会收到任何表单，基岩版表单不受影响。插件本体以 Java 17 为目标编译，`plugin.yml` 的 `api-version` 为 `1.18`。
 
-自行构建（`mvn clean package`）会得到两个 jar：`target/easy4form-3.0.0-all.jar` 内置 Kotlin 标准库，发布页面上传的就是它（改名为 `easy4form-3.0.0.jar`）；`target/easy4form-3.0.0.jar` 只含本库类，供项目编译依赖使用，不要单独部署到服务器。
+## 安装（服务端管理员）
 
-## 使用方法（针对开发者）
+1. 从 [Releases](https://github.com/EnderRealmMC/Easy4Form/releases) 下载 `easy4form-3.0.0.jar`
+2. 放进服务端的 `plugins/` 目录
+3. 重启服务端
 
-要在您的项目中使用Easy4Form作为依赖项，您可以使用Maven或Gradle导入：
+Easy4Form 是库，不是会给玩家发菜单的插件，装完没有任何可感知变化；配置文件在首次启用时生成于 `plugins/easy4form/config.yml`。
 
-### Maven
+Java 版 Dialog 默认关闭，需要显式打开：
 
-将以下仓库添加到您的`pom.xml`中：
+```yaml
+providers:
+  bedrock-form: cumulus   # cumulus | none
+  java-dialog: paper      # paper | none，默认 none
+```
+
+缺依赖时不会崩，只会降级：Floodgate 不在就不注册基岩版表单，服务端版本不够就注册不上 Java 版 Dialog，两种情况都只记一条告警日志，插件照常启用。
+
+## 依赖它开发（插件作者）
+
+Maven：
 
 ```xml
 <repositories>
@@ -43,11 +55,7 @@ Easy4Form是一个Bukkit/Spigot插件，提供了一个简化的接口，用于�
         <url>https://maven.pkg.github.com/EnderRealmMC/Easy4Form</url>
     </repository>
 </repositories>
-```
 
-然后添加依赖项：
-
-```xml
 <dependencies>
     <dependency>
         <groupId>cn.enderrealm</groupId>
@@ -58,9 +66,7 @@ Easy4Form是一个Bukkit/Spigot插件，提供了一个简化的接口，用于�
 </dependencies>
 ```
 
-### Gradle
-
-将以下仓库添加到您的`build.gradle`中：
+Gradle：
 
 ```gradle
 repositories {
@@ -72,116 +78,75 @@ repositories {
         }
     }
 }
-```
 
-然后添加依赖项：
-
-```gradle
 dependencies {
     compileOnly 'cn.enderrealm:easy4form:3.0.0'
 }
 ```
 
-Kotlin 项目请注意两点：依赖坐标保持默认（主产物不含 Kotlin 标准库，标准库由您项目自己的 Kotlin 插件提供），并把 `plugin.yml` 的 `depend` 或 `paper-plugin.yml` 的依赖指向 `easy4form`。请不要在您的插件里再打包一份 `kotlin-stdlib`——DSL 的配置块类型需要全服务器只解析到一份标准库定义，两份副本会导致运行期 `ClassCastException`。
+在 `plugin.yml` 里声明 `depend: [easy4form]`（或 `softdepend`，配合下文的 `isFormSupported` 自行兜底）。
 
-## 3.0.0 破坏性变更
-
-- 公开门面仍为 `cn.enderrealm.easy4form.api.*`，现有构建器与 `Easy4FormAPI` 调用签名不变。
-- 移除 `Easy4FormAPI.getFloodgatePlayer(...)`。
-- `cn.enderrealm.easy4form.api.PlayerUtils` 迁移至 `cn.enderrealm.easy4form.utils.PlayerUtils`。
-- 删除 `api.v1` 与 `api.v2`，表单改由内部 Provider 注册表分发。
-- 表单关闭响应：简单表单与模态表单返回 `null`，自定义表单返回空 Map。
-- 部署产物现在内置 Kotlin 标准库，体积明显增大（构建输出为 `*-all.jar`，发布页面以 `easy4form-3.0.0.jar` 名称上传）；Java 调用方式与依赖坐标不变，编译仍使用不含标准库的主产物。
-
-## 配置
-
-Easy4Form包含一个配置文件（`config.yml`），具有以下选项：
-
-```yaml
-# 每个平台只能选择一个 Provider，none 表示禁用该平台表单
-providers:
-  bedrock-form: cumulus # cumulus | none
-  java-dialog: none     # paper | none
-
-# 基岩版玩家检测模式
-# 选项: floodgate（使用Floodgate API）, uuid（使用UUID前缀）
-detection-mode: floodgate
-
-# 基岩版玩家的UUID前缀（'uuid'模式或兜底时使用；要求 Floodgate 已安装）
-uuid-prefix: "00000000-0000"
-
-# 调试模式
-debug: false
-
-# Java 版 Dialog 文本
-java-dialog-text:
-  submit: "Submit"
-  close: "Close"
-```
-
-### Provider 选择
-
-每个平台从 `config.yml` 中选择唯一的 Provider：
-
-- `bedrock-form: cumulus` 启用 Cumulus Provider。它依赖 Floodgate；Floodgate 缺失时会自动跳过并禁用基岩版表单。
-- `bedrock-form: none` 禁用基岩版表单，但不影响插件启用。
-- `java-dialog: paper` 启用 Paper Dialog Provider，需要 Paper 1.21.7+、Java 21 与 Paper Dialog API；不满足时自动降级为禁用，插件仍正常启用。
-- `java-dialog: none` 禁用 Java 版 Dialog（默认）。
-
-Java 版 Dialog 只对非基岩版且客户端协议 ≥ 771（Minecraft 1.21.6）的玩家发送。安装 ViaVersion 时会通过 ViaAPI 读取真实客户端版本；ViaVersion 存在但版本信息不可用时不做发送。
-
-### Java 版 Dialog 的映射与限制
-
-- 简单表单映射为多按钮 Dialog；模态表单用两个按钮实现，以便区分“关闭”与点击“否”。
-- 所有 Java Dialog 都带一个页脚关闭按钮，自定义表单额外带提交按钮（文本可用 `java-dialog-text` 配置）。
-- Paper 没有 Dialog 关闭事件；Provider 通过 `multi_action` 的 `exit_action` 捕获 Escape 与关闭按钮，映射为关闭响应（简单/模态为 `null`，自定义为空 Map）。
-- 无法映射的能力：按钮图片、输入框占位符、label 与输入控件交错布局（label 统一显示在正文区域）。
-
-### 检测模式
-
-两种模式都要求已安装 Floodgate。Cumulus 随 Floodgate 一同提供，因此 Floodgate 不存在时基岩版表单能力不可用，任何玩家都不会被识别为基岩版玩家。
-
-- **floodgate**：使用 Floodgate API 检测基岩版玩家（推荐）。Floodgate 已安装但未启用或 API 调用失败时回退到 UUID 前缀检测。
-- **uuid**：使用 UUID 前缀检测基岩版玩家，同样仅在 Floodgate 已安装时生效。
-
-您可以自定义用于检测的 UUID 前缀。
-
-## 特性
-
-- **简化API**：易于使用的API，用于创建和发送表单
-- **可配置 Provider**：按平台选择 Provider（`cumulus` / `paper` / `none`）；依赖不可用时对应平台自动降级
-- **流畅接口**：所有表单构建器都使用流畅的接口，允许方法链接以获得更清晰的代码
-- **Kotlin DSL**：`api/dsl` 提供 `player.simpleForm` / `modalForm` / `customForm` 扩展函数，支持逐按钮回调与类型化取值
-- **类型安全**：响应处理器提供对表单响应的类型安全访问
-- **能力查询**：`Easy4FormAPI.isFormSupported(Player)` 可在发送前判断玩家是否可接收表单，便于实现兜底交互
-- **全面的文档**：详细的文档，包含所有表单类型的示例
-- **双语支持**：文档提供英文和中文两种语言版本
-
-## 快速示例
+## 快速开始（Java）
 
 ### 简单表单
 
 ```java
-List<String> buttons = Arrays.asList("按钮1", "按钮2", "按钮3");
-Easy4FormAPI.sendSimpleForm(player, "标题", "内容", buttons, response -> {
-    if (response != null) {
-        player.sendMessage("你点击了按钮：" + buttons.get(response));
+import cn.enderrealm.easy4form.api.Easy4FormAPI;
+
+List<String> buttons = Arrays.asList("商店", "传送", "设置", "退出");
+
+Easy4FormAPI.sendSimpleForm(player, "主菜单", "请选择一个选项", buttons, index -> {
+    if (index == null) {
+        player.sendMessage("你关闭了表单");
+        return;
+    }
+    switch (index) {
+        case 0: openShop(player); break;
+        case 1: openTeleport(player); break;
+        case 2: openSettings(player); break;
+        default: player.sendMessage("再见！");
     }
 });
 ```
+
+按钮带图片（仅基岩版玩家可见，Java 版 Dialog 会忽略图片）：
+
+```java
+// 资源包路径
+Easy4FormAPI.sendSimpleFormWithImages(
+    player, "商店", "选择商品类别",
+    Arrays.asList("武器", "防具", "食物"),
+    Arrays.asList("textures/items/diamond_sword.png",
+                  "textures/items/diamond_chestplate.png",
+                  "textures/items/apple.png"),
+    index -> { /* ... */ });
+
+// URL 图片
+Easy4FormAPI.sendSimpleFormWithUrlImages(
+    player, "商店", "选择商品类别",
+    Arrays.asList("武器", "防具", "食物"),
+    Arrays.asList("https://example.com/sword.png",
+                  "https://example.com/armor.png",
+                  "https://example.com/food.png"),
+    index -> { /* ... */ });
+```
+
+两个列表长度必须一致；某一项传 `null` 或空字符串时该按钮退化为纯文本。
 
 ### 模态表单
 
 ```java
 Easy4FormAPI.sendModalForm(
     player,
-    "确认",
-    "您确定要继续吗？",
-    "是",
-    "否",
-    response -> {
-        if (response != null && response) {
-            player.sendMessage("您已确认！");
+    "确认删除",
+    "确定要删除这个物品吗？此操作不可撤销。",
+    "确定删除",   // 第一个按钮，回调收到 true
+    "取消",       // 第二个按钮，回调收到 false
+    confirmed -> {
+        if (confirmed == null) {
+            player.sendMessage("你关闭了对话框");
+        } else if (confirmed) {
+            deleteItem(player);
         }
     }
 );
@@ -190,22 +155,52 @@ Easy4FormAPI.sendModalForm(
 ### 自定义表单
 
 ```java
-CustomFormBuilder form = Easy4FormAPI.createCustomForm(player, "设置", response -> {
-    if (response != null) {
-        String name = (String) response.get("name");
-        boolean notifications = (boolean) response.get("notifications");
-        player.sendMessage("设置已保存！");
+Easy4FormAPI.createCustomForm(player, "个人设置", values -> {
+    if (values.isEmpty()) {
+        player.sendMessage("你关闭了设置");
+        return;
     }
-});
+    String name = (String) values.get("player_name");
+    boolean notifications = (boolean) values.get("notifications");
+    int volume = ((Number) values.get("volume")).intValue();
+    int language = (Integer) values.get("language");   // 选中项下标
+    saveSettings(player, name, notifications, volume, language);
+})
+.input("player_name", "玩家名称", "输入你的名称", player.getName())
+.toggle("notifications", "启用通知", true)
+.slider("volume", "音量", 0f, 100f, 10f, 50f)
+.dropdown("language", "语言", Arrays.asList("中文", "English", "日本語"), 0)
+.send(player);
+```
 
-form.input("name", "名称", "输入您的名称", player.getName())
-    .toggle("notifications", "启用通知", true)
+`createCustomForm` 在该玩家没有任何可用表单实现时返回 `null`，所以链式调用前需要判断，或者改用下面的 Builder。
+
+### Builder 写法
+
+三个 Builder 都有 `create()` 静态入口和无参构造，链式方法一致：
+
+```java
+new SimpleFormBuilder()
+    .title("自定义菜单")
+    .content("请选择操作")
+    .button("选项1")
+    .button("选项2", "textures/ui/icon")
+    .buttonWithUrl("选项3", "https://example.com/a.png")
+    .responseHandler(index -> { /* ... */ })
+    .send(player);
+
+new ModalFormBuilder()
+    .title("确认传送")
+    .content("即将传送到目标世界")
+    .button1("立即传送")
+    .button2("取消")
+    .responseHandler(confirmed -> { /* ... */ })
     .send(player);
 ```
 
-### Kotlin DSL
+## 快速开始（Kotlin DSL）
 
-Kotlin 开发者用扩展函数与尾随 lambda 写同一套表单，关闭与非法响应统一进入 `closed`：
+同一套门面之上加了扩展函数与尾随 lambda，逐按钮回调直接写在按钮上。DSL 只是语法糖，能力不超出上面的 Java 接口。
 
 ```kotlin
 import cn.enderrealm.easy4form.api.dsl.customForm
@@ -213,54 +208,133 @@ import cn.enderrealm.easy4form.api.dsl.modalForm
 import cn.enderrealm.easy4form.api.dsl.simpleForm
 
 player.simpleForm("主菜单", "请选择一个操作") {
-    button("开始游戏") { index -> player.sendMessage("你点击了第 $index 个按钮") }
+    button("开始游戏") { /* 这个按钮被点击 */ }
     button("资源包图标", "textures/ui/icon") { }
     buttonWithUrl("网页按钮", "https://example.com/a.png") { }
-    closed { player.sendMessage("已关闭") }
+    closed { /* 玩家关闭表单，等价于 Java 侧收到 null */ }
 }
 
-player.modalForm("确认", "您确定要继续吗？", "是", "否") {
-    confirm { player.sendMessage("您已确认！") }
+player.modalForm("确认退出", "确定要离开吗？", "确定", "取消") {
+    confirm { }
     cancel { }
     closed { }
 }
 
-player.customForm("设置") {
-    label("以下设置会立即生效")
-    input("name", "名称", "输入您的名称", player.name)
-    toggle("notifications", "启用通知", true)
-    slider("volume", "音量", 0f, 100f)
-    stepSlider("rank", "段位", "青铜", "王者", defaultStep = 1)
+player.customForm("个人资料") {
+    label("填写你的资料")
+    input("name", "昵称", "请输入昵称", "Steve")
+    toggle("public", "公开资料", true)
+    slider("volume", "音量", 0f, 100f)                 // step 默认 1f，默认值默认取最小值
+    stepSlider("rank", "段位", "青铜", "白银", "王者", defaultStep = 1)
     dropdown("language", "语言", "zh_CN", "en_US")
     submitted { values ->
-        val name = values.string("name")
-        val notifications = values.boolean("notifications")
-        val volume = values.float("volume")
-        val rank = values.intIndex("rank")
+        values.string("name")       // input
+        values.boolean("public")    // toggle
+        values.float("volume")      // slider
+        values.intIndex("rank")     // stepSlider / dropdown 的选中下标
     }
-    closed { player.sendMessage("未提交") }
+    closed { /* Java 侧的空 Map 折叠到这里 */ }
 }
 ```
 
-`label` 与 Java 构建器使用同一套自动 ID 规则，并且同样占用一个组件下标。没有可用 Provider 时发送静默跳过，`closed` 也不会触发；需要兜底交互时先用 `Easy4FormAPI.isFormSupported(player)` 判断。
+`FormValues` 还提供 `keys`、`operator get`；取值失败返回 `null`，不抛异常。
 
+Kotlin 侧注意两点：编译器需要 Kotlin 1.9 或更新；依赖坐标使用主产物（`provided` / `compileOnly`），不要再把 kotlin-stdlib 打进你自己的插件——整台服务器只能存在一份 stdlib 定义，否则跨插件传递的 lambda 会在运行期类型转换失败。
 
+## API 一览
+
+| 入口 | 说明 |
+|------|------|
+| `Easy4FormAPI.sendSimpleForm(...)` | 发送按钮列表表单，回调参数为按钮下标 |
+| `Easy4FormAPI.sendSimpleFormWithImages(...)` | 资源包图片按钮，仅基岩版生效 |
+| `Easy4FormAPI.sendSimpleFormWithUrlImages(...)` | URL 图片按钮，仅基岩版生效 |
+| `Easy4FormAPI.sendModalForm(...)` | 发送两按钮确认框 |
+| `Easy4FormAPI.createCustomForm(...)` | 返回自定义表单构建器，无可用表单实现时返回 `null` |
+| `Easy4FormAPI.isFormSupported(player)` | 该玩家当前能否收到表单 |
+| `Easy4FormAPI.isBedrockPlayer(player \| uuid)` | 基岩版玩家判定 |
+| `SimpleFormBuilder` / `ModalFormBuilder` / `CustomFormBuilder` | 链式构造，`send(player)` 提交 |
+| `api.dsl` 的 `simpleForm` / `modalForm` / `customForm` | Kotlin 扩展函数 |
+| `cn.enderrealm.easy4form.utils.PlayerUtils` | 底层检测工具 |
+
+## 自定义表单组件
+
+| 组件 | 方法 | 回调里的值 |
+|------|------|------------|
+| 标签 | `label(id, text)`、`label(text)` | `null`（仅展示，自动 ID 为 `label_<序号>`） |
+| 文本框 | `input(id, text, placeholder, defaultValue)` | `String` |
+| 开关 | `toggle(id, text, defaultValue)` | `Boolean` |
+| 滑块 | `slider(id, text, min, max, step, defaultValue)` | `Float` |
+| 步进滑块 | `stepSlider(id, text, steps, defaultStep)` | `Integer` 选中下标 |
+| 下拉框 | `dropdown(id, text, options, defaultOption)` | `Integer` 选中下标 |
+
+标签同样占用一个组件下标：`label` 也会出现在响应里（值为 `null`），按下标取值时要把标签算进去；用 ID 取值则不受影响。
+
+## 响应与关闭语义
+
+| 表单类型 | 正常响应 | 关闭或响应非法 |
+|----------|----------|----------------|
+| 简单表单 | 按钮下标 `Integer` | `null` |
+| 模态表单 | 是否点击第一个按钮 `Boolean` | `null` |
+| 自定义表单 | ID 到值的 `Map` | 空 `Map`（不是 `null`） |
+
+没有可用表单实现时发送会被静默跳过，回调不会触发——不会抛异常，也不会回一个「关闭」。需要兜底交互就先查 `isFormSupported`：
+
+```java
+if (Easy4FormAPI.isFormSupported(player)) {
+    Easy4FormAPI.sendSimpleForm(player, "主菜单", "请选择", buttons, index -> { /* ... */ });
+} else {
+    player.sendMessage("当前客户端不支持表单，请使用 /menu 命令");
+}
+```
+
+## 配置项
+
+`plugins/easy4form/config.yml`：
+
+| 键 | 可选值 | 默认 | 说明 |
+|----|--------|------|------|
+| `providers.bedrock-form` | `cumulus` / `none` | `cumulus` | 基岩版表单；缺 Floodgate 时自动降级为 `none` |
+| `providers.java-dialog` | `paper` / `none` | `none` | Java 版原生 Dialog；需要 Paper 1.21.7+ 与 Java 21 |
+| `detection-mode` | `floodgate` / `uuid` | `floodgate` | 基岩版玩家判定方式；两种都要求已安装 Floodgate |
+| `uuid-prefix` | 字符串 | `00000000-0000` | `uuid` 模式与兜底路径使用的前缀 |
+| `java-dialog-text.submit` | 字符串 | `Submit` | 自定义表单的提交按钮文本，支持 `§` 颜色码 |
+| `java-dialog-text.close` | 字符串 | `Close` | 页脚关闭按钮文本，同时接管 Escape，支持 `§` 颜色码 |
+| `debug` | 布尔 | `false` | 打开详细日志 |
+
+## 已知限制
+
+- 按钮图片（资源包与 URL）只对基岩版玩家生效，Java 版 Dialog 没有对应能力，会被忽略
+- 文本框占位符只在基岩版生效
+- 自定义表单里的 `label` 在 Java 版 Dialog 上统一显示在正文区域，无法与输入控件交错排列
+- Java 版 Dialog 没有「关闭」事件，协议里也没有客户端到服务端的关闭包；库通过 Dialog 的退出动作把 Escape 与页脚关闭按钮归一为关闭响应，这依赖原版 Dialog 语义
+- Java 版 Dialog 的响应来自客户端提交的自定义点击负载，可能被伪造；金额、数量、选项等敏感值必须在服务端重新校验
+- 表单响应是异步回调，回调里不要执行阻塞操作
+
+## 从源码构建
+
+需要 JDK 21（产物仍以 Java 17 为目标）：
+
+```bash
+mvn clean package
+```
+
+产物有两个：`easy4form-3.0.0-all.jar` 内置 kotlin-stdlib，是放进 `plugins/` 的那一个（Release 页面把它按 `easy4form-3.0.0.jar` 的名字上传）；`easy4form-3.0.0.jar` 只含本库类，供编译依赖使用。
+
+## 文档
+
+- 更新日志：[release.md](release.md)
+- 对外承诺只覆盖 `cn.enderrealm.easy4form.api` 与 `cn.enderrealm.easy4form.api.dsl`；`internal` 包随时可能变动，不要直接引用
 
 ## 许可证
 
-本项目采用MIT许可证 - 详情请参阅[LICENSE](LICENSE)文件。
-
-## 贡献
-
-请随时提交Pull Request。
+MIT License，详见 [LICENSE](LICENSE)。
 
 ## 致谢
 
-- [Floodgate](https://github.com/GeyserMC/Floodgate) - 提供与基岩版玩家交互的API
-- [Cumulus](https://github.com/GeyserMC/Cumulus) - Floodgate使用的表单库
-- [Paper](https://github.com/PaperMC/Paper) - 提供 Java 版 Dialog API
+- [Floodgate](https://github.com/GeyserMC/Floodgate) 与 [Cumulus](https://github.com/GeyserMC/Cumulus)：基岩版表单通道
+- [Paper](https://github.com/PaperMC/Paper)：Java 版 Dialog API
+- [ViaVersion](https://github.com/ViaVersion/ViaVersion)：跨版本服务端下的真实客户端协议来源
 
 ## 支持
 
-如果您遇到任何问题或有疑问，请在 GitHub 上[提交问题](https://github.com/EnderRealmMC/Easy4Form/issues)。
-
+遇到问题或有功能建议，请在 GitHub 上[提交 Issue](https://github.com/EnderRealmMC/Easy4Form/issues)。
