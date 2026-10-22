@@ -21,7 +21,7 @@
     </distributionManagement>
 
     <properties>
-        <!-- 产物目标 Java 17；Paper 1.21.8 API 需要 JDK 21 才能编译 -->
+        <!-- 产物目标 Java 17；Paper 1.21.7 API 需要 JDK 21 才能编译 -->
         <java.version>17</java.version>
         <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
     </properties>
@@ -82,7 +82,7 @@
         <dependency>
             <groupId>io.papermc.paper</groupId>
             <artifactId>paper-api</artifactId>
-            <version>1.21.8-R0.1-SNAPSHOT</version>
+            <version>1.21.7-R0.1-SNAPSHOT</version>
             <scope>provided</scope>
         </dependency>
         <dependency>

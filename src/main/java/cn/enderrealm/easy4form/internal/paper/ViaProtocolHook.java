@@ -13,7 +13,7 @@ import java.util.UUID;
  *
  * <p>ViaVersion 会把握手包中的协议版本改写为服务端版本，因此装有 ViaVersion 时
  * 必须通过 ViaAPI 读取客户端真实版本。未安装 ViaVersion 时，能连接到当前服务端的
- * 客户端必然使用服务端协议，而 Dialog Provider 只在 Paper 1.21.8+ 上启用，
+ * 客户端必然使用服务端协议，而 Dialog Provider 只在 Paper 1.21.7+ 上启用，
  * 因此无需再读取每个玩家的协议版本；这也避免依赖 1.18 中不存在的
  * {@code Player#getProtocolVersion()}。</p>
  */

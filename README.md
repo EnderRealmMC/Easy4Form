@@ -2,11 +2,11 @@
 
 **Language**: [English](README.md) | [中文](README_ZH.md)
 
-A provider-based Form API making it easier to create and send forms from your Java server. Since 3.0.0 the library uses a public facade backed by internal form providers; Bedrock forms are sent through Floodgate and Cumulus, and Java players can receive native dialogs on Paper 1.21.8+ (disabled by default, opt-in).
+A provider-based Form API making it easier to create and send forms from your Java server. Since 3.0.0 the library uses a public facade backed by internal form providers; Bedrock forms are sent through Floodgate and Cumulus, and Java players can receive native dialogs on Paper 1.21.7+ (disabled by default, opt-in).
 
 ## Introduction
 
-Easy4Form is a Bukkit/Spigot plugin that provides a simplified interface for creating and sending forms. The bundled Cumulus provider sends forms to Bedrock players through the Floodgate API, and the Paper dialog provider sends native Paper 1.21.8 dialogs to Java players. It supports all three types of forms available in Bedrock Edition:
+Easy4Form is a Bukkit/Spigot plugin that provides a simplified interface for creating and sending forms. The bundled Cumulus provider sends forms to Bedrock players through the Floodgate API, and the Paper dialog provider sends native Paper 1.21.7 dialogs to Java players. It supports all three types of forms available in Bedrock Edition:
 
 - **Simple Forms**: A list of buttons that the player can click
 - **Modal Forms**: A dialog with two buttons (yes/no, confirm/cancel, etc.)
@@ -16,7 +16,7 @@ Easy4Form is a Bukkit/Spigot plugin that provides a simplified interface for cre
 
 - Minecraft server with Bukkit/Spigot/Paper 1.18+
 - [Floodgate](https://github.com/GeyserMC/Floodgate) plugin for the Bedrock form provider (optional; without it Bedrock forms are disabled)
-- Java dialogs require Paper 1.21.8+, Java 21, and a client on Minecraft 1.21.6+ (disabled by default)
+- Java dialogs require Paper 1.21.7+, Java 21, and a client on Minecraft 1.21.6+ (disabled by default)
 
 Building this library requires JDK 21 (compiling to Java 17); the public Maven build is fully self-contained and does not need the internal Gradle setup.
 
@@ -120,7 +120,7 @@ Each platform takes exactly one provider name from `config.yml`:
 
 - `bedrock-form: cumulus` enables the Cumulus provider. It requires Floodgate; when Floodgate is missing, the provider is skipped automatically and Bedrock forms are disabled.
 - `bedrock-form: none` disables Bedrock forms without disabling the plugin.
-- `java-dialog: paper` enables the Paper dialog provider. It requires Paper 1.21.8+, Java 21, and the Paper Dialog API; otherwise it degrades to disabled and the plugin stays enabled.
+- `java-dialog: paper` enables the Paper dialog provider. It requires Paper 1.21.7+, Java 21, and the Paper Dialog API; otherwise it degrades to disabled and the plugin stays enabled.
 - `java-dialog: none` disables Java dialogs (default).
 
 Java dialogs are only sent to non-Bedrock players whose client protocol is at least 771 (Minecraft 1.21.6). When ViaVersion is installed, the real client version is read through the ViaAPI; if ViaVersion is present but the version is unavailable, no Java dialog is sent.

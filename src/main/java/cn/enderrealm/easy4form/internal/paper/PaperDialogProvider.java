@@ -37,11 +37,11 @@ import java.util.logging.Level;
 /**
  * 使用 Paper Dialog API 发送 Java 版表单的 Provider。
  *
- * <p>Paper 1.21.8 没有 Dialog 关闭事件，协议中也没有客户端到服务端的关闭包。
+ * <p>Paper 1.21.7 没有 Dialog 关闭事件，协议中也没有客户端到服务端的关闭包。
  * 因此这里利用原版 {@code multi_action} 的 {@code exit_action}（Escape 与页脚按钮共用）
  * 绑定一个自定义点击动作，从而在关闭时收到 {@code PlayerCustomClickEvent}。</p>
  *
- * <p>该类只能在 Paper 1.21.8+ 与 Java 21 环境中加载，插件主类通过反射创建实例，
+ * <p>该类只能在 Paper 1.21.7+ 与 Java 21 环境中加载，插件主类通过反射创建实例，
  * 初始化完成后所有表单调用都走 {@link FormProvider} 接口。</p>
  */
 public final class PaperDialogProvider implements FormProvider {

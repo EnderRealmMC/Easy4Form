@@ -14,8 +14,8 @@ providers:
 
   # Java dialog provider
   # Java 版 Dialog Provider
-  # Also requires Paper 1.21.8+ and Java 21; clients below Minecraft 1.21.6 are skipped
-  # 需要 Paper 1.21.8+ 与 Java 21；低于 Minecraft 1.21.6 的客户端会被跳过
+  # Also requires Paper 1.21.7+ and Java 21; clients below Minecraft 1.21.6 are skipped
+  # 需要 Paper 1.21.7+ 与 Java 21；低于 Minecraft 1.21.6 的客户端会被跳过
   # When ViaVersion is installed, the real client version is read through the ViaAPI;
   # players are skipped if that version cannot be determined.
   # 安装 ViaVersion 时通过 ViaAPI 读取真实客户端版本；无法读取版本时不发送 Java 表单。

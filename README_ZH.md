@@ -2,11 +2,11 @@
 
 **语言**: [English](README.md) | [中文](README_ZH.md)
 
-基于 Provider 的简化 Form 接口，使得在 Java 服务器上创建和发送表单变得更加简单。自 3.0.0 起，库采用公开门面加内部表单 Provider 的架构；基岩版表单通过 Floodgate 与 Cumulus 发送，Java 版玩家可在 Paper 1.21.8+ 上接收原生 Dialog（默认关闭，需显式启用）。
+基于 Provider 的简化 Form 接口，使得在 Java 服务器上创建和发送表单变得更加简单。自 3.0.0 起，库采用公开门面加内部表单 Provider 的架构；基岩版表单通过 Floodgate 与 Cumulus 发送，Java 版玩家可在 Paper 1.21.7+ 上接收原生 Dialog（默认关闭，需显式启用）。
 
 ## 简介
 
-Easy4Form是一个Bukkit/Spigot插件，提供了一个简化的接口，用于创建和发送表单。内置的 Cumulus Provider 通过 Floodgate API 为基岩版玩家发送表单；Paper Dialog Provider 为 Java 版玩家发送 Paper 1.21.8 的原生 Dialog。它支持基岩版中可用的所有三种表单类型：
+Easy4Form是一个Bukkit/Spigot插件，提供了一个简化的接口，用于创建和发送表单。内置的 Cumulus Provider 通过 Floodgate API 为基岩版玩家发送表单；Paper Dialog Provider 为 Java 版玩家发送 Paper 1.21.7 的原生 Dialog。它支持基岩版中可用的所有三种表单类型：
 
 - **简单表单**：玩家可以点击的按钮列表
 - **模态表单**：带有两个按钮的对话框（是/否，确认/取消等）
@@ -16,7 +16,7 @@ Easy4Form是一个Bukkit/Spigot插件，提供了一个简化的接口，用于�
 
 - 运行Bukkit/Spigot/Paper 1.18+的Minecraft服务器
 - [Floodgate](https://github.com/GeyserMC/Floodgate)插件（基岩版表单 Provider 需要；缺失时自动禁用基岩版表单）
-- Java 版 Dialog 需要 Paper 1.21.8+ 与 Java 21，且玩家客户端为 Minecraft 1.21.6+（默认不启用）
+- Java 版 Dialog 需要 Paper 1.21.7+ 与 Java 21，且玩家客户端为 Minecraft 1.21.6+（默认不启用）
 
 构建本库需要 JDK 21（编译目标为 Java 17），公共 Maven 构建即可完成，无需访问内部 Gradle。
 
@@ -120,7 +120,7 @@ java-dialog-text:
 
 - `bedrock-form: cumulus` 启用 Cumulus Provider。它依赖 Floodgate；Floodgate 缺失时会自动跳过并禁用基岩版表单。
 - `bedrock-form: none` 禁用基岩版表单，但不影响插件启用。
-- `java-dialog: paper` 启用 Paper Dialog Provider，需要 Paper 1.21.8+、Java 21 与 Paper Dialog API；不满足时自动降级为禁用，插件仍正常启用。
+- `java-dialog: paper` 启用 Paper Dialog Provider，需要 Paper 1.21.7+、Java 21 与 Paper Dialog API；不满足时自动降级为禁用，插件仍正常启用。
 - `java-dialog: none` 禁用 Java 版 Dialog（默认）。
 
 Java 版 Dialog 只对非基岩版且客户端协议 ≥ 771（Minecraft 1.21.6）的玩家发送。安装 ViaVersion 时会通过 ViaAPI 读取真实客户端版本；ViaVersion 存在但版本信息不可用时不做发送。

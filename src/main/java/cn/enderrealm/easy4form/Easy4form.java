@@ -132,7 +132,7 @@ public final class Easy4form extends JavaPlugin {
     /**
      * 通过反射创建 Paper Dialog Provider。
      *
-     * <p>Paper 1.21.8 的 Dialog API 在旧服务端不存在，反射可避免类加载失败；
+     * <p>Paper 1.21.7 的 Dialog API 在旧服务端不存在，反射可避免类加载失败；
      * 初始化完成后所有调用都走 {@link FormProvider} 接口，不再有反射开销。</p>
      *
      * @return Provider 实例；当前服务端或 Java 版本不支持时返回 null
@@ -145,7 +145,7 @@ public final class Easy4form extends JavaPlugin {
             return (FormProvider) providerClass.getDeclaredConstructor().newInstance();
         } catch (ReflectiveOperationException | LinkageError | RuntimeException exception) {
             getLogger().warning(
-                    "Java dialog provider 'paper' requires Paper 1.21.8+ and Java 21; "
+                    "Java dialog provider 'paper' requires Paper 1.21.7+ and Java 21; "
                             + "Java dialogs are disabled. ("
                             + exception.getClass().getSimpleName() + ": " + exception.getMessage() + ")"
             );

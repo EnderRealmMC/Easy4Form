@@ -11,7 +11,7 @@ public enum FormPlatform {
     BEDROCK_FORM("bedrock-form", "Bedrock form", "cumulus"),
 
     /**
-     * Java 版 Dialog，默认不启用，由 Paper 1.21.8+ 的 Dialog API 提供。
+     * Java 版 Dialog，默认不启用，由 Paper 1.21.7+ 的 Dialog API 提供。
      */
     JAVA_DIALOG("java-dialog", "Java dialog", "none");
 
