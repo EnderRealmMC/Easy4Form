@@ -337,7 +337,7 @@ MIT License，详见 [LICENSE](LICENSE)。
 - [Floodgate](https://github.com/GeyserMC/Floodgate) 与 [Cumulus](https://github.com/GeyserMC/Cumulus)：基岩版表单通道
 - [Paper](https://github.com/PaperMC/Paper)：Java 版 Dialog API
 - [ViaVersion](https://github.com/ViaVersion/ViaVersion)：跨版本服务端下的真实客户端协议来源
-- [EaseCation/ViaBedrock](https://github.com/EaseCation/ViaBedrock)：Java Dialog 表单转换参考了其 `BedrockFormDialogConverter` 的部分思路（正文按行拆分、纯文本占位保序、按钮宽度与空选项契约）；本项目未复制其代码，实现基于 Paper API 独立编写
+- [EaseCation/ViaBedrock](https://github.com/EaseCation/ViaBedrock)：Java Dialog 表单转换参考其 `BedrockFormDialogConverter` 的转换思路（正文按行拆分、纯文本占位保序、按钮宽度与空选项契约）在 Paper API 上重写；未复制其代码，本项目保持 MIT
 
 ## 支持
 

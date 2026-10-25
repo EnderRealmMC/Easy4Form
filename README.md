@@ -337,7 +337,7 @@ MIT License — see [LICENSE](LICENSE).
 - [Floodgate](https://github.com/GeyserMC/Floodgate) and [Cumulus](https://github.com/GeyserMC/Cumulus) — the Bedrock form channel
 - [Paper](https://github.com/PaperMC/Paper) — the Java dialog API
 - [ViaVersion](https://github.com/ViaVersion/ViaVersion) — real client protocol on transVersion servers
-- [EaseCation/ViaBedrock](https://github.com/EaseCation/ViaBedrock) — the Java dialog form conversion borrows ideas from its `BedrockFormDialogConverter` (per-line body splitting, placeholder text inputs for ordering, button width and the empty-option contract); no code was copied — the implementation here is written independently against the Paper API
+- [EaseCation/ViaBedrock](https://github.com/EaseCation/ViaBedrock) — the Java dialog form conversion follows the ideas of its `BedrockFormDialogConverter` (per-line body splitting, placeholder text inputs for ordering, button width and the empty-option contract) and is rewritten against the Paper API; no code was copied — this project remains MIT-licensed
 
 ## Support
 
