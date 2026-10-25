@@ -16,6 +16,7 @@ import io.papermc.paper.registry.data.dialog.action.DialogAction;
 import io.papermc.paper.registry.data.dialog.body.DialogBody;
 import io.papermc.paper.registry.data.dialog.input.DialogInput;
 import io.papermc.paper.registry.data.dialog.input.SingleOptionDialogInput;
+import io.papermc.paper.registry.data.dialog.input.TextDialogInput;
 import io.papermc.paper.registry.data.dialog.type.DialogType;
 import net.kyori.adventure.key.Key;
 import net.kyori.adventure.text.Component;
@@ -58,6 +59,11 @@ public final class PaperDialogProvider implements FormProvider {
 
     private static final int INPUT_WIDTH = 200;
     private static final int MAX_TEXT_LENGTH = 256;
+
+    /**
+     * 按钮统一宽度；原版默认过窄，长中文按钮名会被截断。
+     */
+    private static final int BUTTON_WIDTH = 200;
 
     private final Easy4form plugin;
     private final ViaProtocolHook viaProtocolHook;
@@ -145,12 +151,23 @@ public final class PaperDialogProvider implements FormProvider {
 
     /**
      * 构建简单表单，对应 Java 版的多动作 Dialog。
+     * <p>
+     * 无按钮时对应原版通知 Dialog（参考 ViaBedrock 对 ActionForm 的处理）。</p>
      *
      * @param form    简单表单
      * @param session 本次发送的会话
      * @return Dialog 实例
      */
     private Dialog buildSimple(FormDefinition.Simple form, Session session) {
+        if (form.buttons().isEmpty()) {
+            return createDialog(
+                    form.title(),
+                    body(form.content()),
+                    List.of(),
+                    DialogType.notice(closeButton(session)),
+                    true
+            );
+        }
         List<ActionButton> actions = new ArrayList<>(form.buttons().size());
         for (int index = 0; index < form.buttons().size(); index++) {
             ButtonDefinition button = form.buttons().get(index);
@@ -160,7 +177,8 @@ public final class PaperDialogProvider implements FormProvider {
                 form.title(),
                 body(form.content()),
                 List.of(),
-                DialogType.multiAction(actions, closeButton(session), 1)
+                DialogType.multiAction(actions, closeButton(session), 1),
+                true
         );
     }
 
@@ -183,12 +201,16 @@ public final class PaperDialogProvider implements FormProvider {
                 form.title(),
                 body(form.content()),
                 List.of(),
-                DialogType.multiAction(actions, closeButton(session), 1)
+                DialogType.multiAction(actions, closeButton(session), 1),
+                true
         );
     }
 
     /**
      * 构建自定义表单，对应带输入控件的 Java 版多动作 Dialog。
+     * <p>
+     * 对齐 ViaBedrock 的自定义表单处理：禁止 Escape 关闭（避免误触丢失已输入内容），
+     * 提交与取消以显式按钮呈现，取消按钮承担关闭上报。</p>
      *
      * @param form    自定义表单
      * @param session 本次发送的会话
@@ -203,35 +225,38 @@ public final class PaperDialogProvider implements FormProvider {
             index++;
         }
         String submitText = plugin.getConfig().getString("java-dialog-text.submit", "Submit");
+        List<ActionButton> actions = List.of(
+                actionButton(submitText, session.key("submit")),
+                closeButton(session)
+        );
         return createDialog(
                 form.title(),
                 bodies,
                 inputs,
-                DialogType.multiAction(
-                        List.of(actionButton(submitText, session.key("submit"))),
-                        closeButton(session),
-                        1
-                )
+                DialogType.multiAction(actions).columns(1).build(),
+                false
         );
     }
 
     /**
      * 创建统一配置的 Dialog。
      *
-     * @param title  标题
-     * @param body   正文
-     * @param inputs 输入组件
-     * @param type   Dialog 类型
+     * @param title              标题
+     * @param body               正文
+     * @param inputs             输入组件
+     * @param type               Dialog 类型
+     * @param canCloseWithEscape 是否允许 Escape 关闭
      * @return Dialog 实例
      */
     private Dialog createDialog(
             String title,
             List<DialogBody> body,
             List<DialogInput> inputs,
-            DialogType type
+            DialogType type,
+            boolean canCloseWithEscape
     ) {
-        DialogBase base = DialogBase.builder(component(title))
-                .canCloseWithEscape(true)
+        DialogBase base = DialogBase.builder(component(sanitizeSingleLine(title)))
+                .canCloseWithEscape(canCloseWithEscape)
                 .pause(false)
                 .afterAction(DialogBase.DialogAfterAction.CLOSE)
                 .body(body)
@@ -242,6 +267,11 @@ public final class PaperDialogProvider implements FormProvider {
 
     /**
      * 将平台无关组件映射为 Java Dialog 的正文或输入控件。
+     * <p>
+     * Java Dialog 的正文整体渲染在输入控件之前，而基岩表单按元素顺序混排文本与控件。
+     * 因此纯文本采用即时判定：尚无输入控件时放入正文（顺序正确），
+     * 已有输入控件后则插入只读单行假输入保持顺序（参考 ViaBedrock 的处理）。
+     * 控件标签忠实翻译，不拆行、不前置；多行文本的呈现由内容侧约束。</p>
      *
      * @param component 平台无关组件
      * @param index     组件在表单中的绝对下标
@@ -256,7 +286,7 @@ public final class PaperDialogProvider implements FormProvider {
     ) {
         String key = "i" + index;
         if (component instanceof CustomComponent.Label label) {
-            bodies.add(DialogBody.plainMessage(component(label.text())));
+            addPlainText(label.text(), index, bodies, inputs);
             return;
         }
         if (component instanceof CustomComponent.Input input) {
@@ -297,9 +327,12 @@ public final class PaperDialogProvider implements FormProvider {
             return;
         }
         if (component instanceof CustomComponent.StepSlider stepSlider) {
+            // 标题外置：单选控件的按钮内嵌"标题: 选中项"格式，长标题会拉长整行，
+            // 因此标题文本前置为独立文本行，控件内仅显示选中项
+            addPlainText(stepSlider.text(), index, bodies, inputs);
             addSingleOption(
                     key,
-                    component(stepSlider.text()),
+                    Component.empty(),
                     stepSlider.steps(),
                     stepSlider.defaultStep(),
                     inputs
@@ -307,9 +340,10 @@ public final class PaperDialogProvider implements FormProvider {
             return;
         }
         if (component instanceof CustomComponent.Dropdown dropdown) {
+            addPlainText(dropdown.text(), index, bodies, inputs);
             addSingleOption(
                     key,
-                    component(dropdown.text()),
+                    Component.empty(),
                     dropdown.options(),
                     dropdown.defaultOption(),
                     inputs
@@ -318,10 +352,63 @@ public final class PaperDialogProvider implements FormProvider {
     }
 
     /**
+     * 添加纯文本行：尚无输入控件时放入正文，已有输入控件后插入只读假输入保持顺序。
+     *
+     * @param text    文本
+     * @param index   组件下标，用于生成假输入键
+     * @param bodies  正文列表
+     * @param inputs  输入列表
+     */
+    private void addPlainText(
+            String text,
+            int index,
+            List<DialogBody> bodies,
+            List<DialogInput> inputs
+    ) {
+        for (String line : splitLines(text)) {
+            // 空行跳过：空标签的假输入框会渲染成一条空框线，形似分割线
+            if (line.isEmpty()) {
+                continue;
+            }
+            if (inputs.isEmpty()) {
+                bodies.add(DialogBody.plainMessage(component(line)));
+            } else {
+                inputs.add(dummyTextInput(line, index));
+            }
+        }
+    }
+
+    /**
+     * 创建展示一行文本的只读假输入。
+     * <p>
+     * Java Dialog 没有纯文本输入元素，这里用单行多行文本框模拟；
+     * 输入键固定不参与响应读取，仅用于保持元素顺序（参考 ViaBedrock 的 dummy 输入）。</p>
+     *
+     * @param line  文本行
+     * @param index 组件下标
+     * @return 假输入
+     */
+    private DialogInput dummyTextInput(String line, int index) {
+        return DialogInput.text(
+                "t" + index,
+                INPUT_WIDTH,
+                component(line),
+                true,
+                "",
+                Integer.MAX_VALUE,
+                TextDialogInput.MultilineOptions.create(null, 1)
+        );
+    }
+
+    /**
      * 添加单选下拉输入。
+     * <p>
+     * Java 版没有原生下拉组件，由 {@code single_option} 输入承担；
+     * 标题已由调用方前置为文本行，这里隐藏标题仅显示选中项，
+     * 避免空标题产生孤立冒号；选项为单行组件，换行符清洗为空格。</p>
      *
      * @param key          输入键
-     * @param label        标题
+     * @param label        标题（不渲染，仅为满足 API 签名）
      * @param options      选项文本
      * @param defaultIndex 默认选项下标
      * @param inputs       输入列表
@@ -334,6 +421,17 @@ public final class PaperDialogProvider implements FormProvider {
             List<DialogInput> inputs
     ) {
         if (options.isEmpty()) {
+            // 基岩版空下拉的响应契约为下标 0；Java 编码要求选项非空，
+            // 补一个视觉为空的选项保持响应一致（参考 ViaBedrock）。
+            inputs.add(DialogInput.singleOption(
+                    key,
+                    INPUT_WIDTH,
+                    List.of(SingleOptionDialogInput.OptionEntry.create(
+                            "0", Component.empty(), true
+                    )),
+                    label,
+                    false
+            ));
             return;
         }
         int initialIndex = Math.max(0, Math.min(defaultIndex, options.size() - 1));
@@ -341,22 +439,27 @@ public final class PaperDialogProvider implements FormProvider {
         for (int index = 0; index < options.size(); index++) {
             entries.add(SingleOptionDialogInput.OptionEntry.create(
                     Integer.toString(index),
-                    component(options.get(index)),
+                    component(sanitizeSingleLine(options.get(index))),
                     index == initialIndex
             ));
         }
-        inputs.add(DialogInput.singleOption(key, INPUT_WIDTH, entries, label, true));
+        inputs.add(DialogInput.singleOption(key, INPUT_WIDTH, entries, label, false));
     }
 
     /**
      * 创建带自定义点击动作的按钮。
+     * <p>
+     * Java 版文本组件在按钮标签中不渲染换行符（原版渲染限制），
+     * 保留换行符会显示为占位字符，这里清洗为空格；
+     * 统一加宽按钮避免长文本截断。</p>
      *
      * @param text 按钮文本
      * @param key  自定义点击动作键
      * @return 按钮实例
      */
     private static ActionButton actionButton(String text, String key) {
-        return ActionButton.builder(component(text))
+        return ActionButton.builder(component(sanitizeSingleLine(text)))
+                .width(BUTTON_WIDTH)
                 .action(DialogAction.customClick(Key.key(NAMESPACE, key), null))
                 .build();
     }
@@ -514,6 +617,35 @@ public final class PaperDialogProvider implements FormProvider {
     }
 
     /**
+     * 将文本按换行符拆分为行。
+     *
+     * @param text 原始文本
+     * @return 行列表，至少包含一行
+     */
+    private static String[] splitLines(String text) {
+        if (text == null || text.isEmpty()) {
+            return new String[]{""};
+        }
+        return text.split("\n", -1);
+    }
+
+    /**
+     * 将文本清洗为单行：换行符替换为空格。
+     * <p>
+     * Java 版文本组件在按钮标签、标题、选项等单行表面不渲染换行符，
+     * 保留会显示为占位字符（PUA）。</p>
+     *
+     * @param text 原始文本
+     * @return 单行文本
+     */
+    private static String sanitizeSingleLine(String text) {
+        if (text == null || text.indexOf('\n') < 0) {
+            return text;
+        }
+        return text.replace('\n', ' ');
+    }
+
+    /**
      * 将旧版颜色代码文本转换为 Adventure 组件。
      *
      * @param text 文本
@@ -528,6 +660,9 @@ public final class PaperDialogProvider implements FormProvider {
 
     /**
      * 正文列表；空内容不生成正文。
+     * <p>
+     * Java Dialog 的正文组件不渲染换行符，需要按行拆分为多个正文条目
+     * （参考 ViaBedrock 的表单转换实现）。</p>
      *
      * @param content 正文文本
      * @return 正文列表
@@ -536,7 +671,11 @@ public final class PaperDialogProvider implements FormProvider {
         if (content == null || content.isEmpty()) {
             return List.of();
         }
-        return List.of(DialogBody.plainMessage(component(content)));
+        List<DialogBody> bodies = new ArrayList<>();
+        for (String line : splitLines(content)) {
+            bodies.add(DialogBody.plainMessage(component(line)));
+        }
+        return bodies;
     }
 
     /**
