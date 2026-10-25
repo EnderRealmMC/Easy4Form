@@ -306,6 +306,9 @@ if (Easy4FormAPI.isFormSupported(player)) {
 - Button images (resource pack and URL) only reach Bedrock players; Java dialogs have no equivalent and drop them
 - Input placeholders only apply on Bedrock
 - `label` elements of a custom form are rendered together in the body area of a Java dialog instead of interleaved with the inputs
+- Java text components **do not render newlines** in single-line surfaces such as button labels, titles and dropdown options (vanilla rendering limit); a literal `\n` would show as a placeholder glyph. The library strips `\n` from buttons, titles and option entries, and splits bodies and `label` texts into per-line entries. Keep control labels short and single-line
+- Java dialogs (`single_option`) have no separate title: the library moves the title text into the body lines and shows only the selected entry inside the control; keep Bedrock dropdown titles and descriptions short for Java rendering
+- Plain text placed after an input of a custom form is rendered as a read-only single-line text box to preserve ordering, which carries an input border unlike plain Bedrock text
 - Paper has no dialog close event and the protocol has no client-to-server close packet; the library normalises Escape and the footer close button into a closed response through the dialog's exit action, which relies on vanilla dialog behaviour
 - Java dialog responses come from a client-supplied custom click payload and can be forged — re-validate amounts, quantities and option indexes on the server
 - Callbacks are asynchronous; do not block inside them
@@ -334,6 +337,7 @@ MIT License — see [LICENSE](LICENSE).
 - [Floodgate](https://github.com/GeyserMC/Floodgate) and [Cumulus](https://github.com/GeyserMC/Cumulus) — the Bedrock form channel
 - [Paper](https://github.com/PaperMC/Paper) — the Java dialog API
 - [ViaVersion](https://github.com/ViaVersion/ViaVersion) — real client protocol on transVersion servers
+- [EaseCation/ViaBedrock](https://github.com/EaseCation/ViaBedrock) — the Java dialog form conversion borrows ideas from its `BedrockFormDialogConverter` (per-line body splitting, placeholder text inputs for ordering, button width and the empty-option contract); no code was copied — the implementation here is written independently against the Paper API
 
 ## Support
 

@@ -306,6 +306,9 @@ if (Easy4FormAPI.isFormSupported(player)) {
 - 按钮图片（资源包与 URL）只对基岩版玩家生效，Java 版 Dialog 没有对应能力，会被忽略
 - 文本框占位符只在基岩版生效
 - 自定义表单里的 `label` 在 Java 版 Dialog 上统一显示在正文区域，无法与输入控件交错排列
+- Java 版文本组件在按钮标签、标题、下拉选项等单行表面**不渲染换行符**（原版渲染限制），保留 `\n` 会显示为占位字符；库会把按钮、标题与下拉选项中的 `\n` 清洗为空格，正文与 `label` 会按 `\n` 拆行渲染。控件标签请保持单行简短
+- Java 版下拉（`single_option`）没有独立标题：库将标题文本前置为正文行，控件内仅显示选中项；基岩下拉的标题+说明长文本在 Java 端建议精简
+- 自定义表单里控件之后的纯文本通过只读单行文本框占位保序，视觉上带输入框边框，与基岩纯文本略有差异
 - Java 版 Dialog 没有「关闭」事件，协议里也没有客户端到服务端的关闭包；库通过 Dialog 的退出动作把 Escape 与页脚关闭按钮归一为关闭响应，这依赖原版 Dialog 语义
 - Java 版 Dialog 的响应来自客户端提交的自定义点击负载，可能被伪造；金额、数量、选项等敏感值必须在服务端重新校验
 - 表单响应是异步回调，回调里不要执行阻塞操作
@@ -334,6 +337,7 @@ MIT License，详见 [LICENSE](LICENSE)。
 - [Floodgate](https://github.com/GeyserMC/Floodgate) 与 [Cumulus](https://github.com/GeyserMC/Cumulus)：基岩版表单通道
 - [Paper](https://github.com/PaperMC/Paper)：Java 版 Dialog API
 - [ViaVersion](https://github.com/ViaVersion/ViaVersion)：跨版本服务端下的真实客户端协议来源
+- [EaseCation/ViaBedrock](https://github.com/EaseCation/ViaBedrock)：Java Dialog 表单转换参考了其 `BedrockFormDialogConverter` 的部分思路（正文按行拆分、纯文本占位保序、按钮宽度与空选项契约）；本项目未复制其代码，实现基于 Paper API 独立编写
 
 ## 支持
 
