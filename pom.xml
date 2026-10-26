@@ -94,11 +94,12 @@
     </repositories>
 
     <dependencies>
-        <!-- Kotlin 标准库：compile 作用域供编译；运行时由 plugin.yml 的 libraries 从 Maven Central 自动下载 -->
+        <!-- Kotlin 标准库：provided 供本库编译，不传递给消费者（运行时由 plugin.yml 的 libraries 下载） -->
         <dependency>
             <groupId>org.jetbrains.kotlin</groupId>
             <artifactId>kotlin-stdlib</artifactId>
             <version>${kotlin.version}</version>
+            <scope>provided</scope>
         </dependency>
         <dependency>
             <groupId>io.papermc.paper</groupId>
