@@ -42,15 +42,13 @@
 - **`PlayerUtils` 换包**：`cn.enderrealm.easy4form.api.PlayerUtils` → `cn.enderrealm.easy4form.utils.PlayerUtils`，方法签名不变，只需改 import。
 - **关闭响应需要判空**：Simple / Modal 的回调参数可能为 `null`，Custom 的 `Map` 可能为空。升级后请检查全部响应处理器，先判空再取值，否则会在玩家关闭表单时抛空指针。
 - **Floodgate 缺失不再停用插件**：过去缺少 Floodgate 会直接停用，现在改为禁用基岩版实现后继续运行，同时 `isBedrockPlayer` 对所有玩家返回 `false`。依赖「插件停用」来暴露部署问题的运维方式需要改为主动检查启动日志与 `isBedrockPlayer` 结果。
-- **部署产物一分为二**：编译依赖请使用不含 stdlib 的主产物，部署使用 `-all` 产物（详见「构建与发布」）。使用 Kotlin DSL 的插件必须让全服务器只保留一份 kotlin-stdlib 定义，否则 DSL 的 lambda 无法跨插件传递。
+- **部署产物单一化**：只发布一个 jar（约 70 KB，仅本库类），编译依赖与部署共用；不再提供内置 stdlib 的 `-all` 产物。
 
 ### 构建与发布
 
 - 构建改用 Paper 1.21.7 API，编译需要 JDK 21，产物仍以 Java 17 为目标运行。
 - 引入 Kotlin 2.4.21 与 `kotlin-stdlib`，编译固定 `-language-version=2.0`，产物 metadata 为 `2.0.0`。实测 Kotlin 1.9.24 与 2.0.21 编译的消费者都能正常调用 DSL。
-- 主产物刻意不打包 stdlib：一旦打包，使用 Kotlin 2.4 以下编译器的项目会因 stdlib 的 `2.4.0` metadata 直接编译失败。
-- 产物分工：`easy4form-3.0.0.jar` 只含本库类，作为编译依赖坐标；`easy4form-3.0.0-all.jar` 内置 stdlib，放进 `plugins/` 部署。发布流水线上传的是 `-all` 产物，但资产名沿用 `easy4form-3.0.0.jar`，下载方只需取一个文件。
-- 部署产物体积约 1.9 MB（此前约 70 KB），增量全部来自内置的 kotlin-stdlib。
+- **kotlin-stdlib 运行时来源**：`plugin.yml` 通过 `libraries` 声明 `org.jetbrains.kotlin:kotlin-stdlib:2.4.21`，服务端首次加载时从 Maven Central 自动下载并缓存到服务端 `libraries/` 目录（Spigot 1.16.5+ 机制）。安装环境需可访问 Maven Central。使用 Kotlin DSL 的插件按自身需要声明各自版本的 stdlib，跨插件回调经由 `fun interface`（Java 接口）传递，不产生跨类加载器的 Kotlin 类型依赖。
 
 ### 已知限制
 

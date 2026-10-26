@@ -32,6 +32,8 @@
 2. 放进服务端的 `plugins/` 目录
 3. 重启服务端
 
+首次加载时会通过 `plugin.yml` 的 `libraries` 声明从 Maven Central 自动下载 kotlin-stdlib（约 1.5 MB，缓存到服务端 `libraries/` 目录，仅下载一次）；安装环境需可访问 Maven Central。
+
 Easy4Form 是库，不是会给玩家发菜单的插件，装完没有任何可感知变化；配置文件在首次启用时生成于 `plugins/easy4form/config.yml`。
 
 Java 版 Dialog 默认关闭，需要显式打开：
@@ -239,7 +241,7 @@ player.customForm("个人资料") {
 
 `FormValues` 还提供 `keys`、`operator get`；取值失败返回 `null`，不抛异常。
 
-Kotlin 侧注意两点：编译器需要 Kotlin 1.9 或更新；依赖坐标使用主产物（`provided` / `compileOnly`），不要再把 kotlin-stdlib 打进你自己的插件——整台服务器只能存在一份 stdlib 定义，否则跨插件传递的 lambda 会在运行期类型转换失败。
+Kotlin 侧注意两点：编译器需要 Kotlin 1.9 或更新；依赖坐标使用主产物（`provided` / `compileOnly`）。如果你的插件本身用 Kotlin，在自己的 `plugin.yml` 里通过 `libraries` 声明自己需要的 kotlin-stdlib 版本；跨插件回调经由 `fun interface`（普通 Java 接口）传递，各插件保留各自版本的 stdlib 不会产生跨类加载器的类型转换错误。
 
 ## API 一览
 
@@ -321,7 +323,7 @@ if (Easy4FormAPI.isFormSupported(player)) {
 mvn clean package
 ```
 
-产物有两个：`easy4form-3.0.0-all.jar` 内置 kotlin-stdlib，是放进 `plugins/` 的那一个（Release 页面把它按 `easy4form-3.0.0.jar` 的名字上传）；`easy4form-3.0.0.jar` 只含本库类，供编译依赖使用。
+产物只有一个：`easy4form-3.0.0.jar`（仅本库类），同时供编译依赖与 `plugins/` 部署使用；kotlin-stdlib 由 `plugin.yml` 的 `libraries` 在运行时自动下载（见「安装」）。
 
 ## 文档
 

@@ -32,6 +32,8 @@ On servers older than Paper 1.21.7 Java players simply receive nothing, while Be
 2. Drop it into the server's `plugins/` folder
 3. Restart the server
 
+On first start the kotlin-stdlib declared in `plugin.yml` via `libraries` is downloaded automatically from Maven Central (about 1.5 MB, cached in the server's `libraries/` folder, downloaded only once); the server must be able to reach Maven Central.
+
 Easy4Form is a library, not a plugin that hands out menus, so installing it changes nothing visible. The configuration file is created on first start at `plugins/easy4form/config.yml`.
 
 Java dialogs are off by default and must be enabled explicitly:
@@ -239,7 +241,7 @@ player.customForm("Profile") {
 
 `FormValues` also exposes `keys` and `operator get`; every accessor returns `null` instead of throwing.
 
-Two Kotlin specifics: the compiler must be Kotlin 1.9 or newer, and you should depend on the main artifact (`provided` / `compileOnly`) without shading kotlin-stdlib into your own plugin — the server must contain exactly one copy of the standard library, otherwise lambdas passed across plugin class loaders fail with a cast error at runtime.
+Two Kotlin specifics: the compiler must be Kotlin 1.9 or newer, and depend on the main artifact (`provided` / `compileOnly`). If your plugin uses Kotlin, declare your own kotlin-stdlib via the `libraries` entry in your `plugin.yml`; cross-plugin callbacks go through `fun interface` (plain Java interfaces), so each plugin can keep its own stdlib version without class-loader cast errors.
 
 ## API overview
 
@@ -321,7 +323,7 @@ JDK 21 is required (the output still targets Java 17):
 mvn clean package
 ```
 
-Two artifacts are produced: `easy4form-3.0.0-all.jar` bundles kotlin-stdlib and is the one that belongs in `plugins/` (Releases publish it under the name `easy4form-3.0.0.jar`), while `easy4form-3.0.0.jar` contains only this library's classes and exists for compile-time dependencies.
+A single artifact is produced: `easy4form-3.0.0.jar` (only this library's classes), used both as the compile-time dependency and for deployment in `plugins/`; kotlin-stdlib is downloaded at runtime via the `libraries` entry in `plugin.yml` (see Installation).
 
 ## Documentation
 
