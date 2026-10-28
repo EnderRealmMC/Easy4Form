@@ -299,8 +299,10 @@ if (Easy4FormAPI.isFormSupported(player)) {
 | `providers.java-dialog` | `paper` / `none` | `none` | Native Java dialogs; requires Paper 1.21.7+ and Java 21 |
 | `detection-mode` | `floodgate` / `uuid` | `floodgate` | How Bedrock players are detected; both modes require Floodgate to be installed |
 | `uuid-prefix` | string | `00000000-0000` | Prefix used by `uuid` mode and by the fallback path |
-| `java-dialog-text.submit` | string | `Submit` | Custom form submit button text, supports `§` colour codes |
-| `java-dialog-text.close` | string | `Close` | Footer close button text, also handles Escape, supports `§` colour codes |
+| `java-dialog-text.submit-key` | string | `gui.done` | Vanilla translation key for the custom form submit button; when non-empty the client resolves it against its own language file, automatically covering every Minecraft language with zero maintenance. Empty falls back to `submit` below |
+| `java-dialog-text.close-key` | string | `gui.cancel` | Vanilla translation key for the footer close button (also handles Escape); resolved by the client in its own language when non-empty. Empty falls back to `close` below |
+| `java-dialog-text.submit` | string | `Submit` | Fixed submit button text used when the translation key is empty, supports `§` colour codes |
+| `java-dialog-text.close` | string | `Close` | Fixed close button text used when the translation key is empty, supports `§` colour codes |
 | `debug` | boolean | `false` | Verbose logging |
 
 ## Known limitations

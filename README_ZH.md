@@ -299,8 +299,10 @@ if (Easy4FormAPI.isFormSupported(player)) {
 | `providers.java-dialog` | `paper` / `none` | `none` | Java 版原生 Dialog；需要 Paper 1.21.7+ 与 Java 21 |
 | `detection-mode` | `floodgate` / `uuid` | `floodgate` | 基岩版玩家判定方式；两种都要求已安装 Floodgate |
 | `uuid-prefix` | 字符串 | `00000000-0000` | `uuid` 模式与兜底路径使用的前缀 |
-| `java-dialog-text.submit` | 字符串 | `Submit` | 自定义表单的提交按钮文本，支持 `§` 颜色码 |
-| `java-dialog-text.close` | 字符串 | `Close` | 页脚关闭按钮文本，同时接管 Escape，支持 `§` 颜色码 |
+| `java-dialog-text.submit-key` | 字符串 | `gui.done` | 自定义表单提交按钮的原版翻译键；非空时由客户端按自身语言文件解析，自动覆盖全部 Minecraft 语言且零维护。留空回退到下方 `submit` |
+| `java-dialog-text.close-key` | 字符串 | `gui.cancel` | 页脚关闭按钮（同时接管 Escape）的原版翻译键；非空时由客户端按自身语言文件解析。留空回退到下方 `close` |
+| `java-dialog-text.submit` | 字符串 | `Submit` | 翻译键留空时使用的提交按钮固定文本，支持 `§` 颜色码 |
+| `java-dialog-text.close` | 字符串 | `Close` | 翻译键留空时使用的关闭按钮固定文本，支持 `§` 颜色码 |
 | `debug` | 布尔 | `false` | 打开详细日志 |
 
 ## 已知限制

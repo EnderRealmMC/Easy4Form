@@ -224,9 +224,8 @@ public final class PaperDialogProvider implements FormProvider {
             addComponent(component, index, bodies, inputs);
             index++;
         }
-        String submitText = plugin.getConfig().getString("java-dialog-text.submit", "Submit");
         List<ActionButton> actions = List.of(
-                actionButton(submitText, session.key("submit")),
+                actionButton(dialogButtonComponent("submit-key", "gui.done", "submit", "Submit"), session.key("submit")),
                 closeButton(session)
         );
         return createDialog(
@@ -458,10 +457,51 @@ public final class PaperDialogProvider implements FormProvider {
      * @return 按钮实例
      */
     private static ActionButton actionButton(String text, String key) {
-        return ActionButton.builder(component(sanitizeSingleLine(text)))
+        return actionButton(component(sanitizeSingleLine(text)), key);
+    }
+
+    /**
+     * 创建带自定义点击动作的按钮，标签直接使用已构造的组件。
+     *
+     * <p>用于 {@link Component#translatable(String)} 等无需旧版颜色代码清洗的标签，
+     * 例如库内按钮的原版翻译键；统一加宽按钮避免长文本截断。</p>
+     *
+     * @param label 按钮标签组件
+     * @param key   自定义点击动作键
+     * @return 按钮实例
+     */
+    private static ActionButton actionButton(Component label, String key) {
+        return ActionButton.builder(label)
                 .width(BUTTON_WIDTH)
                 .action(DialogAction.customClick(Key.key(NAMESPACE, key), null))
                 .build();
+    }
+
+    /**
+     * 解析库内按钮的标签组件。
+     *
+     * <p>默认使用原版翻译键（{@code submit-key} / {@code close-key}），由客户端按自身
+     * 语言文件解析，自动覆盖全部 Minecraft 语言且无需维护任何翻译；仅在配置显式留空时
+     * 回退到固定文本，兼容旧版 {@code §} 颜色代码。</p>
+     *
+     * <p>注意：必须用 {@code getString(path, keyDefault)} 的默认值参数承载原版键，而非
+     * 依赖 Bukkit 的 defaults 合并层——双参 {@code getString} 在路径缺失时直接返回
+     * {@code def}，不会回退到 jar 内 config.yml 默认值。</p>
+     *
+     * @param keyField    翻译键配置项名（{@code java-dialog-text} 下的子键）
+     * @param keyDefault  翻译键的兜底默认值（原版翻译键）
+     * @param textField   固定文本配置项名（翻译键显式留空时使用）
+     * @param textDefault 固定文本的兜底默认值
+     * @return 按钮标签组件
+     */
+    private Component dialogButtonComponent(String keyField, String keyDefault, String textField, String textDefault) {
+        String translationKey = plugin.getConfig().getString("java-dialog-text." + keyField, keyDefault);
+        if (translationKey != null && !translationKey.trim().isEmpty()) {
+            return Component.translatable(translationKey.trim());
+        }
+        return component(sanitizeSingleLine(
+                plugin.getConfig().getString("java-dialog-text." + textField, textDefault)
+        ));
     }
 
     /**
@@ -472,7 +512,7 @@ public final class PaperDialogProvider implements FormProvider {
      */
     private ActionButton closeButton(Session session) {
         return actionButton(
-                plugin.getConfig().getString("java-dialog-text.close", "Close"),
+                dialogButtonComponent("close-key", "gui.cancel", "close", "Close"),
                 session.key("close")
         );
     }

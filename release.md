@@ -15,7 +15,7 @@
 - **Kotlin DSL**：新增 `api/dsl`，提供 `player.simpleForm` / `modalForm` / `customForm` 扩展函数与尾随 lambda。逐按钮回调、`confirm` / `cancel`、`submitted` / `closed` 全部由既有 Builder 承载，不新增门面之外的任何能力，Java 调用方式保持不变。
   - 关闭语义与门面一致，不引入第二套判定：Simple / Modal 的 `null` 与 Custom 的空 `Map` 统一路由到 `closed`；`submitted` 只在拿到非空响应时触发。
   - 回调声明为 `fun interface`（`FormAction`、`ButtonClick`、`FormSubmit`）而不是 Kotlin 函数类型，避免跨插件类加载器解析出两份 `kotlin.jvm.functions`。`FormValues` 提供 `string` / `boolean` / `float` / `intIndex` 类型化取值，取值失败返回 `null`，不抛异常。
-- **Java 版 Dialog 文本配置**：`java-dialog-text.submit` 与 `java-dialog-text.close`，支持 `§` 颜色代码。
+- **Java 版 Dialog 文本配置**：`java-dialog-text.submit-key` / `close-key` 使用原版翻译键（默认 `gui.done` / `gui.cancel`），由客户端按自身语言文件解析，自动覆盖全部 Minecraft 语言且零维护；留空回退到 `submit` / `close` 固定文本，支持 `§` 颜色代码。
 - **`plugin.yml` 新增 `ViaVersion` 软依赖**。
 
 ### 变更

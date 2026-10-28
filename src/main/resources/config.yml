@@ -43,12 +43,26 @@ uuid-prefix: "00000000-0000"
 # Supports legacy section color codes (e.g. '§aSubmit')
 # 支持旧版颜色代码（例如 '§aSubmit'）
 java-dialog-text:
-  # Submit button for custom forms
-  # 自定义表单的提交按钮
+  # Vanilla translation keys for the two library-owned buttons.
+  # When non-empty, the client resolves the key against its own bundled language
+  # file, automatically supporting every Minecraft language with zero maintenance.
+  # Leave empty to fall back to the fixed submit/close text below.
+  # 库内两个按钮的原版翻译键。
+  # 非空时由客户端按自身语言文件解析，自动覆盖全部 Minecraft 语言，零维护。
+  # 留空则回退到下方 submit/close 固定文本。
+  # Vanilla has no 'gui.submit' / 'gui.close'; use gui.done (Done/完成) for submit
+  # and gui.cancel (Cancel/取消) for close. Keys exist since ~1.7 and are stable.
+  # vanilla 没有 gui.submit / gui.close；提交用 gui.done（完成），关闭用 gui.cancel（取消），
+  # 这两个键自 ~1.7 起稳定存在。
+  submit-key: "gui.done"
+  close-key: "gui.cancel"
+
+  # Submit button for custom forms (used only when submit-key is empty)
+  # 自定义表单的提交按钮（仅当 submit-key 留空时生效）
   submit: "Submit"
 
-  # Footer close button; also handles the Escape key
-  # 页脚关闭按钮；同时接管 Escape 键
+  # Footer close button; also handles the Escape key (used only when close-key is empty)
+  # 页脚关闭按钮；同时接管 Escape 键（仅当 close-key 留空时生效）
   close: "Close"
 
 # Debug mode
