@@ -209,8 +209,9 @@ public final class PaperDialogProvider implements FormProvider {
     /**
      * 构建自定义表单，对应带输入控件的 Java 版多动作 Dialog。
      * <p>
-     * 对齐 ViaBedrock 的自定义表单处理：禁止 Escape 关闭（避免误触丢失已输入内容），
-     * 提交与取消以显式按钮呈现，取消按钮承担关闭上报。</p>
+     * 对齐 ViaBedrock 的自定义表单处理：禁止 Escape 关闭（避免误触丢失已输入内容）。
+     * 提交按钮置于正文动作区；取消按钮作为页脚退出按钮固定显示，无需滚动即可关闭，
+     * 与基岩版右上角固定关闭按钮的体验保持一致。</p>
      *
      * @param form    自定义表单
      * @param session 本次发送的会话
@@ -225,14 +226,13 @@ public final class PaperDialogProvider implements FormProvider {
             index++;
         }
         List<ActionButton> actions = List.of(
-                actionButton(dialogButtonComponent("submit-key", "gui.done", "submit", "Submit"), session.key("submit")),
-                closeButton(session)
+                actionButton(dialogButtonComponent("submit-key", "gui.done", "submit", "Submit"), session.key("submit"))
         );
         return createDialog(
                 form.title(),
                 bodies,
                 inputs,
-                DialogType.multiAction(actions).columns(1).build(),
+                DialogType.multiAction(actions, closeButton(session), 1),
                 false
         );
     }
