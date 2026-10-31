@@ -125,7 +125,13 @@ public class SimpleFormBuilder {
                 }
                 responseHandler.accept(null);
             };
-            provider.send(player, form, handler);
+            boolean sent = provider.send(player, form, handler);
+            if (!sent) {
+                Easy4form.getInstance().getLogger().warning(
+                        "Form send failed: provider '" + provider.name()
+                                + "' could not deliver the form to player " + player.getName()
+                );
+            }
         } catch (Exception exception) {
             Easy4form.getInstance().getLogger().log(
                     Level.SEVERE,

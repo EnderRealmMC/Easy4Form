@@ -309,13 +309,13 @@ if (Easy4FormAPI.isFormSupported(player)) {
 
 - Button images (resource pack and URL) only reach Bedrock players; Java dialogs have no equivalent and drop them
 - Input placeholders only apply on Bedrock
-- `label` elements of a custom form are rendered together in the body area of a Java dialog instead of interleaved with the inputs
+- `label` elements of a custom form render as body lines when placed before the first input; ones placed after an input are rendered as read-only single-line text boxes to preserve ordering (see below)
 - Java text components **do not render newlines** in single-line surfaces such as button labels, titles and dropdown options (vanilla rendering limit); a literal `\n` would show as a placeholder glyph. The library strips `\n` from buttons, titles and option entries, and splits bodies and `label` texts into per-line entries. Keep control labels short and single-line
 - Java dialogs (`single_option`) have no separate title: the library moves the title text into the body lines and shows only the selected entry inside the control; keep Bedrock dropdown titles and descriptions short for Java rendering
 - Plain text placed after an input of a custom form is rendered as a read-only single-line text box to preserve ordering, which carries an input border unlike plain Bedrock text
 - Paper has no dialog close event and the protocol has no client-to-server close packet; the library normalises Escape and the footer close button into a closed response through the dialog's exit action, which relies on vanilla dialog behaviour
 - Java dialog responses come from a client-supplied custom click payload and can be forged — re-validate amounts, quantities and option indexes on the server
-- Callbacks are asynchronous; do not block inside them
+- Callbacks arrive on the backing provider's thread: the main server thread for Java dialogs, Floodgate network threads for Bedrock forms. Dispatch to the main thread yourself when needed, and never block inside a callback
 
 ## Building from source
 
