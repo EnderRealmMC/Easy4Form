@@ -6,6 +6,7 @@ import cn.enderrealm.easy4form.internal.FormProviderRegistry;
 import cn.enderrealm.easy4form.internal.cumulus.CumulusProvider;
 import cn.enderrealm.easy4form.internal.floodgate.FloodgateAvailability;
 import cn.enderrealm.easy4form.utils.DebugUtils;
+import org.bukkit.entity.Player;
 import org.bukkit.plugin.java.JavaPlugin;
 
 /**
@@ -27,6 +28,23 @@ public final class Easy4form extends JavaPlugin {
      */
     public static Easy4form getInstance() {
         return instance;
+    }
+
+    /**
+     * 记录"无可用 Provider、表单发送被跳过"的警告。
+     *
+     * @param player 被跳过的玩家，可为 null
+     */
+    public static void warnNoProvider(Player player) {
+        Easy4form plugin = getInstance();
+        if (plugin == null) {
+            return;
+        }
+        plugin.getLogger().warning(
+                "Form send skipped: no provider supports player "
+                        + (player == null ? "?" : player.getName())
+                        + ". Use Easy4FormAPI.isFormSupported(player) to check before sending."
+        );
     }
 
     /**

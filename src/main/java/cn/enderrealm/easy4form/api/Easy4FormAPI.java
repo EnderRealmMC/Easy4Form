@@ -94,6 +94,7 @@ public class Easy4FormAPI {
     ) {
         try {
             if (!hasActiveProvider(player)) {
+                Easy4form.warnNoProvider(player);
                 return;
             }
             SimpleFormBuilder builder = new SimpleFormBuilder()
@@ -133,6 +134,7 @@ public class Easy4FormAPI {
     ) {
         try {
             if (!hasActiveProvider(player)) {
+                Easy4form.warnNoProvider(player);
                 return;
             }
             if (buttonTexts.size() != buttonImages.size()) {
@@ -180,6 +182,7 @@ public class Easy4FormAPI {
     ) {
         try {
             if (!hasActiveProvider(player)) {
+                Easy4form.warnNoProvider(player);
                 return;
             }
             if (buttonTexts.size() != buttonImageUrls.size()) {
@@ -227,6 +230,7 @@ public class Easy4FormAPI {
     ) {
         try {
             if (!hasActiveProvider(player)) {
+                Easy4form.warnNoProvider(player);
                 return;
             }
             new ModalFormBuilder()
@@ -260,6 +264,7 @@ public class Easy4FormAPI {
     ) {
         try {
             if (!hasActiveProvider(player)) {
+                Easy4form.warnNoProvider(player);
                 return null;
             }
             return new CustomFormBuilder()

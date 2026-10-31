@@ -114,6 +114,7 @@ public class SimpleFormBuilder {
         try {
             FormProvider provider = Easy4form.getInstance().getFormProviderRegistry().find(player);
             if (provider == null) {
+                Easy4form.warnNoProvider(player);
                 return;
             }
             FormDefinition.Simple form = new FormDefinition.Simple(title, content, buttons);

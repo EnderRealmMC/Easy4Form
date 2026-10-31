@@ -162,6 +162,7 @@ public class CustomFormBuilder {
         try {
             FormProvider provider = Easy4form.getInstance().getFormProviderRegistry().find(player);
             if (provider == null) {
+                Easy4form.warnNoProvider(player);
                 return;
             }
             FormDefinition.Custom form = new FormDefinition.Custom(title, components);

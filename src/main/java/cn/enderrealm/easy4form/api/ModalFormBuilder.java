@@ -99,6 +99,7 @@ public class ModalFormBuilder {
         try {
             FormProvider provider = Easy4form.getInstance().getFormProviderRegistry().find(player);
             if (provider == null) {
+                Easy4form.warnNoProvider(player);
                 return;
             }
             FormDefinition.Modal form = new FormDefinition.Modal(title, content, button1, button2);
