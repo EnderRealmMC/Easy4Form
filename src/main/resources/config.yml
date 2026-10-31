@@ -1,24 +1,70 @@
 # Easy4Form Configuration
 # Easy4Form 配置文件
 
+# Form provider selection, one provider per platform
+# 表单 Provider 选择，每个平台只能启用一个
+# Available providers: cumulus (Bedrock forms), paper (Java dialogs), none (disabled)
+# 可用 Provider：cumulus（基岩版表单）, paper（Java 版 Dialog）, none（禁用）
+providers:
+  # Bedrock form provider
+  # 基岩版表单 Provider
+  # Requires the Floodgate plugin; automatically disabled when Floodgate is unavailable
+  # 需要 Floodgate 插件；Floodgate 不可用时自动降级为 none
+  bedrock-form: cumulus
+
+  # Java dialog provider
+  # Java 版 Dialog Provider
+  # Also requires Paper 1.21.7+ and Java 21; clients below Minecraft 1.21.6 are skipped
+  # 需要 Paper 1.21.7+ 与 Java 21；低于 Minecraft 1.21.6 的客户端会被跳过
+  # When ViaVersion is installed, the real client version is read through the ViaAPI;
+  # players are skipped if that version cannot be determined.
+  # 安装 ViaVersion 时通过 ViaAPI 读取真实客户端版本；无法读取版本时不发送 Java 表单。
+  java-dialog: none
+
 # Detection mode for Bedrock players
 # 基岩版玩家检测模式
 # Options: floodgate, uuid
 # 选项: floodgate（使用Floodgate API）, uuid（使用UUID前缀）
+# UUID detection only works when Floodgate is installed; without Floodgate no player is
+# treated as Bedrock, because Cumulus and Bedrock forms are unavailable as well.
+# UUID 检测仅在 Floodgate 已安装时生效；Floodgate 不存在时不会把任何玩家识别为基岩版玩家，
+# 因为 Cumulus 与基岩版表单能力也随之一同缺失。
+# Falls back to UUID prefix detection only when Floodgate is installed but not enabled,
+# or when its API call fails.
+# 仅在 Floodgate 已安装但未启用或 API 调用失败时才回退到 UUID 前缀检测。
 detection-mode: floodgate
 
-# UUID prefix for Bedrock players (only used when detection-mode is 'uuid')
-# 基岩版玩家的UUID前缀（仅在detection-mode为'uuid'时使用）
+# UUID prefix for Bedrock players (used in 'uuid' mode or as the fallback; requires Floodgate)
+# 基岩版玩家的UUID前缀（'uuid'模式或兜底时使用；要求 Floodgate 已安装）
 uuid-prefix: "00000000-0000"
+
+# Java dialog texts
+# Java 版 Dialog 文本
+# Supports legacy section color codes (e.g. '§aSubmit')
+# 支持旧版颜色代码（例如 '§aSubmit'）
+java-dialog-text:
+  # Vanilla translation keys for the two library-owned buttons.
+  # When non-empty, the client resolves the key against its own bundled language
+  # file, automatically supporting every Minecraft language with zero maintenance.
+  # Leave empty to fall back to the fixed submit/close text below.
+  # 库内两个按钮的原版翻译键。
+  # 非空时由客户端按自身语言文件解析，自动覆盖全部 Minecraft 语言，零维护。
+  # 留空则回退到下方 submit/close 固定文本。
+  # Vanilla has no 'gui.submit' / 'gui.close'; use gui.done (Done/完成) for submit
+  # and gui.cancel (Cancel/取消) for close. Keys exist since ~1.7 and are stable.
+  # vanilla 没有 gui.submit / gui.close；提交用 gui.done（完成），关闭用 gui.cancel（取消），
+  # 这两个键自 ~1.7 起稳定存在。
+  submit-key: "gui.done"
+  close-key: "gui.cancel"
+
+  # Submit button for custom forms (used only when submit-key is empty)
+  # 自定义表单的提交按钮（仅当 submit-key 留空时生效）
+  submit: "Submit"
+
+  # Footer close button; also handles the Escape key (used only when close-key is empty)
+  # 页脚关闭按钮；同时接管 Escape 键（仅当 close-key 留空时生效）
+  close: "Close"
 
 # Debug mode
 # 调试模式
 debug: false
-
-# API version (v1 and v2 are supported, v2 is recommended)
-# API版本（支持v1和v2，推荐使用v2）
-api-version: "v2"
-
-# Enable migration warnings for outdated API version
-# 启用过时API版本的迁移警告
-migration-warnings: true

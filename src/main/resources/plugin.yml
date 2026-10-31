@@ -1,7 +1,10 @@
 name: easy4form
-version: '2.0.0'
+version: '3.0.0'
 main: cn.enderrealm.easy4form.Easy4form
 api-version: '1.18'
-depend: [floodgate]
-description: A simplified Form API for Floodgate
+softdepend: [floodgate, ViaVersion]
+# Kotlin 标准库运行时从 Maven Central 自动下载并缓存到服务端 libraries/ 目录
+description: A provider-based Form API with configurable Bedrock and Java form backends
 authors: [EnderRealm]
+libraries:
+  - org.jetbrains.kotlin:kotlin-stdlib:2.4.21

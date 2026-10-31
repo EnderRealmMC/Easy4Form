@@ -1,6 +1,11 @@
 name: Release
 
 on:
+  push:
+    tags:
+      # 打 v<版本号> 标签即触发发布（本文件取自被打标签的那个提交，不要求先合进默认分支）
+      - 'v*'
+  # 保留手动入口：标签触发会先把本 workflow 登记到 Actions，之后页面才会出现 Run workflow 按钮
   workflow_dispatch:
 
 jobs:
@@ -14,10 +19,10 @@ jobs:
     - name: Checkout code
       uses: actions/checkout@v4
     
-    - name: Set up JDK 17
+    - name: Set up JDK 21
       uses: actions/setup-java@v4
       with:
-        java-version: '17'
+        java-version: '21'
         distribution: 'temurin'
         cache: maven
     
@@ -62,27 +67,17 @@ jobs:
     - name: Build with Maven
       run: mvn clean package -s ./settings.xml
     
-    - name: Create Release
-      id: create-release
-      uses: actions/create-release@v1
+    - name: Create Release and upload JAR
+      uses: softprops/action-gh-release@v2
       env:
         GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       with:
         tag_name: v${{ steps.project-info.outputs.version }}
-        release_name: ${{ steps.project-info.outputs.name }} v${{ steps.project-info.outputs.version }}
+        name: ${{ steps.project-info.outputs.name }} v${{ steps.project-info.outputs.version }}
         body: ${{ steps.release-notes.outputs.notes }}
         draft: false
         prerelease: false
-    
-    - name: Upload JAR to Release
-      uses: actions/upload-release-asset@v1
-      env:
-        GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      with:
-        upload_url: ${{ steps.create-release.outputs.upload_url }}
-        asset_path: ./target/easy4form-${{ steps.project-info.outputs.version }}.jar
-        asset_name: easy4form-${{ steps.project-info.outputs.version }}.jar
-        asset_content_type: application/java-archive
+        files: ./target/easy4form-${{ steps.project-info.outputs.version }}.jar
     
     - name: Publish to GitHub Packages
       run: mvn deploy -s ./settings.xml

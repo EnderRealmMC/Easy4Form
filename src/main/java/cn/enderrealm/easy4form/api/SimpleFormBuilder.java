@@ -1,193 +1,143 @@
 package cn.enderrealm.easy4form.api;
 
 import cn.enderrealm.easy4form.Easy4form;
+import cn.enderrealm.easy4form.internal.ButtonDefinition;
+import cn.enderrealm.easy4form.internal.FormDefinition;
+import cn.enderrealm.easy4form.internal.FormProvider;
+import cn.enderrealm.easy4form.internal.FormResponse;
 import org.bukkit.entity.Player;
 
+import java.util.ArrayList;
+import java.util.List;
 import java.util.function.Consumer;
+import java.util.logging.Level;
 
 /**
- * Builder for creating simple forms - Multi-Version API Proxy
- * <p>
- * 用于创建简单表单的构建器 - 多版本API代理
- * <p>
- * This class provides a unified API interface that automatically routes to the appropriate version
- * based on the current configuration. It supports multiple API versions seamlessly.
- * <p>
- * 此类提供统一的API接口，根据当前配置自动路由到适当的版本。它无缝支持多个API版本。
+ * 用于创建简单表单的构建器。
  */
 public class SimpleFormBuilder {
 
+    private final List<ButtonDefinition> buttons = new ArrayList<>();
+    private String title;
+    private String content;
+    private Consumer<Integer> responseHandler;
+
     /**
-     * Create a new SimpleFormBuilder instance
-     * <p>
-     * 创建新的SimpleFormBuilder实例
+     * 创建新的 SimpleFormBuilder 实例。
+     */
+    public SimpleFormBuilder() {
+    }
+
+    /**
+     * 创建新的 SimpleFormBuilder 实例。
      *
-     * @return A new SimpleFormBuilder instance / 新的SimpleFormBuilder实例
+     * @return 新的构建器实例
      */
     public static SimpleFormBuilder create() {
-        try {
-            // Create a new proxy instance
-            SimpleFormBuilder proxy = new SimpleFormBuilder();
-            
-            // Initialize the actual builder instance through version manager
-            Easy4form.getInstance().getVersionManager().routeMethodCall(
-                "createSimpleForm", 
-                new Class<?>[]{}, 
-                proxy
-            );
-            
-            return proxy;
-        } catch (Exception e) {
-            Easy4form.getInstance().getLogger().severe("Failed to route createSimpleForm call: " + e.getMessage());
-            e.printStackTrace();
-            return new SimpleFormBuilder();
-        }
+        return new SimpleFormBuilder();
     }
 
     /**
-     * Set the title of the form
-     * <p>
-     * 设置表单标题
+     * 设置表单标题。
      *
-     * @param title The title / 标题
-     * @return The builder instance / 构建器实例
+     * @param title 标题
+     * @return 构建器实例
      */
     public SimpleFormBuilder title(String title) {
-        try {
-            return (SimpleFormBuilder) Easy4form.getInstance().getVersionManager().routeMethodCall(
-                "simpleFormBuilderTitle", 
-                new Class<?>[]{SimpleFormBuilder.class, String.class}, 
-                this, title
-            );
-        } catch (Exception e) {
-            Easy4form.getInstance().getLogger().severe("Failed to route simpleFormBuilderTitle call: " + e.getMessage());
-            return this;
-        }
+        this.title = title;
+        return this;
     }
 
     /**
-     * Set the content of the form
-     * <p>
-     * 设置表单内容
+     * 设置表单内容。
      *
-     * @param content The content / 内容
-     * @return The builder instance / 构建器实例
+     * @param content 内容
+     * @return 构建器实例
      */
     public SimpleFormBuilder content(String content) {
-        try {
-            return (SimpleFormBuilder) Easy4form.getInstance().getVersionManager().routeMethodCall(
-                "simpleFormBuilderContent", 
-                new Class<?>[]{SimpleFormBuilder.class, String.class}, 
-                this, content
-            );
-        } catch (Exception e) {
-            Easy4form.getInstance().getLogger().severe("Failed to route simpleFormBuilderContent call: " + e.getMessage());
-            return this;
-        }
+        this.content = content;
+        return this;
     }
 
     /**
-     * Add a button to the form
-     * <p>
-     * 向表单添加按钮
+     * 添加按钮。
      *
-     * @param text The button text / 按钮文本
-     * @return The builder instance / 构建器实例
+     * @param text 按钮文本
+     * @return 构建器实例
      */
     public SimpleFormBuilder button(String text) {
-        try {
-            return (SimpleFormBuilder) Easy4form.getInstance().getVersionManager().routeMethodCall(
-                "simpleFormBuilderButton", 
-                new Class<?>[]{SimpleFormBuilder.class, String.class}, 
-                this, text
-            );
-        } catch (Exception e) {
-            Easy4form.getInstance().getLogger().severe("Failed to route simpleFormBuilderButton call: " + e.getMessage());
-            return this;
-        }
+        buttons.add(ButtonDefinition.text(text));
+        return this;
     }
-    
+
     /**
-     * Add a button with an image to the form
-     * <p>
-     * 向表单添加带图片的按钮
+     * 添加带资源包图片的按钮。
      *
-     * @param text The button text / 按钮文本
-     * @param imagePath The path to the image in the resource pack / 资源包中图片的路径
-     * @return The builder instance / 构建器实例
+     * @param text      按钮文本
+     * @param imagePath 资源包中图片的路径
+     * @return 构建器实例
      */
     public SimpleFormBuilder button(String text, String imagePath) {
-        try {
-            return (SimpleFormBuilder) Easy4form.getInstance().getVersionManager().routeMethodCall(
-                "simpleFormBuilderButton", 
-                new Class<?>[]{SimpleFormBuilder.class, String.class, String.class}, 
-                this, text, imagePath
-            );
-        } catch (Exception e) {
-            Easy4form.getInstance().getLogger().severe("Failed to route simpleFormBuilderButton call: " + e.getMessage());
-            return this;
-        }
+        buttons.add(ButtonDefinition.path(text, imagePath));
+        return this;
     }
-    
+
     /**
-     * Add a button with an image from URL to the form
-     * <p>
-     * 向表单添加带URL图片的按钮
+     * 添加带 URL 图片的按钮。
      *
-     * @param text The button text / 按钮文本
-     * @param imageUrl The URL of the image / 图片的URL
-     * @return The builder instance / 构建器实例
+     * @param text     按钮文本
+     * @param imageUrl 图片 URL
+     * @return 构建器实例
      */
     public SimpleFormBuilder buttonWithUrl(String text, String imageUrl) {
-        try {
-            return (SimpleFormBuilder) Easy4form.getInstance().getVersionManager().routeMethodCall(
-                "simpleFormBuilderButtonWithUrl", 
-                new Class<?>[]{SimpleFormBuilder.class, String.class, String.class}, 
-                this, text, imageUrl
-            );
-        } catch (Exception e) {
-            Easy4form.getInstance().getLogger().severe("Failed to route simpleFormBuilderButtonWithUrl call: " + e.getMessage());
-            return this;
-        }
+        buttons.add(ButtonDefinition.url(text, imageUrl));
+        return this;
     }
 
     /**
-     * Set the response handler for the form
-     * <p>
-     * 设置表单的响应处理器
+     * 设置响应处理器。
      *
-     * @param responseHandler The response handler / 响应处理器
-     * @return The builder instance / 构建器实例
+     * @param responseHandler 响应处理器
+     * @return 构建器实例
      */
     public SimpleFormBuilder responseHandler(Consumer<Integer> responseHandler) {
-        try {
-            return (SimpleFormBuilder) Easy4form.getInstance().getVersionManager().routeMethodCall(
-                "simpleFormBuilderResponseHandler", 
-                new Class<?>[]{SimpleFormBuilder.class, Consumer.class}, 
-                this, responseHandler
-            );
-        } catch (Exception e) {
-            Easy4form.getInstance().getLogger().severe("Failed to route simpleFormBuilderResponseHandler call: " + e.getMessage());
-            return this;
-        }
+        this.responseHandler = responseHandler;
+        return this;
     }
 
     /**
-     * Send the form to a player
-     * <p>
-     * 向玩家发送表单
+     * 向玩家发送表单。
      *
-     * @param player The player to send the form to / 接收表单的玩家
+     * @param player 接收表单的玩家
      */
     public void send(Player player) {
         try {
-            Easy4form.getInstance().getVersionManager().routeMethodCall(
-                "simpleFormBuilderSend", 
-                new Class<?>[]{SimpleFormBuilder.class, Player.class}, 
-                this, player
+            FormProvider provider = Easy4form.getInstance().getFormProviderRegistry().find(player);
+            if (provider == null) {
+                Easy4form.warnNoProvider(player);
+                return;
+            }
+            FormDefinition.Simple form = new FormDefinition.Simple(title, content, buttons);
+            Consumer<FormResponse> handler = responseHandler == null ? null : response -> {
+                if (response instanceof FormResponse.Simple simple) {
+                    responseHandler.accept(simple.buttonId());
+                    return;
+                }
+                responseHandler.accept(null);
+            };
+            boolean sent = provider.send(player, form, handler);
+            if (!sent) {
+                Easy4form.getInstance().getLogger().warning(
+                        "Form send failed: provider '" + provider.name()
+                                + "' could not deliver the form to player " + player.getName()
+                );
+            }
+        } catch (Exception exception) {
+            Easy4form.getInstance().getLogger().log(
+                    Level.SEVERE,
+                    "Failed to send simple form: " + exception.getMessage(),
+                    exception
             );
-        } catch (Exception e) {
-            Easy4form.getInstance().getLogger().severe("Failed to route simpleFormBuilderSend call: " + e.getMessage());
         }
     }
 }
